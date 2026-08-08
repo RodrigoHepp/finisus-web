@@ -58,3 +58,9 @@ Termos técnicos consolidados do Angular e do contrato do backend, como `auth`, 
 ## Integração contínua
 
 O workflow em `.github/workflows/ci.yml` executa, a cada push e pull request, instalação determinística, verificação de formatação, lint, testes unitários e build.
+
+## Licença e contribuições
+
+O Finisus Web é disponibilizado sob a [GNU Affero General Public License v3.0 ou posterior](LICENSE). Uma licença comercial alternativa poderá ser negociada nos termos de [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md).
+
+Consulte [CONTRIBUTING.md](CONTRIBUTING.md) antes de abrir uma issue ou pull request. Contribuições aceitas exigem concordância com o [Contributor License Agreement](CLA.md); o texto é um modelo operacional e precisa de revisão jurídica antes de ser usado como contrato definitivo.

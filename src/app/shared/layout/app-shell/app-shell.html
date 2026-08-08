@@ -1,0 +1,35 @@
+<mat-sidenav-container class="app-shell" [autosize]="!ehCelular()" [hasBackdrop]="ehCelular()">
+  <mat-sidenav
+    class="app-sidebar"
+    [class.app-sidebar--recolhida]="sidebarEstaRecolhida()"
+    [mode]="modoSidebar()"
+    [opened]="sidebarAberta()"
+    (closedStart)="fecharMenu()"
+  >
+    <app-sidebar
+      [podeRecolher]="!ehCelular()"
+      [recolhida]="sidebarEstaRecolhida()"
+      (navegacaoSelecionada)="fecharMenu()"
+      (recolhimentoAlternado)="alternarRecolhimentoDaSidebar()"
+    />
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="mobile-toolbar">
+      <button
+        mat-icon-button
+        type="button"
+        aria-label="Abrir menu de navegação"
+        (click)="alternarMenu()"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <span>Finisus</span>
+    </mat-toolbar>
+
+    <main class="app-content">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

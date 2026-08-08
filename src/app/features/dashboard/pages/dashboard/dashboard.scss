@@ -1,0 +1,27 @@
+.dashboard {
+  display: grid;
+  max-width: 72rem;
+  gap: 2rem;
+}
+
+.page-header h1,
+.page-header p {
+  margin: 0;
+}
+
+.page-header {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.eyebrow {
+  color: var(--finisus-text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+mat-card {
+  max-width: 34rem;
+  background: var(--finisus-surface);
+}

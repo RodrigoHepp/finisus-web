@@ -1,0 +1,74 @@
+<aside class="sidebar" [class.sidebar--recolhida]="recolhida()" aria-label="Navegação principal">
+  <div class="sidebar-header">
+    <a class="brand" routerLink="/dashboard" aria-label="Ir para a visão geral do Finisus">
+      <span class="brand-mark" aria-hidden="true">F</span>
+      <span class="brand-name">Finisus</span>
+    </a>
+
+    @if (podeRecolher()) {
+      <button
+        mat-icon-button
+        class="collapse-button"
+        type="button"
+        [attr.aria-label]="recolhida() ? 'Expandir menu' : 'Recolher menu'"
+        [attr.title]="recolhida() ? 'Expandir menu' : 'Recolher menu'"
+        (click)="alternarRecolhimento()"
+      >
+        <mat-icon>{{
+          recolhida() ? 'keyboard_double_arrow_right' : 'keyboard_double_arrow_left'
+        }}</mat-icon>
+      </button>
+    }
+  </div>
+
+  <nav>
+    <mat-nav-list>
+      @for (item of itensNavegacao; track item.rota) {
+        <a
+          mat-list-item
+          [routerLink]="item.rota"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          [attr.aria-label]="recolhida() ? item.rotulo : null"
+          [attr.title]="recolhida() ? item.rotulo : null"
+          (click)="selecionarNavegacao()"
+        >
+          <mat-icon matListItemIcon>{{ item.icone }}</mat-icon>
+          <span matListItemTitle class="nav-label">{{ item.rotulo }}</span>
+        </a>
+      }
+    </mat-nav-list>
+  </nav>
+
+  <footer class="sidebar-footer">
+    <button
+      mat-stroked-button
+      class="theme-button"
+      type="button"
+      [attr.aria-label]="
+        temaService.tema() === 'escuro' ? 'Ativar tema claro' : 'Ativar tema escuro'
+      "
+      [attr.title]="temaService.tema() === 'escuro' ? 'Tema claro' : 'Tema escuro'"
+      (click)="temaService.alternar()"
+    >
+      <mat-icon>
+        {{ temaService.tema() === 'escuro' ? 'light_mode' : 'dark_mode' }}
+      </mat-icon>
+
+      <span class="sidebar-button-label">
+        {{ temaService.tema() === 'escuro' ? 'Tema claro' : 'Tema escuro' }}
+      </span>
+    </button>
+    <button
+      mat-stroked-button
+      class="logout-button"
+      type="button"
+      aria-label="Sair da conta"
+      title="Sair"
+      (click)="sair()"
+    >
+      <mat-icon>logout</mat-icon>
+      <span class="sidebar-button-label">Sair</span>
+    </button>
+  </footer>
+</aside>

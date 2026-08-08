@@ -1,59 +1,60 @@
-# FinisusWeb
+# Finisus Web
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.3.
+Frontend do Finisus, desenvolvido com Angular 22 e Angular Material. Nesta etapa, a aplicação entrega autenticação por JWT, cadastro protegido de usuários, tema claro/escuro e um dashboard estático.
 
-## Development server
+## Escopo atual
 
-To start a local development server, run:
+- Login com consulta do usuário autenticado em `GET /usuarios/me` após receber os tokens.
+- Restauração segura da sessão em `sessionStorage` após recarregar a página.
+- Renovação coordenada do access token quando uma requisição protegida retorna `401`.
+- Cadastro de usuários em `/usuarios/novo`, acessível somente com sessão autenticada.
+- Dashboard de apresentação, sem dados financeiros carregados da API.
+- Tema claro/escuro, com preferência salva no navegador.
+- Mensagens globais acessíveis e indicadores de processamento reutilizáveis.
 
-```bash
-ng serve
-```
+## Pré-requisitos
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- Node.js 24 ou versão compatível com Angular 22.
+- npm 11.
+- API do Finisus em execução em `http://localhost:8080`.
 
-## Code scaffolding
+## Executar localmente
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+Instale as dependências e inicie o servidor de desenvolvimento:
 
 ```bash
-ng build
+npm install
+npm start
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Abra `http://localhost:4200` no navegador. A URL base da API local está configurada em `src/app/environment/environment.ts` como `http://localhost:8080/api/v1`.
 
-## Running unit tests
+## Scripts
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+| Comando                | Finalidade                              |
+| ---------------------- | --------------------------------------- |
+| `npm start`            | Inicia a aplicação em desenvolvimento.  |
+| `npm test`             | Executa os testes unitários com Vitest. |
+| `npm run lint`         | Analisa o código com ESLint.            |
+| `npm run format:check` | Verifica a formatação com Prettier.     |
+| `npm run format`       | Formata os arquivos do projeto.         |
+| `npm run build`        | Gera a build de produção em `dist/`.    |
 
-```bash
-ng test
-```
+## Autenticação
 
-## Running end-to-end tests
+O backend expõe a API em `/api/v1`. O frontend envia JSON para `POST /auth/login`, recebe `accessToken`, `refreshToken` e `expiraEm` e, então, busca o perfil em `GET /usuarios/me` usando `Authorization: Bearer <accessToken>`.
 
-For end-to-end (e2e) testing, run:
+Somente `/auth/login` e `/auth/refresh` são públicos. O endpoint de cadastro permanece protegido e recebe o token Bearer do usuário autenticado. Não há endpoint de logout no contrato atual: encerrar a sessão remove os dados guardados no navegador.
 
-```bash
-ng e2e
-```
+## Organização do código
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+- `src/app/core`: serviços globais, autenticação, interceptors e processamento de sessão.
+- `src/app/shared`: layout e componentes reutilizáveis, como mensagens globais e indicadores de processamento.
+- `src/app/features`: páginas de negócio, como autenticação e dashboard.
+- `src/app/environment`: configuração da API por ambiente.
 
-## Additional Resources
+Termos técnicos consolidados do Angular e do contrato do backend, como `auth`, `guard`, `interceptor`, `request` e `response`, permanecem em inglês. Nomes do domínio da aplicação usam português.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Integração contínua
+
+O workflow em `.github/workflows/ci.yml` executa, a cada push e pull request, instalação determinística, verificação de formatação, lint, testes unitários e build.

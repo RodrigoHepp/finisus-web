@@ -1,0 +1,14 @@
+<div
+  class="mensagem-global"
+  [class.mensagem-global--sucesso]="dados.tipo === 'sucesso'"
+  [class.mensagem-global--erro]="dados.tipo === 'erro'"
+  [class.mensagem-global--aviso]="dados.tipo === 'aviso'"
+  [class.mensagem-global--informacao]="dados.tipo === 'informacao'"
+  [attr.role]="dados.tipo === 'erro' ? 'alert' : 'status'"
+>
+  <mat-icon aria-hidden="true">{{ icone() }}</mat-icon>
+  <span>{{ dados.texto }}</span>
+  <button mat-icon-button type="button" aria-label="Fechar mensagem" (click)="fechar()">
+    <mat-icon aria-hidden="true">close</mat-icon>
+  </button>
+</div>

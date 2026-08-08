@@ -1,0 +1,49 @@
+:host {
+  display: block;
+}
+
+.mensagem-global {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: min(22rem, calc(100vw - 2rem));
+  padding: 0.75rem;
+  border: 1px solid var(--finisus-border);
+  border-radius: 0.75rem;
+  background: var(--finisus-surface);
+  box-shadow: 0 0.75rem 2rem rgb(8 31 42 / 22%);
+  color: var(--finisus-text);
+}
+
+.mensagem-global--sucesso {
+  border-color: var(--finisus-positive);
+}
+
+.mensagem-global--erro {
+  border-color: var(--finisus-negative);
+}
+
+.mensagem-global--aviso {
+  border-color: var(--finisus-attention);
+}
+
+.mensagem-global--informacao {
+  border-color: var(--finisus-primary);
+}
+
+.mensagem-global--sucesso > mat-icon {
+  color: var(--finisus-positive);
+}
+
+.mensagem-global--erro > mat-icon {
+  color: var(--finisus-negative);
+}
+
+.mensagem-global--aviso > mat-icon {
+  color: var(--finisus-attention);
+}
+
+.mensagem-global--informacao > mat-icon {
+  color: var(--finisus-primary);
+}

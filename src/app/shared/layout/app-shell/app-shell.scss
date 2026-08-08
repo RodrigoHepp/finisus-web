@@ -1,0 +1,51 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.app-shell {
+  min-height: 100dvh;
+  background: var(--finisus-background);
+}
+
+.app-sidebar {
+  width: 17.5rem;
+  border-right: 1px solid var(--finisus-sidebar-border);
+  background: var(--finisus-sidebar);
+  transition: width 180ms ease;
+}
+
+.app-sidebar.app-sidebar--recolhida {
+  width: 5.25rem;
+}
+
+.app-content {
+  min-height: 100dvh;
+  padding: 2rem;
+}
+
+.mobile-toolbar {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .app-sidebar {
+    width: min(18rem, 86vw);
+  }
+
+  .app-sidebar.app-sidebar--recolhida {
+    width: min(18rem, 86vw);
+  }
+
+  .mobile-toolbar {
+    display: flex;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--finisus-border);
+    background: var(--finisus-surface);
+  }
+
+  .app-content {
+    min-height: calc(100dvh - 4rem);
+    padding: 1.25rem;
+  }
+}

@@ -1,0 +1,90 @@
+:host {
+  display: block;
+}
+
+.login-page {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(circle at top left, var(--finisus-primary-soft), transparent 36rem),
+    radial-gradient(circle at bottom right, var(--finisus-secondary-soft), transparent 32rem);
+}
+
+.login-card {
+  width: min(100%, 28rem);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border-radius: 1.5rem;
+  background: var(--finisus-surface);
+  box-shadow: 0 1.25rem 3.75rem rgb(8 31 42 / 18%);
+}
+
+.login-heading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-mark {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border-radius: 1rem;
+  background: var(--finisus-primary);
+  color: var(--finisus-on-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+  box-shadow: 0 0.5rem 1.25rem rgb(11 94 122 / 28%);
+}
+
+h1,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.login-heading p,
+.login-register {
+  color: var(--finisus-text-muted);
+}
+
+form {
+  display: grid;
+  gap: 1rem;
+  padding-top: 1.5rem;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.form-message {
+  color: var(--finisus-negative);
+  text-align: center;
+}
+
+.caps-lock-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: -0.25rem 0 0;
+  color: var(--finisus-attention);
+  font-size: 0.875rem;
+}
+
+.caps-lock-alert .mat-icon {
+  font-size: 1.125rem;
+}
+
+.login-register {
+  margin: 1.5rem 0 0;
+  font-size: 0.875rem;
+  text-align: center;
+}

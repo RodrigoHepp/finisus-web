@@ -1,0 +1,88 @@
+{
+  "COMPARTILHADO": {
+    "APLICACAO": {
+      "NOME": "Finisus",
+      "INICIAL": "F"
+    },
+    "ACOES": {
+      "ENTRAR": "Entrar",
+      "CADASTRAR_USUARIO": "Cadastrar usuário",
+      "SAIR": "Sair",
+      "FECHAR_MENSAGEM": "Fechar mensagem"
+    },
+    "CAMPOS": {
+      "NOME": "Nome",
+      "EMAIL": "E-mail",
+      "SENHA": "Senha",
+      "CONFIRMAR_SENHA": "Confirmar senha",
+      "EXEMPLO_EMAIL": "voce@email.com"
+    },
+    "NAVEGACAO": {
+      "PRINCIPAL": "Navegação principal",
+      "VISAO_GERAL": "Visão geral",
+      "CADASTRAR_USUARIO": "Cadastrar usuário",
+      "IR_PARA_VISAO_GERAL": "Ir para a visão geral do Finisus",
+      "ABRIR_MENU": "Abrir menu de navegação",
+      "EXPANDIR_MENU": "Expandir menu",
+      "RECOLHER_MENU": "Recolher menu",
+      "SAIR_DA_CONTA": "Sair da conta"
+    },
+    "TEMA": {
+      "CLARO": "Tema claro",
+      "ESCURO": "Tema escuro",
+      "ATIVAR_CLARO": "Ativar tema claro",
+      "ATIVAR_ESCURO": "Ativar tema escuro"
+    },
+    "PROCESSAMENTO": {
+      "PADRAO": "Processando..."
+    },
+    "MENSAGENS": {
+      "ERRO_CONEXAO_BACKEND": "Não foi possível conectar ao servidor. Verifique se o backend está em execução."
+    }
+  },
+  "AUTENTICACAO": {
+    "LOGIN": {
+      "TITULO_ROTA": "Entrar | Finisus",
+      "DESCRICAO": "Entre para organizar sua vida financeira.",
+      "ORIENTACAO_CADASTRO": "Ainda não possui conta? Entre em contato com um administrador.",
+      "INFORMAR_EMAIL": "Informe seu e-mail.",
+      "INFORMAR_EMAIL_VALIDO": "Informe um e-mail válido.",
+      "INFORMAR_SENHA": "Informe sua senha.",
+      "MOSTRAR_SENHA": "Mostrar senha",
+      "OCULTAR_SENHA": "Ocultar senha",
+      "CAPS_LOCK_ATIVO": "Caps Lock está ativado.",
+      "AUTENTICANDO": "Autenticando...",
+      "CREDENCIAIS_INVALIDAS": "E-mail ou senha inválidos.",
+      "ERRO": "Não foi possível entrar. Tente novamente em alguns instantes."
+    },
+    "SESSAO": {
+      "EXPIRADA": "Sua sessão expirou. Entre novamente.",
+      "RESTAURANDO": "Restaurando sua sessão..."
+    },
+    "CADASTRO_USUARIO": {
+      "TITULO_ROTA": "Cadastrar usuário | Finisus",
+      "SECAO": "Usuários",
+      "TITULO": "Cadastrar usuário",
+      "DESCRICAO": "Crie um acesso para uma nova pessoa usar o Finisus.",
+      "INFORMAR_NOME": "Informe o nome.",
+      "NOME_MAXIMO": "O nome deve ter no máximo 150 caracteres.",
+      "INFORMAR_SENHA": "Informe uma senha.",
+      "SENHA_MINIMA": "A senha deve ter ao menos 8 caracteres.",
+      "SENHA_MAXIMA": "A senha deve ter no máximo 128 caracteres.",
+      "CONFIRMAR_SENHA": "Confirme a senha.",
+      "SENHAS_DEVEM_SER_IGUAIS": "As senhas devem ser iguais.",
+      "MOSTRAR_CONFIRMACAO_SENHA": "Mostrar confirmação de senha",
+      "OCULTAR_CONFIRMACAO_SENHA": "Ocultar confirmação de senha",
+      "CADASTRANDO": "Cadastrando...",
+      "SEM_PERMISSAO": "Você não possui permissão para cadastrar usuários.",
+      "ERRO": "Não foi possível cadastrar o usuário. Tente novamente em alguns instantes.",
+      "USUARIO_CADASTRADO_COM_SUCESSO": "Usuário {{nome}} cadastrado com sucesso."
+    }
+  },
+  "DASHBOARD": {
+    "TITULO_ROTA": "Visão geral | Finisus",
+    "TITULO": "Olá!",
+    "DESCRICAO": "Em breve você verá aqui o resumo das suas finanças.",
+    "PLACEHOLDER": "Seu dashboard está dentro do AppShell."
+  }
+}

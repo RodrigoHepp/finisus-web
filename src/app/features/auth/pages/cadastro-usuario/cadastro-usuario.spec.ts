@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
@@ -33,6 +34,7 @@ describe('CadastroUsuarioPage', () => {
     await TestBed.configureTestingModule({
       imports: [CadastroUsuarioPage],
       providers: [
+        provideTranslateService(),
         {
           provide: AuthApiService,
           useValue: authApiService,
@@ -83,7 +85,7 @@ describe('CadastroUsuarioPage', () => {
       senha: 'senha-segura',
     });
     expect(mensagemGlobalService.sucesso).toHaveBeenCalledWith(
-      'Usuário Ana Silva cadastrado com sucesso.',
+      'AUTENTICACAO.CADASTRO_USUARIO.USUARIO_CADASTRADO_COM_SUCESSO',
     );
   });
 
@@ -115,12 +117,12 @@ describe('CadastroUsuarioPage', () => {
     campoSenha?.dispatchEvent(eventoDeTecladoComCapsLockAtivo());
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('Caps Lock está ativado.');
+    expect(fixture.nativeElement.textContent).toContain('AUTENTICACAO.LOGIN.CAPS_LOCK_ATIVO');
 
     campoSenha?.dispatchEvent(new Event('blur'));
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).not.toContain('Caps Lock está ativado.');
+    expect(fixture.nativeElement.textContent).not.toContain('AUTENTICACAO.LOGIN.CAPS_LOCK_ATIVO');
   });
 
   function pagina(): PaginaDeCadastroParaTeste {

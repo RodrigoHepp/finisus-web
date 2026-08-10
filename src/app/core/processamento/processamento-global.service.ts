@@ -3,7 +3,7 @@ import { computed, Injectable, signal } from '@angular/core';
 @Injectable({ providedIn: 'root' })
 export class ProcessamentoGlobalService {
   private readonly quantidadeDeProcessamentos = signal(0);
-  private readonly mensagemAtual = signal('Processando...');
+  private readonly mensagemAtual = signal('COMPARTILHADO.PROCESSAMENTO.PADRAO');
 
   readonly estaProcessando = computed(() => this.quantidadeDeProcessamentos() > 0);
   readonly mensagem = computed(() => this.mensagemAtual());
@@ -23,7 +23,7 @@ export class ProcessamentoGlobalService {
       this.quantidadeDeProcessamentos.update((quantidade) => Math.max(0, quantidade - 1));
 
       if (this.quantidadeDeProcessamentos() === 0) {
-        this.mensagemAtual.set('Processando...');
+        this.mensagemAtual.set('COMPARTILHADO.PROCESSAMENTO.PADRAO');
       }
     };
   }

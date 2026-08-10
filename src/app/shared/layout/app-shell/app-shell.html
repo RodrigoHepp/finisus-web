@@ -19,13 +19,13 @@
       <button
         mat-icon-button
         type="button"
-        aria-label="Abrir menu de navegação"
+        [attr.aria-label]="'COMPARTILHADO.NAVEGACAO.ABRIR_MENU' | translate"
         (click)="alternarMenu()"
       >
         <mat-icon>menu</mat-icon>
       </button>
 
-      <span>Finisus</span>
+      <span>{{ 'COMPARTILHADO.APLICACAO.NOME' | translate }}</span>
     </mat-toolbar>
 
     <main class="app-content">

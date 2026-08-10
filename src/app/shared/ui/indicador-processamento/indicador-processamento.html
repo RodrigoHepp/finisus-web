@@ -8,8 +8,8 @@
     <mat-progress-spinner
       mode="indeterminate"
       [diameter]="modo() === 'sobreposto' ? 44 : 18"
-      aria-label="Processando"
+      [attr.aria-label]="'COMPARTILHADO.PROCESSAMENTO.PADRAO' | translate"
     />
-    <span>{{ mensagem() }}</span>
+    <span>{{ mensagem() | translate }}</span>
   </div>
 }

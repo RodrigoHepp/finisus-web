@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { TranslatePipe } from '@ngx-translate/core';
 import { RouterOutlet } from '@angular/router';
 
 import { SidebarComponent } from '../sidebar/sidebar';
@@ -18,6 +19,7 @@ import { SidebarComponent } from '../sidebar/sidebar';
     MatToolbarModule,
     RouterOutlet,
     SidebarComponent,
+    TranslatePipe,
   ],
   templateUrl: './app-shell.html',
   styleUrl: './app-shell.scss',

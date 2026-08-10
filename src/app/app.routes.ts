@@ -1,10 +1,12 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
-    title: 'Entrar | Finisus',
+    title: tituloTraduzido('AUTENTICACAO.LOGIN.TITULO_ROTA'),
     loadComponent: () =>
       import('./features/auth/pages/login/login.page').then((arquivo) => arquivo.LoginPage),
   },
@@ -16,7 +18,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'usuarios/novo',
-        title: 'Cadastrar usuário | Finisus',
+        title: tituloTraduzido('AUTENTICACAO.CADASTRO_USUARIO.TITULO_ROTA'),
         loadComponent: () =>
           import('./features/auth/pages/cadastro-usuario/cadastro-usuario').then(
             (arquivo) => arquivo.CadastroUsuarioPage,
@@ -24,7 +26,7 @@ export const routes: Routes = [
       },
       {
         path: 'dashboard',
-        title: 'Visão geral | Finisus',
+        title: tituloTraduzido('DASHBOARD.TITULO_ROTA'),
         loadComponent: () =>
           import('./features/dashboard/pages/dashboard/dashboard').then(
             (arquivo) => arquivo.DashboardPage,
@@ -42,3 +44,7 @@ export const routes: Routes = [
     redirectTo: '',
   },
 ];
+
+function tituloTraduzido(chave: string) {
+  return () => inject(TranslateService).get(chave);
+}

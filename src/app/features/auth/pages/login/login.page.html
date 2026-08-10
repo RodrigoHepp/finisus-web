@@ -1,38 +1,40 @@
 <main class="login-page">
   <mat-card class="login-card" appearance="outlined">
     <div class="login-heading">
-      <div class="brand-mark" aria-hidden="true">F</div>
+      <div class="brand-mark" aria-hidden="true">
+        {{ 'COMPARTILHADO.APLICACAO.INICIAL' | translate }}
+      </div>
       <div>
-        <h1>Finisus</h1>
-        <p>Entre para organizar sua vida financeira.</p>
+        <h1>{{ 'COMPARTILHADO.APLICACAO.NOME' | translate }}</h1>
+        <p>{{ 'AUTENTICACAO.LOGIN.DESCRICAO' | translate }}</p>
       </div>
     </div>
 
     <form [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
       <mat-form-field>
-        <mat-label>E-mail</mat-label>
+        <mat-label>{{ 'COMPARTILHADO.CAMPOS.EMAIL' | translate }}</mat-label>
 
         <input
           matInput
           type="email"
           formControlName="email"
           autocomplete="email"
-          placeholder="voce@email.com"
+          [placeholder]="'COMPARTILHADO.CAMPOS.EXEMPLO_EMAIL' | translate"
         />
 
         @if (campoInvalido('email')) {
           <mat-error>
             @if (formulario.controls.email.hasError('required')) {
-              Informe seu e-mail.
+              {{ 'AUTENTICACAO.LOGIN.INFORMAR_EMAIL' | translate }}
             } @else {
-              Informe um e-mail válido.
+              {{ 'AUTENTICACAO.LOGIN.INFORMAR_EMAIL_VALIDO' | translate }}
             }
           </mat-error>
         }
       </mat-form-field>
 
       <mat-form-field>
-        <mat-label>Senha</mat-label>
+        <mat-label>{{ 'COMPARTILHADO.CAMPOS.SENHA' | translate }}</mat-label>
 
         <input
           matInput
@@ -48,21 +50,25 @@
           type="button"
           mat-icon-button
           matSuffix
-          [attr.aria-label]="senhaVisivel() ? 'Ocultar senha' : 'Mostrar senha'"
+          [attr.aria-label]="
+            senhaVisivel()
+              ? ('AUTENTICACAO.LOGIN.OCULTAR_SENHA' | translate)
+              : ('AUTENTICACAO.LOGIN.MOSTRAR_SENHA' | translate)
+          "
           (click)="alternarVisibilidadeDaSenha()"
         >
           <mat-icon>{{ senhaVisivel() ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
 
         @if (campoInvalido('senha')) {
-          <mat-error>Informe sua senha.</mat-error>
+          <mat-error>{{ 'AUTENTICACAO.LOGIN.INFORMAR_SENHA' | translate }}</mat-error>
         }
       </mat-form-field>
 
       @if (capsLockAtivo()) {
         <p class="caps-lock-alert" role="status">
           <mat-icon aria-hidden="true">keyboard_capslock</mat-icon>
-          Caps Lock está ativado.
+          {{ 'AUTENTICACAO.LOGIN.CAPS_LOCK_ATIVO' | translate }}
         </p>
       }
 
@@ -74,9 +80,12 @@
         [attr.aria-busy]="carregando()"
       >
         @if (carregando()) {
-          <app-indicador-processamento modo="inline" mensagem="Autenticando..." />
+          <app-indicador-processamento
+            modo="inline"
+            [mensagem]="'AUTENTICACAO.LOGIN.AUTENTICANDO' | translate"
+          />
         } @else {
-          Entrar
+          {{ 'COMPARTILHADO.ACOES.ENTRAR' | translate }}
         }
       </button>
 
@@ -85,6 +94,6 @@
       }
     </form>
 
-    <p class="login-register">Ainda não possui conta? Entre em contato com um administrador.</p>
+    <p class="login-register">{{ 'AUTENTICACAO.LOGIN.ORIENTACAO_CADASTRO' | translate }}</p>
   </mat-card>
 </main>

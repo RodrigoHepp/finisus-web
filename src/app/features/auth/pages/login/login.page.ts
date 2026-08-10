@@ -9,6 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AuthApiService } from '../../../../core/auth/auth-api.service';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -27,6 +28,7 @@ type CampoLogin = 'email' | 'senha';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    TranslatePipe,
     IndicadorProcessamentoComponent,
   ],
   templateUrl: './login.page.html',
@@ -40,6 +42,7 @@ export class LoginPage {
   private readonly authApiService = inject(AuthApiService);
   private readonly authService = inject(AuthService);
   private readonly mensagemGlobalService = inject(MensagemGlobalService);
+  private readonly translateService = inject(TranslateService);
 
   protected readonly formulario = this.formBuilder.group({
     email: ['', [Validators.required, Validators.email]],
@@ -118,11 +121,11 @@ export class LoginPage {
   private obterMensagemDeErro(erro: unknown): string {
     if (erro instanceof HttpErrorResponse) {
       if (erro.status === 0) {
-        return 'Não foi possível conectar ao servidor. Verifique se o backend está em execução.';
+        return this.translateService.instant('COMPARTILHADO.MENSAGENS.ERRO_CONEXAO_BACKEND');
       }
 
       if (erro.status === 401 || erro.status === 422) {
-        return 'E-mail ou senha inválidos.';
+        return this.translateService.instant('AUTENTICACAO.LOGIN.CREDENCIAIS_INVALIDAS');
       }
 
       if (typeof erro.error?.detail === 'string') {
@@ -130,7 +133,7 @@ export class LoginPage {
       }
     }
 
-    return 'Não foi possível entrar. Tente novamente em alguns instantes.';
+    return this.translateService.instant('AUTENTICACAO.LOGIN.ERRO');
   }
 
   private deveExibirMensagemGlobal(erro: unknown): boolean {

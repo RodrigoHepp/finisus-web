@@ -1,6 +1,7 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { catchError, finalize, Observable, shareReplay, switchMap, tap, throwError } from 'rxjs';
 
 import { AuthApiService } from '../../auth/auth-api.service';
@@ -16,6 +17,7 @@ export const refreshTokenInterceptor: HttpInterceptorFn = (request, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
   const mensagemGlobalService = inject(MensagemGlobalService);
+  const translateService = inject(TranslateService);
 
   const pertenceApi = request.url.startsWith(environment.apiUrl);
 
@@ -34,7 +36,13 @@ export const refreshTokenInterceptor: HttpInterceptorFn = (request, next) => {
         return throwError(() => erro);
       }
 
-      return obterRenovacaoDeToken(authApiService, authService, router, mensagemGlobalService).pipe(
+      return obterRenovacaoDeToken(
+        authApiService,
+        authService,
+        router,
+        mensagemGlobalService,
+        translateService,
+      ).pipe(
         switchMap((tokens) => {
           const requisicaoComNovoToken = request.clone({
             setHeaders: {
@@ -54,6 +62,7 @@ function obterRenovacaoDeToken(
   authService: AuthService,
   router: Router,
   mensagemGlobalService: MensagemGlobalService,
+  translateService: TranslateService,
 ): Observable<AuthTokens> {
   const renovacaoExistente = renovacaoEmAndamento;
 
@@ -64,7 +73,7 @@ function obterRenovacaoDeToken(
   const refreshToken = authService.refreshToken();
 
   if (!refreshToken) {
-    encerrarSessaoERedirecionar(authService, router, mensagemGlobalService);
+    encerrarSessaoERedirecionar(authService, router, mensagemGlobalService, translateService);
 
     return throwError(() => new Error('Não existe refresh token para renovar a sessão.'));
   }
@@ -72,7 +81,7 @@ function obterRenovacaoDeToken(
   const novaRenovacao = authApiService.renovarToken(refreshToken).pipe(
     tap((tokens) => authService.atualizarTokens(tokens)),
     catchError((erro: unknown) => {
-      encerrarSessaoERedirecionar(authService, router, mensagemGlobalService);
+      encerrarSessaoERedirecionar(authService, router, mensagemGlobalService, translateService);
 
       return throwError(() => erro);
     }),
@@ -94,11 +103,12 @@ function encerrarSessaoERedirecionar(
   authService: AuthService,
   router: Router,
   mensagemGlobalService: MensagemGlobalService,
+  translateService: TranslateService,
 ): void {
   const retorno = router.url;
 
   authService.encerrarSessao();
-  mensagemGlobalService.aviso('Sua sessão expirou. Entre novamente.');
+  mensagemGlobalService.aviso(translateService.instant('AUTENTICACAO.SESSAO.EXPIRADA'));
 
   void router.navigate(['/login'], {
     queryParams: {

@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideTranslateService } from '@ngx-translate/core';
 import { vi } from 'vitest';
 
 import { MensagemGlobalService } from '../../../../shared/ui/mensagem-global/mensagem-global.service';
@@ -16,6 +17,7 @@ describe('LoginPage', () => {
       providers: [
         provideHttpClient(),
         provideRouter([]),
+        provideTranslateService(),
         {
           provide: MensagemGlobalService,
           useValue: { erro: vi.fn() },
@@ -40,12 +42,12 @@ describe('LoginPage', () => {
     campoSenha?.dispatchEvent(eventoDeTecladoComCapsLockAtivo());
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('Caps Lock está ativado.');
+    expect(fixture.nativeElement.textContent).toContain('AUTENTICACAO.LOGIN.CAPS_LOCK_ATIVO');
 
     campoSenha?.dispatchEvent(new Event('blur'));
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).not.toContain('Caps Lock está ativado.');
+    expect(fixture.nativeElement.textContent).not.toContain('AUTENTICACAO.LOGIN.CAPS_LOCK_ATIVO');
   });
 });
 

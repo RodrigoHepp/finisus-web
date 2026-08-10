@@ -14,6 +14,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AuthApiService } from '../../../../core/auth/auth-api.service';
 import { MensagemGlobalService } from '../../../../shared/ui/mensagem-global/mensagem-global.service';
@@ -32,6 +33,7 @@ type CampoDeSenha = 'senha' | 'confirmacaoSenha';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    TranslatePipe,
     IndicadorProcessamentoComponent,
   ],
   templateUrl: './cadastro-usuario.html',
@@ -42,6 +44,7 @@ export class CadastroUsuarioPage {
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly authApiService = inject(AuthApiService);
   private readonly mensagemGlobalService = inject(MensagemGlobalService);
+  private readonly translateService = inject(TranslateService);
 
   protected readonly formulario = this.formBuilder.group(
     {
@@ -82,7 +85,14 @@ export class CadastroUsuarioPage {
         next: (usuario) => {
           this.formulario.reset();
           this.formularioEnviado.set(false);
-          this.mensagemGlobalService.sucesso(`Usuário ${usuario.nome} cadastrado com sucesso.`);
+          this.mensagemGlobalService.sucesso(
+            this.translateService.instant(
+              'AUTENTICACAO.CADASTRO_USUARIO.USUARIO_CADASTRADO_COM_SUCESSO',
+              {
+                nome: usuario.nome,
+              },
+            ),
+          );
         },
         error: (erro: unknown) => {
           const mensagem = this.obterMensagemDeErro(erro);
@@ -137,11 +147,11 @@ export class CadastroUsuarioPage {
   private obterMensagemDeErro(erro: unknown): string {
     if (erro instanceof HttpErrorResponse) {
       if (erro.status === 0) {
-        return 'Não foi possível conectar ao servidor. Verifique se o backend está em execução.';
+        return this.translateService.instant('COMPARTILHADO.MENSAGENS.ERRO_CONEXAO_BACKEND');
       }
 
       if (erro.status === 403) {
-        return 'Você não possui permissão para cadastrar usuários.';
+        return this.translateService.instant('AUTENTICACAO.CADASTRO_USUARIO.SEM_PERMISSAO');
       }
 
       if (typeof erro.error?.detail === 'string') {
@@ -149,7 +159,7 @@ export class CadastroUsuarioPage {
       }
     }
 
-    return 'Não foi possível cadastrar o usuário. Tente novamente em alguns instantes.';
+    return this.translateService.instant('AUTENTICACAO.CADASTRO_USUARIO.ERRO');
   }
 
   private deveExibirMensagemGlobal(erro: unknown): boolean {

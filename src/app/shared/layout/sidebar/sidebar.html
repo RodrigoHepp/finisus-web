@@ -1,8 +1,18 @@
-<aside class="sidebar" [class.sidebar--recolhida]="recolhida()" aria-label="Navegação principal">
+<aside
+  class="sidebar"
+  [class.sidebar--recolhida]="recolhida()"
+  [attr.aria-label]="'COMPARTILHADO.NAVEGACAO.PRINCIPAL' | translate"
+>
   <div class="sidebar-header">
-    <a class="brand" routerLink="/dashboard" aria-label="Ir para a visão geral do Finisus">
-      <span class="brand-mark" aria-hidden="true">F</span>
-      <span class="brand-name">Finisus</span>
+    <a
+      class="brand"
+      routerLink="/dashboard"
+      [attr.aria-label]="'COMPARTILHADO.NAVEGACAO.IR_PARA_VISAO_GERAL' | translate"
+    >
+      <span class="brand-mark" aria-hidden="true">{{
+        'COMPARTILHADO.APLICACAO.INICIAL' | translate
+      }}</span>
+      <span class="brand-name">{{ 'COMPARTILHADO.APLICACAO.NOME' | translate }}</span>
     </a>
 
     @if (podeRecolher()) {
@@ -10,8 +20,16 @@
         mat-icon-button
         class="collapse-button"
         type="button"
-        [attr.aria-label]="recolhida() ? 'Expandir menu' : 'Recolher menu'"
-        [attr.title]="recolhida() ? 'Expandir menu' : 'Recolher menu'"
+        [attr.aria-label]="
+          recolhida()
+            ? ('COMPARTILHADO.NAVEGACAO.EXPANDIR_MENU' | translate)
+            : ('COMPARTILHADO.NAVEGACAO.RECOLHER_MENU' | translate)
+        "
+        [attr.title]="
+          recolhida()
+            ? ('COMPARTILHADO.NAVEGACAO.EXPANDIR_MENU' | translate)
+            : ('COMPARTILHADO.NAVEGACAO.RECOLHER_MENU' | translate)
+        "
         (click)="alternarRecolhimento()"
       >
         <mat-icon>{{
@@ -29,12 +47,12 @@
           [routerLink]="item.rota"
           routerLinkActive="is-active"
           [routerLinkActiveOptions]="{ exact: true }"
-          [attr.aria-label]="recolhida() ? item.rotulo : null"
-          [attr.title]="recolhida() ? item.rotulo : null"
+          [attr.aria-label]="recolhida() ? (item.rotulo | translate) : null"
+          [attr.title]="recolhida() ? (item.rotulo | translate) : null"
           (click)="selecionarNavegacao()"
         >
           <mat-icon matListItemIcon>{{ item.icone }}</mat-icon>
-          <span matListItemTitle class="nav-label">{{ item.rotulo }}</span>
+          <span matListItemTitle class="nav-label">{{ item.rotulo | translate }}</span>
         </a>
       }
     </mat-nav-list>
@@ -46,9 +64,15 @@
       class="theme-button"
       type="button"
       [attr.aria-label]="
-        temaService.tema() === 'escuro' ? 'Ativar tema claro' : 'Ativar tema escuro'
+        temaService.tema() === 'escuro'
+          ? ('COMPARTILHADO.TEMA.ATIVAR_CLARO' | translate)
+          : ('COMPARTILHADO.TEMA.ATIVAR_ESCURO' | translate)
       "
-      [attr.title]="temaService.tema() === 'escuro' ? 'Tema claro' : 'Tema escuro'"
+      [attr.title]="
+        temaService.tema() === 'escuro'
+          ? ('COMPARTILHADO.TEMA.CLARO' | translate)
+          : ('COMPARTILHADO.TEMA.ESCURO' | translate)
+      "
       (click)="temaService.alternar()"
     >
       <mat-icon>
@@ -56,19 +80,23 @@
       </mat-icon>
 
       <span class="sidebar-button-label">
-        {{ temaService.tema() === 'escuro' ? 'Tema claro' : 'Tema escuro' }}
+        {{
+          temaService.tema() === 'escuro'
+            ? ('COMPARTILHADO.TEMA.CLARO' | translate)
+            : ('COMPARTILHADO.TEMA.ESCURO' | translate)
+        }}
       </span>
     </button>
     <button
       mat-stroked-button
       class="logout-button"
       type="button"
-      aria-label="Sair da conta"
-      title="Sair"
+      [attr.aria-label]="'COMPARTILHADO.NAVEGACAO.SAIR_DA_CONTA' | translate"
+      [attr.title]="'COMPARTILHADO.ACOES.SAIR' | translate"
       (click)="sair()"
     >
       <mat-icon>logout</mat-icon>
-      <span class="sidebar-button-label">Sair</span>
+      <span class="sidebar-button-label">{{ 'COMPARTILHADO.ACOES.SAIR' | translate }}</span>
     </button>
   </footer>
 </aside>

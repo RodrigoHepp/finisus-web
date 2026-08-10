@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input, output } from '@angu
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { TemaService } from '../../../core/tema/tema.service';
@@ -14,7 +15,14 @@ interface ItemNavegacao {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [MatButtonModule, MatIconModule, MatListModule, RouterLink, RouterLinkActive],
+  imports: [
+    MatButtonModule,
+    MatIconModule,
+    MatListModule,
+    RouterLink,
+    RouterLinkActive,
+    TranslatePipe,
+  ],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,12 +40,12 @@ export class SidebarComponent {
 
   protected readonly itensNavegacao: ItemNavegacao[] = [
     {
-      rotulo: 'Visão geral',
+      rotulo: 'COMPARTILHADO.NAVEGACAO.VISAO_GERAL',
       icone: 'space_dashboard',
       rota: '/dashboard',
     },
     {
-      rotulo: 'Cadastrar usuário',
+      rotulo: 'COMPARTILHADO.NAVEGACAO.CADASTRAR_USUARIO',
       icone: 'person_add',
       rota: '/usuarios/novo',
     },

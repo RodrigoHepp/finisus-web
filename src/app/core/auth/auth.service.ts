@@ -1,4 +1,5 @@
 import { computed, Injectable, inject, signal } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { catchError, finalize, map, Observable, of, shareReplay, throwError } from 'rxjs';
 
 import { AuthApiService } from './auth-api.service';
@@ -11,6 +12,7 @@ export class AuthService {
   private readonly authApiService = inject(AuthApiService);
   private readonly authStorageService = inject(AuthStorageService);
   private readonly processamentoGlobalService = inject(ProcessamentoGlobalService);
+  private readonly translateService = inject(TranslateService);
 
   private readonly sessaoPersistida = this.authStorageService.obterSessao();
 
@@ -84,7 +86,7 @@ export class AuthService {
     }
 
     const encerrarProcessamento = this.processamentoGlobalService.iniciar(
-      'Restaurando sua sessão...',
+      this.translateService.instant('AUTENTICACAO.SESSAO.RESTAURANDO'),
     );
 
     const restauracao = this.authApiService.obterUsuarioLogado().pipe(

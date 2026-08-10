@@ -8,7 +8,12 @@
 >
   <mat-icon aria-hidden="true">{{ icone() }}</mat-icon>
   <span>{{ dados.texto }}</span>
-  <button mat-icon-button type="button" aria-label="Fechar mensagem" (click)="fechar()">
+  <button
+    mat-icon-button
+    type="button"
+    [attr.aria-label]="'COMPARTILHADO.ACOES.FECHAR_MENSAGEM' | translate"
+    (click)="fechar()"
+  >
     <mat-icon aria-hidden="true">close</mat-icon>
   </button>
 </div>

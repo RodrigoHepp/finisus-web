@@ -2,6 +2,7 @@ import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { provideTranslateService } from '@ngx-translate/core';
 import { vi } from 'vitest';
 
 import { AuthService } from '../../auth/auth.service';
@@ -40,6 +41,7 @@ describe('refreshTokenInterceptor', () => {
       providers: [
         provideHttpClient(withInterceptors([refreshTokenInterceptor])),
         provideHttpClientTesting(),
+        provideTranslateService(),
         {
           provide: AuthService,
           useValue: {
@@ -104,9 +106,7 @@ describe('refreshTokenInterceptor', () => {
       .flush(null, { status: 401, statusText: 'Unauthorized' });
 
     expect(authService.encerrarSessao).toHaveBeenCalledOnce();
-    expect(mensagemGlobalService.aviso).toHaveBeenCalledWith(
-      'Sua sessão expirou. Entre novamente.',
-    );
+    expect(mensagemGlobalService.aviso).toHaveBeenCalledWith('AUTENTICACAO.SESSAO.EXPIRADA');
     expect(router.navigate).toHaveBeenCalledWith(['/login'], {
       queryParams: { retorno: '/dashboard' },
     });

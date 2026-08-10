@@ -2,6 +2,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideTranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 
@@ -23,6 +24,7 @@ describe('AppShellComponent', () => {
       imports: [AppShellComponent],
       providers: [
         provideRouter([]),
+        provideTranslateService(),
         {
           provide: BreakpointObserver,
           useValue: {

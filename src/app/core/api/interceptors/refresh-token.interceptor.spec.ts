@@ -23,6 +23,7 @@ describe('refreshTokenInterceptor', () => {
     atualizarTokens: ReturnType<typeof vi.fn>;
     encerrarSessao: ReturnType<typeof vi.fn>;
   };
+  let criarAuthService: ReturnType<typeof vi.fn>;
   let router: { navigate: ReturnType<typeof vi.fn>; url: string };
   let mensagemGlobalService: { aviso: ReturnType<typeof vi.fn> };
 
@@ -36,6 +37,11 @@ describe('refreshTokenInterceptor', () => {
       url: '/dashboard',
     };
     mensagemGlobalService = { aviso: vi.fn() };
+    criarAuthService = vi.fn(() => ({
+      accessToken: () => 'access-token-expirado',
+      refreshToken: () => 'refresh-token',
+      ...authService,
+    }));
 
     TestBed.configureTestingModule({
       providers: [
@@ -44,11 +50,7 @@ describe('refreshTokenInterceptor', () => {
         provideTranslateService(),
         {
           provide: AuthService,
-          useValue: {
-            accessToken: () => 'access-token-expirado',
-            refreshToken: () => 'refresh-token',
-            ...authService,
-          },
+          useFactory: criarAuthService,
         },
         {
           provide: Router,
@@ -110,5 +112,14 @@ describe('refreshTokenInterceptor', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/login'], {
       queryParams: { retorno: '/dashboard' },
     });
+  });
+
+  it('não cria serviços de autenticação para arquivos públicos de tradução', () => {
+    http.get('/i18n/pt-BR.json').subscribe();
+
+    const requisicao = httpTestingController.expectOne('/i18n/pt-BR.json');
+
+    expect(criarAuthService).not.toHaveBeenCalled();
+    requisicao.flush({});
   });
 });

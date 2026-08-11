@@ -10,9 +10,9 @@
   min-width: min(22rem, calc(100vw - 2rem));
   padding: 0.75rem;
   border: 1px solid var(--finisus-border);
-  border-radius: 0.75rem;
+  border-radius: var(--finisus-radius-md);
   background: var(--finisus-surface);
-  box-shadow: 0 0.75rem 2rem rgb(8 31 42 / 22%);
+  box-shadow: var(--finisus-shadow-raised);
   color: var(--finisus-text);
 }
 

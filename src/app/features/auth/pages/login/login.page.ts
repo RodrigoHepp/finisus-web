@@ -12,9 +12,11 @@ import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AuthApiService } from '../../../../core/auth/auth-api.service';
+import { AvisoCapsLockComponent } from '../../../../shared/ui/aviso-caps-lock/aviso-caps-lock';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { MensagemGlobalService } from '../../../../shared/ui/mensagem-global/mensagem-global.service';
 import { IndicadorProcessamentoComponent } from '../../../../shared/ui/indicador-processamento/indicador-processamento';
+import { CampoFormularioComponent } from '../../../../shared/ui/campo-formulario/campo-formulario';
 
 type CampoLogin = 'email' | 'senha';
 
@@ -30,6 +32,8 @@ type CampoLogin = 'email' | 'senha';
     MatInputModule,
     TranslatePipe,
     IndicadorProcessamentoComponent,
+    CampoFormularioComponent,
+    AvisoCapsLockComponent,
   ],
   templateUrl: './login.page.html',
   styleUrl: './login.page.scss',
@@ -60,7 +64,6 @@ export class LoginPage {
     this.formularioEnviado.set(true);
 
     if (this.formulario.invalid || this.carregando()) {
-      this.formulario.markAllAsTouched();
       return;
     }
 
@@ -115,7 +118,7 @@ export class LoginPage {
   protected campoInvalido(campo: CampoLogin): boolean {
     const controle = this.formulario.controls[campo];
 
-    return controle.invalid && (controle.touched || this.formularioEnviado());
+    return controle.invalid && this.formularioEnviado();
   }
 
   private obterMensagemDeErro(erro: unknown): string {
@@ -124,12 +127,12 @@ export class LoginPage {
         return this.translateService.instant('COMPARTILHADO.MENSAGENS.ERRO_CONEXAO_BACKEND');
       }
 
-      if (erro.status === 401 || erro.status === 422) {
-        return this.translateService.instant('AUTENTICACAO.LOGIN.CREDENCIAIS_INVALIDAS');
+      if (typeof erro.error?.detail === 'string' && erro.error.detail.trim()) {
+        return erro.error.detail.trim();
       }
 
-      if (typeof erro.error?.detail === 'string') {
-        return erro.error.detail;
+      if (erro.status === 401 || erro.status === 422) {
+        return this.translateService.instant('AUTENTICACAO.LOGIN.CREDENCIAIS_INVALIDAS');
       }
     }
 

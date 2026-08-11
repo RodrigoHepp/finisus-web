@@ -11,71 +11,83 @@
     </div>
 
     <form [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
-      <mat-form-field>
-        <mat-label>{{ 'COMPARTILHADO.CAMPOS.EMAIL' | translate }}</mat-label>
+      <app-campo-formulario
+        [rotulo]="'COMPARTILHADO.CAMPOS.EMAIL' | translate"
+        controleId="login-email"
+        [obrigatorio]="true"
+      >
+        <mat-form-field subscriptSizing="dynamic">
+          <input
+            id="login-email"
+            matInput
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            required
+            [placeholder]="'COMPARTILHADO.CAMPOS.EXEMPLO_EMAIL' | translate"
+          />
 
-        <input
-          matInput
-          type="email"
-          formControlName="email"
-          autocomplete="email"
-          [placeholder]="'COMPARTILHADO.CAMPOS.EXEMPLO_EMAIL' | translate"
-        />
+          @if (campoInvalido('email')) {
+            <mat-error>
+              @if (formulario.controls.email.hasError('required')) {
+                {{ 'AUTENTICACAO.LOGIN.INFORMAR_EMAIL' | translate }}
+              } @else {
+                {{ 'AUTENTICACAO.LOGIN.INFORMAR_EMAIL_VALIDO' | translate }}
+              }
+            </mat-error>
+          }
+        </mat-form-field>
+      </app-campo-formulario>
 
-        @if (campoInvalido('email')) {
-          <mat-error>
-            @if (formulario.controls.email.hasError('required')) {
-              {{ 'AUTENTICACAO.LOGIN.INFORMAR_EMAIL' | translate }}
-            } @else {
-              {{ 'AUTENTICACAO.LOGIN.INFORMAR_EMAIL_VALIDO' | translate }}
-            }
-          </mat-error>
-        }
-      </mat-form-field>
+      <app-campo-formulario
+        [rotulo]="'COMPARTILHADO.CAMPOS.SENHA' | translate"
+        controleId="login-senha"
+        [obrigatorio]="true"
+      >
+        <mat-form-field subscriptSizing="dynamic">
+          <input
+            id="login-senha"
+            matInput
+            [type]="senhaVisivel() ? 'text' : 'password'"
+            formControlName="senha"
+            autocomplete="current-password"
+            required
+            [placeholder]="'COMPARTILHADO.CAMPOS.DICA_SENHA_LOGIN' | translate"
+            (keydown)="atualizarEstadoDoCapsLock($event)"
+            (keyup)="atualizarEstadoDoCapsLock($event)"
+            (blur)="ocultarAvisoDoCapsLock()"
+          />
 
-      <mat-form-field>
-        <mat-label>{{ 'COMPARTILHADO.CAMPOS.SENHA' | translate }}</mat-label>
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            [attr.aria-label]="
+              senhaVisivel()
+                ? ('AUTENTICACAO.LOGIN.OCULTAR_SENHA' | translate)
+                : ('AUTENTICACAO.LOGIN.MOSTRAR_SENHA' | translate)
+            "
+            [attr.aria-pressed]="senhaVisivel()"
+            (click)="alternarVisibilidadeDaSenha()"
+          >
+            <mat-icon class="material-symbols-outlined">
+              {{ senhaVisivel() ? 'visibility_off' : 'visibility' }}
+            </mat-icon>
+          </button>
 
-        <input
-          matInput
-          [type]="senhaVisivel() ? 'text' : 'password'"
-          formControlName="senha"
-          autocomplete="current-password"
-          (keydown)="atualizarEstadoDoCapsLock($event)"
-          (keyup)="atualizarEstadoDoCapsLock($event)"
-          (blur)="ocultarAvisoDoCapsLock()"
-        />
-
-        <button
-          type="button"
-          mat-icon-button
-          matSuffix
-          [attr.aria-label]="
-            senhaVisivel()
-              ? ('AUTENTICACAO.LOGIN.OCULTAR_SENHA' | translate)
-              : ('AUTENTICACAO.LOGIN.MOSTRAR_SENHA' | translate)
-          "
-          (click)="alternarVisibilidadeDaSenha()"
-        >
-          <mat-icon>{{ senhaVisivel() ? 'visibility_off' : 'visibility' }}</mat-icon>
-        </button>
-
-        @if (campoInvalido('senha')) {
-          <mat-error>{{ 'AUTENTICACAO.LOGIN.INFORMAR_SENHA' | translate }}</mat-error>
-        }
-      </mat-form-field>
+          @if (campoInvalido('senha')) {
+            <mat-error>{{ 'AUTENTICACAO.LOGIN.INFORMAR_SENHA' | translate }}</mat-error>
+          }
+        </mat-form-field>
+      </app-campo-formulario>
 
       @if (capsLockAtivo()) {
-        <p class="caps-lock-alert" role="status">
-          <mat-icon aria-hidden="true">keyboard_capslock</mat-icon>
-          {{ 'AUTENTICACAO.LOGIN.CAPS_LOCK_ATIVO' | translate }}
-        </p>
+        <app-aviso-caps-lock />
       }
 
       <button
         mat-flat-button
         type="submit"
-        class="submit-button"
         [disabled]="carregando()"
         [attr.aria-busy]="carregando()"
       >

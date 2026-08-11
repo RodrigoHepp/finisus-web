@@ -13,12 +13,6 @@ import { MensagemGlobalService } from '../../../shared/ui/mensagem-global/mensag
 let renovacaoEmAndamento: Observable<AuthTokens> | null = null;
 
 export const refreshTokenInterceptor: HttpInterceptorFn = (request, next) => {
-  const authApiService = inject(AuthApiService);
-  const authService = inject(AuthService);
-  const router = inject(Router);
-  const mensagemGlobalService = inject(MensagemGlobalService);
-  const translateService = inject(TranslateService);
-
   const pertenceApi = request.url.startsWith(environment.apiUrl);
 
   const rotaLogin = `${environment.apiUrl}/auth/login`;
@@ -29,6 +23,12 @@ export const refreshTokenInterceptor: HttpInterceptorFn = (request, next) => {
   if (!pertenceApi || rotaPublica) {
     return next(request);
   }
+
+  const authApiService = inject(AuthApiService);
+  const authService = inject(AuthService);
+  const router = inject(Router);
+  const mensagemGlobalService = inject(MensagemGlobalService);
+  const translateService = inject(TranslateService);
 
   return next(request).pipe(
     catchError((erro: unknown) => {

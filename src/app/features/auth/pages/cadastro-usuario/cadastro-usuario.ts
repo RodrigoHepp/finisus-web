@@ -1,7 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, ViewChild } from '@angular/core';
 import {
   AbstractControl,
+  FormGroupDirective,
   NonNullableFormBuilder,
   ReactiveFormsModule,
   ValidationErrors,
@@ -10,15 +11,16 @@ import {
 import { finalize } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AuthApiService } from '../../../../core/auth/auth-api.service';
+import { AvisoCapsLockComponent } from '../../../../shared/ui/aviso-caps-lock/aviso-caps-lock';
 import { MensagemGlobalService } from '../../../../shared/ui/mensagem-global/mensagem-global.service';
 import { IndicadorProcessamentoComponent } from '../../../../shared/ui/indicador-processamento/indicador-processamento';
+import { CampoFormularioComponent } from '../../../../shared/ui/campo-formulario/campo-formulario';
 
 type CampoCadastro = 'nome' | 'email' | 'senha' | 'confirmacaoSenha';
 type CampoDeSenha = 'senha' | 'confirmacaoSenha';
@@ -29,18 +31,21 @@ type CampoDeSenha = 'senha' | 'confirmacaoSenha';
   imports: [
     ReactiveFormsModule,
     MatButtonModule,
-    MatCardModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
     TranslatePipe,
     IndicadorProcessamentoComponent,
+    CampoFormularioComponent,
+    AvisoCapsLockComponent,
   ],
   templateUrl: './cadastro-usuario.html',
   styleUrl: './cadastro-usuario.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CadastroUsuarioPage {
+  @ViewChild(FormGroupDirective) private formDirective?: FormGroupDirective;
+
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly authApiService = inject(AuthApiService);
   private readonly mensagemGlobalService = inject(MensagemGlobalService);
@@ -70,7 +75,6 @@ export class CadastroUsuarioPage {
     this.formularioEnviado.set(true);
 
     if (this.formulario.invalid || this.carregando()) {
-      this.formulario.markAllAsTouched();
       return;
     }
 
@@ -83,8 +87,7 @@ export class CadastroUsuarioPage {
       .pipe(finalize(() => this.carregando.set(false)))
       .subscribe({
         next: (usuario) => {
-          this.formulario.reset();
-          this.formularioEnviado.set(false);
+          this.limparFormulario();
           this.mensagemGlobalService.sucesso(
             this.translateService.instant(
               'AUTENTICACAO.CADASTRO_USUARIO.USUARIO_CADASTRADO_COM_SUCESSO',
@@ -111,6 +114,15 @@ export class CadastroUsuarioPage {
     this.senhaVisivel.update((visivel) => !visivel);
   }
 
+  protected limparFormulario(): void {
+    this.formDirective?.resetForm();
+    this.formularioEnviado.set(false);
+    this.mensagem.set(null);
+    this.senhaVisivel.set(false);
+    this.confirmacaoSenhaVisivel.set(false);
+    this.campoComCapsLockAtivo.set(null);
+  }
+
   protected alternarVisibilidadeDaConfirmacao(): void {
     this.confirmacaoSenhaVisivel.update((visivel) => !visivel);
   }
@@ -132,14 +144,14 @@ export class CadastroUsuarioPage {
   protected campoInvalido(campo: CampoCadastro): boolean {
     const controle = this.formulario.controls[campo];
 
-    return controle.invalid && (controle.touched || this.formularioEnviado());
+    return controle.invalid && this.formularioEnviado();
   }
 
   protected confirmacaoInvalida(): boolean {
     const confirmacao = this.formulario.controls.confirmacaoSenha;
 
     return (
-      (confirmacao.touched || this.formularioEnviado()) &&
+      this.formularioEnviado() &&
       (confirmacao.invalid || this.formulario.hasError('senhasDiferentes'))
     );
   }

@@ -17,7 +17,7 @@ export class TemaService {
       return;
     }
 
-    const temaSalvo = localStorage.getItem(CHAVE_TEMA) as Tema | null;
+    const temaSalvo = obterTemaValido(localStorage.getItem(CHAVE_TEMA));
     const sistemaPrefereEscuro =
       typeof window.matchMedia === 'function' &&
       window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -40,4 +40,8 @@ export class TemaService {
       localStorage.setItem(CHAVE_TEMA, tema);
     }
   }
+}
+
+function obterTemaValido(valor: string | null): Tema | null {
+  return valor === 'claro' || valor === 'escuro' ? valor : null;
 }

@@ -7,21 +7,29 @@
     "ACOES": {
       "ENTRAR": "Entrar",
       "CADASTRAR_USUARIO": "Cadastrar usuário",
+      "LIMPAR": "Limpar",
+      "SALVAR": "Salvar",
       "SAIR": "Sair",
       "FECHAR_MENSAGEM": "Fechar mensagem"
     },
     "CAMPOS": {
       "NOME": "Nome",
       "EMAIL": "E-mail",
+      "OBRIGATORIO": "obrigatório",
       "SENHA": "Senha",
       "CONFIRMAR_SENHA": "Confirmar senha",
-      "EXEMPLO_EMAIL": "voce@email.com"
+      "EXEMPLO_EMAIL": "voce@email.com",
+      "EXEMPLO_NOME": "Ex.: Ana Silva",
+      "DICA_SENHA_LOGIN": "Digite sua senha",
+      "DICA_SENHA_CADASTRO": "Mínimo de 8 caracteres",
+      "DICA_CONFIRMAR_SENHA": "Repita a senha informada"
     },
     "NAVEGACAO": {
       "PRINCIPAL": "Navegação principal",
-      "VISAO_GERAL": "Visão geral",
+      "CAMINHO_ATUAL": "Caminho da página",
+      "HOME": "Home",
+      "USUARIOS": "Usuários",
       "CADASTRAR_USUARIO": "Cadastrar usuário",
-      "IR_PARA_VISAO_GERAL": "Ir para a visão geral do Finisus",
       "ABRIR_MENU": "Abrir menu de navegação",
       "EXPANDIR_MENU": "Expandir menu",
       "RECOLHER_MENU": "Recolher menu",
@@ -80,7 +88,7 @@
     }
   },
   "DASHBOARD": {
-    "TITULO_ROTA": "Visão geral | Finisus",
+    "TITULO_ROTA": "Home | Finisus",
     "TITULO": "Olá!",
     "DESCRICAO": "Em breve você verá aqui o resumo das suas finanças.",
     "PLACEHOLDER": "Seu dashboard está dentro do AppShell."

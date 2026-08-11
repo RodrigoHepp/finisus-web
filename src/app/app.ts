@@ -9,6 +9,7 @@ import { IndicadorProcessamentoComponent } from './shared/ui/indicador-processam
   selector: 'app-root',
   imports: [RouterOutlet, IndicadorProcessamentoComponent],
   templateUrl: './app.html',
+  styleUrl: './app.scss',
 })
 export class App {
   private readonly temaService = inject(TemaService);

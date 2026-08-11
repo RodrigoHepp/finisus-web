@@ -1,28 +1,20 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter, map } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { TemaService } from '../../../core/tema/tema.service';
-
-interface ItemNavegacao {
-  rotulo: string;
-  icone: string;
-  rota: string;
-}
+import {
+  GRUPOS_NAVEGACAO,
+  ITENS_NAVEGACAO_PRINCIPAL,
+  GrupoNavegacao,
+} from '../navigation/navigation.config';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [
-    MatButtonModule,
-    MatIconModule,
-    MatListModule,
-    RouterLink,
-    RouterLinkActive,
-    TranslatePipe,
-  ],
+  imports: [MatIconModule, RouterLink, RouterLinkActive, TranslatePipe],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,18 +30,20 @@ export class SidebarComponent {
   readonly recolhida = input(false);
   readonly podeRecolher = input(false);
 
-  protected readonly itensNavegacao: ItemNavegacao[] = [
-    {
-      rotulo: 'COMPARTILHADO.NAVEGACAO.VISAO_GERAL',
-      icone: 'space_dashboard',
-      rota: '/dashboard',
-    },
-    {
-      rotulo: 'COMPARTILHADO.NAVEGACAO.CADASTRAR_USUARIO',
-      icone: 'person_add',
-      rota: '/usuarios/novo',
-    },
-  ];
+  protected readonly usuario = this.authService.usuario;
+
+  private readonly urlAtual = toSignal(
+    this.router.events.pipe(
+      filter((evento): evento is NavigationEnd => evento instanceof NavigationEnd),
+      map((evento) => evento.urlAfterRedirects),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  private readonly gruposExpandidos = signal<ReadonlySet<string>>(new Set());
+
+  protected readonly itensNavegacao = ITENS_NAVEGACAO_PRINCIPAL;
+  protected readonly gruposNavegacao = GRUPOS_NAVEGACAO;
 
   protected selecionarNavegacao(): void {
     this.navegacaoSelecionada.emit();
@@ -59,6 +53,31 @@ export class SidebarComponent {
     if (this.podeRecolher()) {
       this.recolhimentoAlternado.emit();
     }
+  }
+
+  protected grupoEstaExpandido(grupo: GrupoNavegacao): boolean {
+    return (
+      this.gruposExpandidos().has(grupo.id) ||
+      grupo.itens.some((item) => this.urlAtual() === item.rota)
+    );
+  }
+
+  protected alternarGrupo(id: string): void {
+    if (this.recolhida() && this.podeRecolher()) {
+      this.recolhimentoAlternado.emit();
+    }
+
+    this.gruposExpandidos.update((gruposAtuais) => {
+      const gruposAtualizados = new Set(gruposAtuais);
+
+      if (gruposAtualizados.has(id)) {
+        gruposAtualizados.delete(id);
+      } else {
+        gruposAtualizados.add(id);
+      }
+
+      return gruposAtualizados;
+    });
   }
 
   protected sair(): void {

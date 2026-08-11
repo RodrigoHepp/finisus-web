@@ -35,6 +35,12 @@ describe('AppShellComponent', () => {
           provide: AuthService,
           useValue: {
             encerrarSessao: vi.fn(),
+            usuario: signal({
+              id: 1,
+              nome: 'Usuário de teste',
+              email: 'usuario@finisus.com',
+              ativo: true,
+            }),
           },
         },
         {

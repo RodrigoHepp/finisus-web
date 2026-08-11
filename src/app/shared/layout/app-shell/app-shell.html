@@ -22,13 +22,14 @@
         [attr.aria-label]="'COMPARTILHADO.NAVEGACAO.ABRIR_MENU' | translate"
         (click)="alternarMenu()"
       >
-        <mat-icon>menu</mat-icon>
+        <mat-icon class="material-symbols-outlined">menu</mat-icon>
       </button>
 
       <span>{{ 'COMPARTILHADO.APLICACAO.NOME' | translate }}</span>
     </mat-toolbar>
 
     <main class="app-content">
+      <app-breadcrumbs />
       <router-outlet />
     </main>
   </mat-sidenav-content>

@@ -3,22 +3,14 @@
   [class.sidebar--recolhida]="recolhida()"
   [attr.aria-label]="'COMPARTILHADO.NAVEGACAO.PRINCIPAL' | translate"
 >
-  <div class="sidebar-header">
-    <a
-      class="brand"
-      routerLink="/dashboard"
-      [attr.aria-label]="'COMPARTILHADO.NAVEGACAO.IR_PARA_VISAO_GERAL' | translate"
-    >
-      <span class="brand-mark" aria-hidden="true">{{
-        'COMPARTILHADO.APLICACAO.INICIAL' | translate
-      }}</span>
-      <span class="brand-name">{{ 'COMPARTILHADO.APLICACAO.NOME' | translate }}</span>
-    </a>
+  <header class="sidebar-header">
+    @if (!recolhida()) {
+      <span class="sidebar-brand">{{ 'COMPARTILHADO.APLICACAO.NOME' | translate }}</span>
+    }
 
     @if (podeRecolher()) {
       <button
-        mat-icon-button
-        class="collapse-button"
+        class="sidebar-toggle"
         type="button"
         [attr.aria-label]="
           recolhida()
@@ -32,71 +24,139 @@
         "
         (click)="alternarRecolhimento()"
       >
-        <mat-icon>{{
-          recolhida() ? 'keyboard_double_arrow_right' : 'keyboard_double_arrow_left'
-        }}</mat-icon>
+        <mat-icon class="material-symbols-outlined" aria-hidden="true">menu</mat-icon>
       </button>
     }
-  </div>
+  </header>
 
-  <nav>
-    <mat-nav-list>
+  <nav class="sidebar-navigation">
+    <ul class="sidebar-navigation-list">
       @for (item of itensNavegacao; track item.rota) {
-        <a
-          mat-list-item
-          [routerLink]="item.rota"
-          routerLinkActive="is-active"
-          [routerLinkActiveOptions]="{ exact: true }"
-          [attr.aria-label]="recolhida() ? (item.rotulo | translate) : null"
-          [attr.title]="recolhida() ? (item.rotulo | translate) : null"
-          (click)="selecionarNavegacao()"
-        >
-          <mat-icon matListItemIcon>{{ item.icone }}</mat-icon>
-          <span matListItemTitle class="nav-label">{{ item.rotulo | translate }}</span>
-        </a>
+        <li>
+          <a
+            class="sidebar-navigation-item"
+            [routerLink]="item.rota"
+            routerLinkActive="is-active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            ariaCurrentWhenActive="page"
+            [attr.aria-label]="recolhida() ? (item.rotulo | translate) : null"
+            [attr.title]="recolhida() ? (item.rotulo | translate) : null"
+            (click)="selecionarNavegacao()"
+          >
+            <mat-icon class="material-symbols-outlined" aria-hidden="true">{{
+              item.icone
+            }}</mat-icon>
+            <span class="nav-label">{{ item.rotulo | translate }}</span>
+          </a>
+        </li>
       }
-    </mat-nav-list>
+
+      @for (grupo of gruposNavegacao; track grupo.id) {
+        <li class="sidebar-navigation-group" routerLinkActive="has-active-child">
+          <button
+            class="nav-group-button"
+            type="button"
+            [attr.aria-expanded]="grupoEstaExpandido(grupo)"
+            [attr.aria-controls]="grupoEstaExpandido(grupo) ? 'submenu-' + grupo.id : null"
+            [attr.aria-label]="recolhida() ? (grupo.rotulo | translate) : null"
+            [attr.title]="recolhida() ? (grupo.rotulo | translate) : null"
+            (click)="alternarGrupo(grupo.id)"
+          >
+            <mat-icon class="material-symbols-outlined" aria-hidden="true">
+              {{ grupo.icone }}
+            </mat-icon>
+            <span class="nav-label">{{ grupo.rotulo | translate }}</span>
+            <span
+              class="nav-group-indicator"
+              [class.nav-group-indicator--expandido]="grupoEstaExpandido(grupo)"
+              aria-hidden="true"
+            ></span>
+          </button>
+
+          @if (grupoEstaExpandido(grupo)) {
+            <ul class="nav-submenu" [id]="'submenu-' + grupo.id">
+              @for (item of grupo.itens; track item.rota) {
+                <li>
+                  <a
+                    class="nav-submenu-item"
+                    [routerLink]="item.rota"
+                    routerLinkActive="is-active"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    ariaCurrentWhenActive="page"
+                    [attr.aria-label]="recolhida() ? (item.rotulo | translate) : null"
+                    [attr.title]="recolhida() ? (item.rotulo | translate) : null"
+                    (click)="selecionarNavegacao()"
+                  >
+                    <mat-icon class="material-symbols-outlined" aria-hidden="true">{{
+                      item.icone
+                    }}</mat-icon>
+                    <span class="nav-label">{{ item.rotulo | translate }}</span>
+                  </a>
+                </li>
+              }
+            </ul>
+          }
+        </li>
+      }
+    </ul>
   </nav>
 
   <footer class="sidebar-footer">
-    <button
-      mat-stroked-button
-      class="theme-button"
-      type="button"
-      [attr.aria-label]="
-        temaService.tema() === 'escuro'
-          ? ('COMPARTILHADO.TEMA.ATIVAR_CLARO' | translate)
-          : ('COMPARTILHADO.TEMA.ATIVAR_ESCURO' | translate)
-      "
-      [attr.title]="
-        temaService.tema() === 'escuro'
-          ? ('COMPARTILHADO.TEMA.CLARO' | translate)
-          : ('COMPARTILHADO.TEMA.ESCURO' | translate)
-      "
-      (click)="temaService.alternar()"
-    >
-      <mat-icon>
-        {{ temaService.tema() === 'escuro' ? 'light_mode' : 'dark_mode' }}
-      </mat-icon>
+    @if (!recolhida() && usuario(); as usuarioAtual) {
+      <div class="sidebar-user">
+        <span class="sidebar-user-mark" aria-hidden="true">{{
+          'COMPARTILHADO.APLICACAO.INICIAL' | translate
+        }}</span>
+        <div class="sidebar-user-details">
+          <span class="sidebar-user-name">{{ usuarioAtual.nome }}</span>
+          <span class="sidebar-user-email">{{ usuarioAtual.email }}</span>
+        </div>
+      </div>
+    }
 
-      <span class="sidebar-button-label">
-        {{
+    <div class="sidebar-actions">
+      <button
+        class="sidebar-action"
+        type="button"
+        [attr.aria-label]="
           temaService.tema() === 'escuro'
-            ? ('COMPARTILHADO.TEMA.CLARO' | translate)
-            : ('COMPARTILHADO.TEMA.ESCURO' | translate)
-        }}
-      </span>
-    </button>
-    <button
-      mat-stroked-button
-      class="logout-button"
-      type="button"
-      [attr.aria-label]="'COMPARTILHADO.NAVEGACAO.SAIR_DA_CONTA' | translate"
-      [attr.title]="'COMPARTILHADO.ACOES.SAIR' | translate"
-      (click)="sair()"
-    >
-      <mat-icon>logout</mat-icon>
-      <span class="sidebar-button-label">{{ 'COMPARTILHADO.ACOES.SAIR' | translate }}</span>
-    </button>
+            ? ('COMPARTILHADO.TEMA.ATIVAR_CLARO' | translate)
+            : ('COMPARTILHADO.TEMA.ATIVAR_ESCURO' | translate)
+        "
+        [attr.title]="
+          recolhida()
+            ? temaService.tema() === 'escuro'
+              ? ('COMPARTILHADO.TEMA.CLARO' | translate)
+              : ('COMPARTILHADO.TEMA.ESCURO' | translate)
+            : null
+        "
+        (click)="temaService.alternar()"
+      >
+        <mat-icon class="material-symbols-outlined" aria-hidden="true">
+          {{ temaService.tema() === 'escuro' ? 'light_mode' : 'dark_mode' }}
+        </mat-icon>
+        @if (!recolhida()) {
+          <span>
+            {{
+              temaService.tema() === 'escuro'
+                ? ('COMPARTILHADO.TEMA.CLARO' | translate)
+                : ('COMPARTILHADO.TEMA.ESCURO' | translate)
+            }}
+          </span>
+        }
+      </button>
+      <button
+        class="sidebar-action sidebar-action--logout"
+        type="button"
+        [attr.aria-label]="'COMPARTILHADO.NAVEGACAO.SAIR_DA_CONTA' | translate"
+        [attr.title]="recolhida() ? ('COMPARTILHADO.ACOES.SAIR' | translate) : null"
+        (click)="sair()"
+      >
+        <mat-icon class="material-symbols-outlined" aria-hidden="true">logout</mat-icon>
+        @if (!recolhida()) {
+          <span>{{ 'COMPARTILHADO.ACOES.SAIR' | translate }}</span>
+        }
+      </button>
+    </div>
   </footer>
 </aside>

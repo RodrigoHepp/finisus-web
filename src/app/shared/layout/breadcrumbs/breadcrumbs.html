@@ -1,0 +1,21 @@
+@if (itens().length) {
+  <nav class="breadcrumbs" [attr.aria-label]="'COMPARTILHADO.NAVEGACAO.CAMINHO_ATUAL' | translate">
+    <ol>
+      @for (item of itens(); track item.rotulo; let ultimo = $last) {
+        <li>
+          @if (item.rota && !ultimo) {
+            <a [routerLink]="item.rota">{{ item.rotulo | translate }}</a>
+          } @else {
+            <span [attr.aria-current]="ultimo ? 'page' : null">{{ item.rotulo | translate }}</span>
+          }
+        </li>
+
+        @if (!ultimo) {
+          <li class="breadcrumbs-separator" aria-hidden="true">
+            <mat-icon class="material-symbols-outlined">chevron_right</mat-icon>
+          </li>
+        }
+      }
+    </ol>
+  </nav>
+}

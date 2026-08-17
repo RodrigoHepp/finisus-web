@@ -14,7 +14,6 @@ html {
 
   --finisus-background: #f4f7fb;
   --finisus-surface: #fff;
-  --finisus-surface-subtle: #edf4f7;
   --finisus-text: #152432;
   --finisus-text-muted: #526575;
   --finisus-border: #c7d5de;
@@ -30,9 +29,12 @@ html {
   --finisus-sidebar: #08394c;
   --finisus-on-sidebar: #e9f3f7;
   --finisus-sidebar-muted: #b6d0db;
-  --finisus-sidebar-active: #115c72;
+  --finisus-sidebar-active: #83ddf5;
   --finisus-sidebar-border: #236175;
   --finisus-sidebar-negative: #ffb3ad;
+  --finisus-radius-sm: 0.375rem;
+  --finisus-radius-md: 0.75rem;
+  --finisus-shadow-raised: 0 0.75rem 2rem rgb(8 31 42 / 16%);
 
   --mat-sys-primary: var(--finisus-primary);
   --mat-sys-on-primary: var(--finisus-on-primary);
@@ -72,7 +74,6 @@ html {
 html[data-theme='dark'] {
   --finisus-background: #0d1720;
   --finisus-surface: #13232e;
-  --finisus-surface-subtle: #172d3a;
   --finisus-text: #e9f3f7;
   --finisus-text-muted: #b5c4cc;
   --finisus-border: #3a5563;
@@ -88,9 +89,12 @@ html[data-theme='dark'] {
   --finisus-sidebar: #08131a;
   --finisus-on-sidebar: #e9f3f7;
   --finisus-sidebar-muted: #b5c4cc;
-  --finisus-sidebar-active: #154a5e;
+  --finisus-sidebar-active: #77d1f0;
   --finisus-sidebar-border: #274a58;
   --finisus-sidebar-negative: #ffb3ad;
+  --finisus-radius-sm: 0.375rem;
+  --finisus-radius-md: 0.75rem;
+  --finisus-shadow-raised: 0 0.75rem 2rem rgb(0 0 0 / 22%);
 
   --mat-sys-primary: var(--finisus-primary);
   --mat-sys-on-primary: var(--finisus-on-primary);
@@ -137,8 +141,26 @@ body {
   color: var(--finisus-text);
 }
 
-.mat-icon {
+.finisus-page-header {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.finisus-page-header h1,
+.finisus-page-header p {
+  margin: 0;
+}
+
+.mat-icon.material-symbols-outlined {
   font-family: 'Material Symbols Outlined', sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  letter-spacing: normal;
+  line-height: 1;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
   font-variation-settings:
     'FILL' 0,
     'wght' 400,
@@ -153,19 +175,9 @@ body {
 
 .finisus-mensagem-global.mat-mdc-snack-bar-container {
   margin: 1rem;
-  padding: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.finisus-mensagem-global .mdc-snackbar__surface {
-  padding: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.finisus-mensagem-global .mat-mdc-snack-bar-label {
-  padding: 0;
+  --mat-snack-bar-container-color: transparent;
+  --mat-snack-bar-container-shape: 0;
+  --mat-snack-bar-supporting-text-color: var(--finisus-text);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -9,6 +9,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { RouterOutlet } from '@angular/router';
 
 import { SidebarComponent } from '../sidebar/sidebar';
+import { BreadcrumbsComponent } from '../breadcrumbs/breadcrumbs';
 
 @Component({
   selector: 'app-app-shell',
@@ -18,6 +19,7 @@ import { SidebarComponent } from '../sidebar/sidebar';
     MatSidenavModule,
     MatToolbarModule,
     RouterOutlet,
+    BreadcrumbsComponent,
     SidebarComponent,
     TranslatePipe,
   ],

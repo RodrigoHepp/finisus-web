@@ -9,19 +9,21 @@
 }
 
 .app-sidebar {
-  width: 17.5rem;
+  --mat-sidenav-container-shape: 0;
+  width: 14rem;
   border-right: 1px solid var(--finisus-sidebar-border);
   background: var(--finisus-sidebar);
+  box-shadow: none;
   transition: width 180ms ease;
 }
 
 .app-sidebar.app-sidebar--recolhida {
-  width: 5.25rem;
+  width: 3.5rem;
 }
 
 .app-content {
   min-height: 100dvh;
-  padding: 2rem;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
 }
 
 .mobile-toolbar {
@@ -30,11 +32,11 @@
 
 @media (max-width: 767px) {
   .app-sidebar {
-    width: min(18rem, 86vw);
+    width: min(17.5rem, 86vw);
   }
 
   .app-sidebar.app-sidebar--recolhida {
-    width: min(18rem, 86vw);
+    width: min(17.5rem, 86vw);
   }
 
   .mobile-toolbar {

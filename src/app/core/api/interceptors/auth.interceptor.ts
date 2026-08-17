@@ -5,8 +5,6 @@ import { AuthService } from '../../auth/auth.service';
 import { environment } from '../../../environment/environment';
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
-  const authService = inject(AuthService);
-
   const pertenceApi = request.url.startsWith(environment.apiUrl);
 
   const rotaLogin = `${environment.apiUrl}/auth/login`;
@@ -14,9 +12,15 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
 
   const rotaPublica = request.url === rotaLogin || request.url === rotaRefresh;
 
+  if (!pertenceApi || rotaPublica) {
+    return next(request);
+  }
+
+  const authService = inject(AuthService);
+
   const accessToken = authService.accessToken();
 
-  if (!pertenceApi || rotaPublica || !accessToken) {
+  if (!accessToken) {
     return next(request);
   }
 

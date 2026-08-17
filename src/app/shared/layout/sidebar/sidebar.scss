@@ -7,110 +7,239 @@
   display: flex;
   height: 100%;
   flex-direction: column;
-  padding: 1.25rem 0.75rem;
+  background: var(--finisus-sidebar);
   color: var(--finisus-on-sidebar);
-  transition: padding 180ms ease;
 }
 
 .sidebar-header {
   display: flex;
+  min-height: 4rem;
   align-items: center;
-  min-height: 4.5rem;
+  justify-content: space-between;
+  padding: 0 0.75rem;
+  border-bottom: 1px solid var(--finisus-sidebar-border);
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0.75rem 1.5rem;
-  color: var(--finisus-on-sidebar);
-  text-decoration: none;
-  transition: padding 180ms ease;
+.sidebar-brand {
+  padding-left: 0.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-.brand-mark {
+.sidebar-toggle,
+.sidebar-action {
   display: grid;
   width: 2.5rem;
   height: 2.5rem;
   place-items: center;
-  border-radius: 0.875rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--finisus-sidebar-muted);
+  cursor: pointer;
+}
+
+.sidebar-toggle:hover,
+.sidebar-action:hover {
+  background: color-mix(in srgb, var(--finisus-on-sidebar) 8%, transparent);
+  color: var(--finisus-on-sidebar);
+}
+
+.sidebar-navigation {
+  flex: 1;
+  padding: 0.75rem 0.5rem;
+}
+
+.sidebar-navigation-list,
+.nav-submenu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sidebar-navigation-item,
+.nav-submenu-item,
+.nav-group-button {
+  display: grid;
+  width: 100%;
+  min-height: 3rem;
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  padding: 0 0.75rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--finisus-on-sidebar);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sidebar-navigation-item.is-active,
+.nav-submenu-item.is-active {
+  background: color-mix(in srgb, var(--finisus-primary) 18%, transparent);
+  font-weight: 600;
+}
+
+.nav-group-button {
+  border-bottom: 1px solid var(--finisus-sidebar-border);
+}
+
+.sidebar-navigation-item:hover,
+.nav-submenu-item:hover,
+.nav-group-button:hover {
+  background: color-mix(in srgb, var(--finisus-on-sidebar) 8%, transparent);
+}
+
+.sidebar-navigation-item mat-icon,
+.nav-submenu-item mat-icon,
+.nav-group-button mat-icon {
+  color: var(--finisus-sidebar-muted);
+}
+
+.sidebar-navigation-item.is-active mat-icon,
+.nav-submenu-item.is-active mat-icon,
+.sidebar-navigation-group.has-active-child .nav-group-button mat-icon {
+  color: var(--finisus-sidebar-active);
+}
+
+.sidebar-navigation-group.has-active-child .nav-group-button {
+  font-weight: 600;
+}
+
+.nav-submenu {
+  margin: 0.25rem 0 0.5rem 1.25rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid var(--finisus-sidebar-border);
+}
+
+.nav-submenu-item {
+  min-height: 2.75rem;
+  color: var(--finisus-sidebar-muted);
+  font-size: 0.9375rem;
+}
+
+.nav-group-indicator {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid currentcolor;
+  border-bottom: 2px solid currentcolor;
+  color: var(--finisus-sidebar-muted);
+  transform: rotate(-45deg);
+}
+
+.nav-group-indicator--expandido {
+  transform: rotate(45deg);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 0.75rem;
+  border-top: 1px solid var(--finisus-sidebar-border);
+}
+
+.sidebar-user {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 0.25rem 0.875rem;
+}
+
+.sidebar-user-mark {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+  place-items: center;
   background: var(--finisus-primary);
   color: var(--finisus-on-primary);
   font-weight: 700;
 }
 
-.brand-name {
-  font-size: 1.125rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+.sidebar-user-details {
+  display: grid;
+  min-width: 0;
+  gap: 0.125rem;
 }
 
-.collapse-button {
-  flex: none;
-  color: var(--finisus-sidebar-muted);
+.sidebar-user-name,
+.sidebar-user-email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-a[mat-list-item] {
-  border-radius: 0.75rem;
-  color: var(--finisus-on-sidebar);
-}
-
-a[mat-list-item].is-active {
-  background: var(--finisus-sidebar-active);
-  color: var(--finisus-on-sidebar);
+.sidebar-user-name {
   font-weight: 600;
 }
 
-nav {
-  flex: 1;
+.sidebar-user-email {
+  color: var(--finisus-sidebar-muted);
+  font-size: 0.8125rem;
 }
 
-.sidebar-footer {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: auto;
-  padding: 1rem 0.75rem 0;
+.sidebar-actions {
+  display: grid;
+  gap: 0.125rem;
 }
 
-.logout-button {
+.sidebar-action {
   width: 100%;
-  justify-content: flex-start;
-  border-color: var(--finisus-sidebar-negative);
+  min-height: 2.5rem;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  justify-items: start;
+  text-align: left;
+}
+
+.sidebar-action > span {
+  padding-left: 0.25rem;
+}
+
+.sidebar-action--logout {
   color: var(--finisus-sidebar-negative);
-}
-.theme-button {
-  width: 100%;
-  justify-content: flex-start;
-  border-color: var(--finisus-sidebar-border);
-  color: var(--finisus-on-sidebar);
 }
 
 .sidebar--recolhida {
-  padding-inline: 0.5rem;
+  align-items: center;
 }
 
 .sidebar--recolhida .sidebar-header {
-  flex-direction: column;
-  gap: 0.5rem;
+  width: 100%;
+  justify-content: center;
+  padding: 0;
 }
 
-.sidebar--recolhida .brand {
-  padding: 0.5rem;
+.sidebar--recolhida .sidebar-navigation {
+  width: 100%;
+  padding-inline: 0;
 }
 
-.sidebar--recolhida .brand-name,
+.sidebar--recolhida .sidebar-navigation-item,
+.sidebar--recolhida .nav-group-button {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  padding: 0;
+}
+
 .sidebar--recolhida .nav-label,
-.sidebar--recolhida .sidebar-button-label {
+.sidebar--recolhida .nav-group-indicator,
+.sidebar--recolhida .nav-submenu {
   display: none;
 }
 
-.sidebar--recolhida a[mat-list-item],
-.sidebar--recolhida .theme-button,
-.sidebar--recolhida .logout-button {
-  justify-content: center;
+.sidebar--recolhida .sidebar-footer {
+  width: 100%;
+  padding: 0.5rem;
 }
 
-.sidebar--recolhida .sidebar-footer {
-  padding-inline: 0;
+.sidebar--recolhida .sidebar-actions {
+  justify-items: center;
+}
+
+.sidebar--recolhida .sidebar-action {
+  width: 2.5rem;
+  grid-template-columns: 1fr;
+  justify-items: center;
 }

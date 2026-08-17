@@ -1,0 +1,13 @@
+<div class="campo-formulario">
+  <label class="campo-formulario__rotulo" [for]="controleId()">
+    <span>{{ rotulo() }}</span>
+    @if (obrigatorio()) {
+      <span class="campo-formulario__obrigatorio" aria-hidden="true">*</span>
+      <span class="campo-formulario__texto-visualmente-oculto">
+        {{ 'COMPARTILHADO.CAMPOS.OBRIGATORIO' | translate }}
+      </span>
+    }
+  </label>
+
+  <ng-content />
+</div>

@@ -9,17 +9,20 @@ import { authInterceptor } from './auth.interceptor';
 describe('authInterceptor', () => {
   let http: HttpClient;
   let httpTestingController: HttpTestingController;
+  let criarAuthService: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
+    criarAuthService = vi.fn(() => ({
+      accessToken: () => 'access-token',
+    }));
+
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([authInterceptor])),
         provideHttpClientTesting(),
         {
           provide: AuthService,
-          useValue: {
-            accessToken: () => 'access-token',
-          },
+          useFactory: criarAuthService,
         },
       ],
     });
@@ -45,6 +48,15 @@ describe('authInterceptor', () => {
     const requisicao = httpTestingController.expectOne(`${environment.apiUrl}/auth/login`);
 
     expect(requisicao.request.headers.has('Authorization')).toBe(false);
+    requisicao.flush({});
+  });
+
+  it('não cria serviços de autenticação para arquivos públicos de tradução', () => {
+    http.get('/i18n/pt-BR.json').subscribe();
+
+    const requisicao = httpTestingController.expectOne('/i18n/pt-BR.json');
+
+    expect(criarAuthService).not.toHaveBeenCalled();
     requisicao.flush({});
   });
 });

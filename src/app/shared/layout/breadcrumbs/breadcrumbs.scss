@@ -1,0 +1,42 @@
+:host {
+  display: block;
+  margin-bottom: 1.25rem;
+}
+
+.breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  color: var(--finisus-text-muted);
+  font-size: 0.875rem;
+  list-style: none;
+}
+
+.breadcrumbs a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+  color: var(--finisus-primary);
+  text-decoration: underline;
+}
+
+.breadcrumbs span[aria-current='page'] {
+  color: var(--finisus-text);
+  font-weight: 600;
+}
+
+.breadcrumbs-separator {
+  display: grid;
+  place-items: center;
+}
+
+.breadcrumbs-separator .mat-icon {
+  width: 1rem;
+  height: 1rem;
+  font-size: 1rem;
+}

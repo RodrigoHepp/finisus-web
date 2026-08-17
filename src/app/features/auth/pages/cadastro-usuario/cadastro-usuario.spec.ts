@@ -89,6 +89,32 @@ describe('CadastroUsuarioPage', () => {
     );
   });
 
+  it('limpa o formulário sem enviar uma requisição', () => {
+    preencherFormulario();
+
+    const botaoLimpar = fixture.nativeElement.querySelector(
+      '.cadastro-formulario__acoes button[type="button"]',
+    ) as HTMLButtonElement;
+
+    botaoLimpar.click();
+    fixture.detectChanges();
+
+    expect(authApiService.cadastrar).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('input[formcontrolname="nome"]')?.value).toBe('');
+    expect(
+      fixture.nativeElement.querySelector('input[formcontrolname="confirmacaoSenha"]')?.value,
+    ).toBe('');
+  });
+
+  it('organiza os campos em uma grade e apresenta ações de limpar e salvar', () => {
+    expect(fixture.nativeElement.querySelector('mat-card')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.cadastro-formulario__campos')).not.toBeNull();
+
+    const acoes = fixture.nativeElement.querySelector('.cadastro-formulario__acoes');
+    expect(acoes?.textContent).toContain('COMPARTILHADO.ACOES.LIMPAR');
+    expect(acoes?.textContent).toContain('COMPARTILHADO.ACOES.SALVAR');
+  });
+
   it('apresenta o detalhe retornado pelo backend', () => {
     authApiService.cadastrar.mockReturnValue(
       throwError(
@@ -123,6 +149,43 @@ describe('CadastroUsuarioPage', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).not.toContain('AUTENTICACAO.LOGIN.CAPS_LOCK_ATIVO');
+  });
+
+  it('apresenta rótulos externos, obrigatoriedade e placeholders nos campos', () => {
+    const rotulos = fixture.nativeElement.querySelectorAll('label[for]');
+    const campos = fixture.nativeElement.querySelectorAll('input[formcontrolname]');
+
+    expect(rotulos).toHaveLength(4);
+    expect(fixture.nativeElement.querySelectorAll('.campo-formulario__obrigatorio')).toHaveLength(
+      4,
+    );
+    expect(campos[0].getAttribute('placeholder')).toBe('COMPARTILHADO.CAMPOS.EXEMPLO_NOME');
+    expect(campos[2].getAttribute('placeholder')).toBe('COMPARTILHADO.CAMPOS.DICA_SENHA_CADASTRO');
+  });
+
+  it('alterna senha e confirmação de forma independente sem exibir erro antes do envio', () => {
+    const campoSenha = fixture.nativeElement.querySelector(
+      'input[formcontrolname="senha"]',
+    ) as HTMLInputElement;
+    const campoConfirmacao = fixture.nativeElement.querySelector(
+      'input[formcontrolname="confirmacaoSenha"]',
+    ) as HTMLInputElement;
+    const botoesVisibilidade = fixture.nativeElement.querySelectorAll(
+      'button[mat-icon-button]',
+    ) as NodeListOf<HTMLButtonElement>;
+
+    botoesVisibilidade[0].click();
+    fixture.detectChanges();
+
+    expect(campoSenha.type).toBe('text');
+    expect(campoConfirmacao.type).toBe('password');
+    expect(fixture.nativeElement.querySelector('mat-error')).toBeNull();
+
+    botoesVisibilidade[1].click();
+    fixture.detectChanges();
+
+    expect(campoConfirmacao.type).toBe('text');
+    expect(botoesVisibilidade[1].getAttribute('aria-pressed')).toBe('true');
   });
 
   function pagina(): PaginaDeCadastroParaTeste {

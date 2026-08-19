@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from '@ngx-translate/core';
 
-export type ModoIndicadorProcessamento = 'inline' | 'sobreposto';
+export type ModoIndicadorProcessamento = 'inline' | 'local' | 'sobreposto';
 
 @Component({
   selector: 'app-indicador-processamento',

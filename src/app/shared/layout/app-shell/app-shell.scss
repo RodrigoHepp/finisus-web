@@ -1,16 +1,25 @@
 :host {
   display: block;
-  min-height: 100dvh;
+  height: 100dvh;
 }
 
 .app-shell {
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
   background: var(--finisus-background);
+}
+
+.app-shell mat-sidenav-content {
+  display: flex;
+  min-width: 0;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .app-sidebar {
   --mat-sidenav-container-shape: 0;
-  width: 14rem;
+  width: 15.5rem;
   border-right: 1px solid var(--finisus-sidebar-border);
   background: var(--finisus-sidebar);
   box-shadow: none;
@@ -18,12 +27,29 @@
 }
 
 .app-sidebar.app-sidebar--recolhida {
-  width: 3.5rem;
+  width: 4rem;
 }
 
 .app-content {
-  min-height: 100dvh;
-  padding: clamp(1.5rem, 3vw, 2.5rem);
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  padding: clamp(1.25rem, 2vw, 2rem);
+}
+
+.app-content > * {
+  display: block;
+  width: min(100%, 92rem);
+  margin-inline: auto;
+}
+
+.workspace-toolbar {
+  display: flex;
+  min-height: 3.25rem;
+  align-items: center;
+  padding: 0 clamp(1.5rem, 3vw, 2.5rem);
+  border-bottom: 1px solid var(--finisus-border);
+  background: color-mix(in srgb, var(--finisus-surface) 94%, var(--finisus-background));
 }
 
 .mobile-toolbar {
@@ -32,11 +58,11 @@
 
 @media (max-width: 767px) {
   .app-sidebar {
-    width: min(17.5rem, 86vw);
+    width: min(18.5rem, 86vw);
   }
 
   .app-sidebar.app-sidebar--recolhida {
-    width: min(17.5rem, 86vw);
+    width: min(18.5rem, 86vw);
   }
 
   .mobile-toolbar {
@@ -44,10 +70,14 @@
     gap: 0.75rem;
     border-bottom: 1px solid var(--finisus-border);
     background: var(--finisus-surface);
+    box-shadow: 0 0.125rem 0.5rem rgb(16 32 44 / 6%);
+  }
+
+  .workspace-toolbar {
+    display: none;
   }
 
   .app-content {
-    min-height: calc(100dvh - 4rem);
-    padding: 1.25rem;
+    padding: 1.25rem 1rem;
   }
 }

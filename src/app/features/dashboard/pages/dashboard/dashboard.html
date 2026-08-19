@@ -1,10 +1,38 @@
 <section class="dashboard">
-  <header class="finisus-page-header">
-    <h1>{{ 'DASHBOARD.TITULO' | translate }}</h1>
-    <p>{{ 'DASHBOARD.DESCRICAO' | translate }}</p>
-  </header>
+  <app-page-header
+    [titulo]="'DASHBOARD.TITULO' | translate"
+    [descricao]="'DASHBOARD.DESCRICAO' | translate"
+  />
 
-  <mat-card appearance="outlined">
-    <mat-card-content>{{ 'DASHBOARD.PLACEHOLDER' | translate }}</mat-card-content>
-  </mat-card>
+  <section
+    class="dashboard__onboarding"
+    [attr.aria-label]="'DASHBOARD.PRIMEIROS_PASSOS.TITULO' | translate"
+  >
+    <header class="dashboard__introducao">
+      <p class="dashboard__eyebrow">{{ 'DASHBOARD.PRIMEIROS_PASSOS.SOBRELINHA' | translate }}</p>
+      <h2>{{ 'DASHBOARD.PRIMEIROS_PASSOS.TITULO' | translate }}</h2>
+      <p>{{ 'DASHBOARD.PRIMEIROS_PASSOS.DESCRICAO' | translate }}</p>
+    </header>
+
+    <ol class="dashboard__passos">
+      @for (passo of primeirosPassos; track passo.rota; let indice = $index) {
+        <li class="dashboard__passo">
+          <span class="dashboard__passo-numero" aria-hidden="true">0{{ indice + 1 }}</span>
+          <mat-icon class="material-symbols-outlined" aria-hidden="true">{{
+            passo.icone
+          }}</mat-icon>
+          <div>
+            <h3>{{ passo.titulo | translate }}</h3>
+            <p>{{ passo.descricao | translate }}</p>
+            <a mat-button [routerLink]="passo.rota">
+              {{ passo.acao | translate }}
+              <mat-icon class="material-symbols-outlined" aria-hidden="true"
+                >arrow_forward</mat-icon
+              >
+            </a>
+          </div>
+        </li>
+      }
+    </ol>
+  </section>
 </section>

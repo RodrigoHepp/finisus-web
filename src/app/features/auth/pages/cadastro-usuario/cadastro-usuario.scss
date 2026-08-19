@@ -5,24 +5,58 @@
 .cadastro-page {
   display: grid;
   width: 100%;
-  gap: 2rem;
+  gap: 1.25rem;
 }
 
 .cadastro-formulario {
   display: grid;
-  gap: 1.5rem;
+  max-width: 54rem;
+  gap: 0;
+  border-top: 1px solid var(--finisus-border);
+  border-bottom: 1px solid var(--finisus-border);
+}
+
+.cadastro-formulario__secao {
+  display: grid;
+  gap: 0.875rem;
+  padding: 1.125rem 0;
+}
+
+.cadastro-formulario__secao + .cadastro-formulario__secao {
+  border-top: 1px solid var(--finisus-border);
+}
+
+.cadastro-formulario__secao-cabecalho {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.cadastro-formulario__secao-cabecalho h2,
+.cadastro-formulario__secao-cabecalho p {
+  margin: 0;
+}
+
+.cadastro-formulario__secao-cabecalho h2 {
+  color: var(--finisus-text);
+  font-size: 1.0625rem;
+  letter-spacing: -0.01em;
+}
+
+.cadastro-formulario__secao-cabecalho p {
+  color: var(--finisus-text-muted);
+  font-size: 0.875rem;
 }
 
 .cadastro-formulario__campos {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem 1.5rem;
+  gap: 0.875rem 1.25rem;
 }
 
 .cadastro-formulario__campo-senha {
   display: grid;
   min-width: 0;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 app-campo-formulario,
@@ -34,10 +68,14 @@ mat-form-field {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--finisus-border);
+  background: var(--finisus-surface-subtle);
 }
 
 .form-message {
   margin: 0;
+  padding: 0 0 1rem;
 }
 
 .form-message--error {
@@ -45,7 +83,19 @@ mat-form-field {
 }
 
 @media (max-width: 42rem) {
+  .cadastro-page {
+    gap: 1.75rem;
+  }
+
   .cadastro-formulario__campos {
     grid-template-columns: 1fr;
+  }
+
+  .cadastro-formulario__acoes {
+    justify-content: stretch;
+  }
+
+  .cadastro-formulario__acoes button {
+    flex: 1;
   }
 }

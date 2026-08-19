@@ -1,13 +1,14 @@
 @if (visivel()) {
   <div
     class="indicador-processamento"
+    [class.indicador-processamento--local]="modo() === 'local'"
     [class.indicador-processamento--sobreposto]="modo() === 'sobreposto'"
-    [attr.role]="modo() === 'sobreposto' ? 'status' : null"
+    [attr.role]="modo() === 'inline' ? null : 'status'"
     [attr.aria-busy]="true"
   >
     <mat-progress-spinner
       mode="indeterminate"
-      [diameter]="modo() === 'sobreposto' ? 44 : 18"
+      [diameter]="modo() === 'sobreposto' ? 44 : modo() === 'local' ? 32 : 18"
       [attr.aria-label]="'COMPARTILHADO.PROCESSAMENTO.PADRAO' | translate"
     />
     <span>{{ mensagem() | translate }}</span>

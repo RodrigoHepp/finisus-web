@@ -32,7 +32,7 @@ describe('BreadcrumbsComponent', () => {
 
     expect(itens).toHaveLength(3);
     expect(itens[0].textContent.trim()).toBe('COMPARTILHADO.NAVEGACAO.HOME');
-    expect(itens[1].textContent.trim()).toBe('COMPARTILHADO.NAVEGACAO.USUARIOS');
+    expect(itens[1].textContent.trim()).toBe('COMPARTILHADO.NAVEGACAO.ADMINISTRACAO');
     expect(itens[2].textContent.trim()).toBe('COMPARTILHADO.NAVEGACAO.CADASTRAR_USUARIO');
     expect(itens[2].querySelector('[aria-current="page"]')).not.toBeNull();
   });

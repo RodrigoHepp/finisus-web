@@ -23,3 +23,15 @@
   font-weight: 600;
   text-align: center;
 }
+
+.indicador-processamento--local {
+  display: grid;
+  min-height: 14rem;
+  place-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  border: 1px solid var(--finisus-border);
+  background: var(--finisus-surface-subtle);
+  color: var(--finisus-text-muted);
+  text-align: center;
+}

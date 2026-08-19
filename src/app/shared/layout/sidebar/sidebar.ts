@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -31,6 +39,16 @@ export class SidebarComponent {
   readonly podeRecolher = input(false);
 
   protected readonly usuario = this.authService.usuario;
+  protected readonly iniciaisDoUsuario = computed(() => {
+    const nome = this.usuario()?.nome.trim() ?? '';
+    const partesDoNome = nome.split(/\s+/).filter(Boolean);
+    const partesParaIniciais =
+      partesDoNome.length > 1
+        ? [partesDoNome[0], partesDoNome[partesDoNome.length - 1]]
+        : partesDoNome;
+
+    return partesParaIniciais.map((parte) => parte.charAt(0).toLocaleUpperCase('pt-BR')).join('');
+  });
 
   private readonly urlAtual = toSignal(
     this.router.events.pipe(

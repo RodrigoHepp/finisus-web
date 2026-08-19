@@ -44,9 +44,17 @@ describe('SidebarComponent', () => {
   });
 
   it('exibe o cadastro de usuário somente após expandir o grupo de usuários', () => {
-    const botaoGrupo = fixture.nativeElement.querySelector(
-      '.nav-group-button',
-    ) as HTMLButtonElement;
+    const sidebar = fixture.nativeElement as HTMLElement;
+    const botoesDeGrupo = Array.from(
+      sidebar.querySelectorAll<HTMLButtonElement>('.nav-group-button'),
+    );
+    const botaoGrupo = botoesDeGrupo.find((botao) =>
+      botao.textContent?.includes('COMPARTILHADO.NAVEGACAO.ADMINISTRACAO'),
+    );
+
+    if (!botaoGrupo) {
+      throw new Error('Grupo de usuários não encontrado.');
+    }
 
     expect(botaoGrupo.classList.contains('mat-mdc-list-item')).toBe(false);
     expect(botaoGrupo.getAttribute('aria-expanded')).toBe('false');
@@ -76,7 +84,9 @@ describe('SidebarComponent', () => {
   });
 
   it('exibe a marca e os dados do usuário somente na barra expandida', () => {
-    expect(fixture.nativeElement.querySelector('.sidebar-user-mark')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.sidebar-user-mark')?.textContent?.trim()).toBe(
+      'UT',
+    );
     expect(fixture.nativeElement.querySelector('.sidebar-user-email')).not.toBeNull();
 
     fixture.componentRef.setInput('recolhida', true);

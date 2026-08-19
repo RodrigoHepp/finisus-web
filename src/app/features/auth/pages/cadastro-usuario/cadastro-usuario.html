@@ -1,181 +1,206 @@
-<section class="cadastro-page" aria-labelledby="cadastro-titulo">
-  <header class="finisus-page-header">
-    <h1 id="cadastro-titulo">{{ 'AUTENTICACAO.CADASTRO_USUARIO.TITULO' | translate }}</h1>
-    <p>{{ 'AUTENTICACAO.CADASTRO_USUARIO.DESCRICAO' | translate }}</p>
-  </header>
+<section class="cadastro-page">
+  <app-page-header
+    [titulo]="'AUTENTICACAO.CADASTRO_USUARIO.TITULO' | translate"
+    [descricao]="'AUTENTICACAO.CADASTRO_USUARIO.DESCRICAO' | translate"
+  />
 
   <form class="cadastro-formulario" [formGroup]="formulario" (ngSubmit)="cadastrar()" novalidate>
-    <div class="cadastro-formulario__campos">
-      <app-campo-formulario
-        [rotulo]="'COMPARTILHADO.CAMPOS.NOME' | translate"
-        controleId="cadastro-nome"
-        [obrigatorio]="true"
-      >
-        <mat-form-field subscriptSizing="dynamic">
-          <input
-            id="cadastro-nome"
-            matInput
-            type="text"
-            formControlName="nome"
-            autocomplete="name"
-            maxlength="150"
-            required
-            [placeholder]="'COMPARTILHADO.CAMPOS.EXEMPLO_NOME' | translate"
-          />
+    <section class="cadastro-formulario__secao" aria-labelledby="cadastro-usuario-identificacao">
+      <div class="cadastro-formulario__secao-cabecalho">
+        <h2 id="cadastro-usuario-identificacao">
+          {{ 'AUTENTICACAO.CADASTRO_USUARIO.SECOES.IDENTIFICACAO.TITULO' | translate }}
+        </h2>
+        <p>{{ 'AUTENTICACAO.CADASTRO_USUARIO.SECOES.IDENTIFICACAO.DESCRICAO' | translate }}</p>
+      </div>
 
-          @if (campoInvalido('nome')) {
-            <mat-error>
-              @if (formulario.controls.nome.hasError('required')) {
-                {{ 'AUTENTICACAO.CADASTRO_USUARIO.INFORMAR_NOME' | translate }}
-              } @else {
-                {{ 'AUTENTICACAO.CADASTRO_USUARIO.NOME_MAXIMO' | translate }}
-              }
-            </mat-error>
-          }
-        </mat-form-field>
-      </app-campo-formulario>
-
-      <app-campo-formulario
-        [rotulo]="'COMPARTILHADO.CAMPOS.EMAIL' | translate"
-        controleId="cadastro-email"
-        [obrigatorio]="true"
-      >
-        <mat-form-field subscriptSizing="dynamic">
-          <input
-            id="cadastro-email"
-            matInput
-            type="email"
-            formControlName="email"
-            autocomplete="email"
-            required
-            [placeholder]="'COMPARTILHADO.CAMPOS.EXEMPLO_EMAIL' | translate"
-          />
-
-          @if (campoInvalido('email')) {
-            <mat-error>
-              @if (formulario.controls.email.hasError('required')) {
-                {{ 'AUTENTICACAO.LOGIN.INFORMAR_EMAIL' | translate }}
-              } @else {
-                {{ 'AUTENTICACAO.LOGIN.INFORMAR_EMAIL_VALIDO' | translate }}
-              }
-            </mat-error>
-          }
-        </mat-form-field>
-      </app-campo-formulario>
-
-      <div class="cadastro-formulario__campo-senha">
+      <div class="cadastro-formulario__campos">
         <app-campo-formulario
-          [rotulo]="'COMPARTILHADO.CAMPOS.SENHA' | translate"
-          controleId="cadastro-senha"
+          [rotulo]="'COMPARTILHADO.CAMPOS.NOME' | translate"
+          controleId="cadastro-nome"
           [obrigatorio]="true"
         >
           <mat-form-field subscriptSizing="dynamic">
             <input
-              id="cadastro-senha"
+              id="cadastro-nome"
               matInput
-              [type]="senhaVisivel() ? 'text' : 'password'"
-              formControlName="senha"
-              autocomplete="new-password"
+              type="text"
+              formControlName="nome"
+              autocomplete="name"
+              maxlength="150"
               required
-              [placeholder]="'COMPARTILHADO.CAMPOS.DICA_SENHA_CADASTRO' | translate"
-              (keydown)="atualizarEstadoDoCapsLock($event, 'senha')"
-              (keyup)="atualizarEstadoDoCapsLock($event, 'senha')"
-              (blur)="ocultarAvisoDoCapsLock('senha')"
+              [placeholder]="'COMPARTILHADO.CAMPOS.EXEMPLO_NOME' | translate"
             />
 
-            <button
-              mat-icon-button
-              matSuffix
-              type="button"
-              [attr.aria-label]="
-                senhaVisivel()
-                  ? ('AUTENTICACAO.LOGIN.OCULTAR_SENHA' | translate)
-                  : ('AUTENTICACAO.LOGIN.MOSTRAR_SENHA' | translate)
-              "
-              [attr.aria-pressed]="senhaVisivel()"
-              (click)="alternarVisibilidadeDaSenha()"
-            >
-              <mat-icon class="material-symbols-outlined">
-                {{ senhaVisivel() ? 'visibility_off' : 'visibility' }}
-              </mat-icon>
-            </button>
-
-            @if (campoInvalido('senha')) {
+            @if (campoInvalido('nome')) {
               <mat-error>
-                @if (formulario.controls.senha.hasError('required')) {
-                  {{ 'AUTENTICACAO.CADASTRO_USUARIO.INFORMAR_SENHA' | translate }}
-                } @else if (formulario.controls.senha.hasError('minlength')) {
-                  {{ 'AUTENTICACAO.CADASTRO_USUARIO.SENHA_MINIMA' | translate }}
+                @if (formulario.controls.nome.hasError('required')) {
+                  {{ 'AUTENTICACAO.CADASTRO_USUARIO.INFORMAR_NOME' | translate }}
                 } @else {
-                  {{ 'AUTENTICACAO.CADASTRO_USUARIO.SENHA_MAXIMA' | translate }}
+                  {{ 'AUTENTICACAO.CADASTRO_USUARIO.NOME_MAXIMO' | translate }}
                 }
               </mat-error>
             }
           </mat-form-field>
         </app-campo-formulario>
 
-        @if (capsLockAtivoNoCampo('senha')) {
-          <app-aviso-caps-lock />
-        }
-      </div>
-
-      <div class="cadastro-formulario__campo-senha">
         <app-campo-formulario
-          [rotulo]="'COMPARTILHADO.CAMPOS.CONFIRMAR_SENHA' | translate"
-          controleId="cadastro-confirmacao-senha"
+          [rotulo]="'COMPARTILHADO.CAMPOS.EMAIL' | translate"
+          controleId="cadastro-email"
           [obrigatorio]="true"
         >
           <mat-form-field subscriptSizing="dynamic">
             <input
-              id="cadastro-confirmacao-senha"
+              id="cadastro-email"
               matInput
-              [type]="confirmacaoSenhaVisivel() ? 'text' : 'password'"
-              formControlName="confirmacaoSenha"
-              autocomplete="new-password"
+              type="email"
+              formControlName="email"
+              autocomplete="email"
               required
-              [placeholder]="'COMPARTILHADO.CAMPOS.DICA_CONFIRMAR_SENHA' | translate"
-              (keydown)="atualizarEstadoDoCapsLock($event, 'confirmacaoSenha')"
-              (keyup)="atualizarEstadoDoCapsLock($event, 'confirmacaoSenha')"
-              (blur)="ocultarAvisoDoCapsLock('confirmacaoSenha')"
+              [placeholder]="'COMPARTILHADO.CAMPOS.EXEMPLO_EMAIL' | translate"
             />
 
-            <button
-              mat-icon-button
-              matSuffix
-              type="button"
-              [attr.aria-label]="
-                confirmacaoSenhaVisivel()
-                  ? ('AUTENTICACAO.CADASTRO_USUARIO.OCULTAR_CONFIRMACAO_SENHA' | translate)
-                  : ('AUTENTICACAO.CADASTRO_USUARIO.MOSTRAR_CONFIRMACAO_SENHA' | translate)
-              "
-              [attr.aria-pressed]="confirmacaoSenhaVisivel()"
-              (click)="alternarVisibilidadeDaConfirmacao()"
-            >
-              <mat-icon class="material-symbols-outlined">
-                {{ confirmacaoSenhaVisivel() ? 'visibility_off' : 'visibility' }}
-              </mat-icon>
-            </button>
-
-            @if (confirmacaoInvalida()) {
+            @if (campoInvalido('email')) {
               <mat-error>
-                @if (formulario.controls.confirmacaoSenha.hasError('required')) {
-                  {{ 'AUTENTICACAO.CADASTRO_USUARIO.CONFIRMAR_SENHA' | translate }}
+                @if (formulario.controls.email.hasError('required')) {
+                  {{ 'AUTENTICACAO.LOGIN.INFORMAR_EMAIL' | translate }}
                 } @else {
-                  {{ 'AUTENTICACAO.CADASTRO_USUARIO.SENHAS_DEVEM_SER_IGUAIS' | translate }}
+                  {{ 'AUTENTICACAO.LOGIN.INFORMAR_EMAIL_VALIDO' | translate }}
                 }
               </mat-error>
             }
           </mat-form-field>
         </app-campo-formulario>
-
-        @if (capsLockAtivoNoCampo('confirmacaoSenha')) {
-          <app-aviso-caps-lock />
-        }
       </div>
-    </div>
+    </section>
+
+    <section class="cadastro-formulario__secao" aria-labelledby="cadastro-usuario-acesso">
+      <div class="cadastro-formulario__secao-cabecalho">
+        <h2 id="cadastro-usuario-acesso">
+          {{ 'AUTENTICACAO.CADASTRO_USUARIO.SECOES.ACESSO.TITULO' | translate }}
+        </h2>
+        <p>{{ 'AUTENTICACAO.CADASTRO_USUARIO.SECOES.ACESSO.DESCRICAO' | translate }}</p>
+      </div>
+
+      <div class="cadastro-formulario__campos">
+        <div class="cadastro-formulario__campo-senha">
+          <app-campo-formulario
+            [rotulo]="'COMPARTILHADO.CAMPOS.SENHA' | translate"
+            controleId="cadastro-senha"
+            [obrigatorio]="true"
+          >
+            <mat-form-field subscriptSizing="dynamic">
+              <input
+                id="cadastro-senha"
+                matInput
+                [type]="senhaVisivel() ? 'text' : 'password'"
+                formControlName="senha"
+                autocomplete="new-password"
+                required
+                [placeholder]="'COMPARTILHADO.CAMPOS.DICA_SENHA_CADASTRO' | translate"
+                (keydown)="atualizarEstadoDoCapsLock($event, 'senha')"
+                (keyup)="atualizarEstadoDoCapsLock($event, 'senha')"
+                (blur)="ocultarAvisoDoCapsLock('senha')"
+              />
+
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                [attr.aria-label]="
+                  senhaVisivel()
+                    ? ('AUTENTICACAO.LOGIN.OCULTAR_SENHA' | translate)
+                    : ('AUTENTICACAO.LOGIN.MOSTRAR_SENHA' | translate)
+                "
+                [attr.aria-pressed]="senhaVisivel()"
+                (click)="alternarVisibilidadeDaSenha()"
+              >
+                <mat-icon class="material-symbols-outlined">
+                  {{ senhaVisivel() ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+
+              @if (campoInvalido('senha')) {
+                <mat-error>
+                  @if (formulario.controls.senha.hasError('required')) {
+                    {{ 'AUTENTICACAO.CADASTRO_USUARIO.INFORMAR_SENHA' | translate }}
+                  } @else if (formulario.controls.senha.hasError('minlength')) {
+                    {{ 'AUTENTICACAO.CADASTRO_USUARIO.SENHA_MINIMA' | translate }}
+                  } @else {
+                    {{ 'AUTENTICACAO.CADASTRO_USUARIO.SENHA_MAXIMA' | translate }}
+                  }
+                </mat-error>
+              }
+            </mat-form-field>
+          </app-campo-formulario>
+
+          @if (capsLockAtivoNoCampo('senha')) {
+            <app-aviso-caps-lock />
+          }
+        </div>
+
+        <div class="cadastro-formulario__campo-senha">
+          <app-campo-formulario
+            [rotulo]="'COMPARTILHADO.CAMPOS.CONFIRMAR_SENHA' | translate"
+            controleId="cadastro-confirmacao-senha"
+            [obrigatorio]="true"
+          >
+            <mat-form-field subscriptSizing="dynamic">
+              <input
+                id="cadastro-confirmacao-senha"
+                matInput
+                [type]="confirmacaoSenhaVisivel() ? 'text' : 'password'"
+                formControlName="confirmacaoSenha"
+                autocomplete="new-password"
+                required
+                [placeholder]="'COMPARTILHADO.CAMPOS.DICA_CONFIRMAR_SENHA' | translate"
+                (keydown)="atualizarEstadoDoCapsLock($event, 'confirmacaoSenha')"
+                (keyup)="atualizarEstadoDoCapsLock($event, 'confirmacaoSenha')"
+                (blur)="ocultarAvisoDoCapsLock('confirmacaoSenha')"
+              />
+
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                [attr.aria-label]="
+                  confirmacaoSenhaVisivel()
+                    ? ('AUTENTICACAO.CADASTRO_USUARIO.OCULTAR_CONFIRMACAO_SENHA' | translate)
+                    : ('AUTENTICACAO.CADASTRO_USUARIO.MOSTRAR_CONFIRMACAO_SENHA' | translate)
+                "
+                [attr.aria-pressed]="confirmacaoSenhaVisivel()"
+                (click)="alternarVisibilidadeDaConfirmacao()"
+              >
+                <mat-icon class="material-symbols-outlined">
+                  {{ confirmacaoSenhaVisivel() ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+
+              @if (confirmacaoInvalida()) {
+                <mat-error>
+                  @if (formulario.controls.confirmacaoSenha.hasError('required')) {
+                    {{ 'AUTENTICACAO.CADASTRO_USUARIO.CONFIRMAR_SENHA' | translate }}
+                  } @else {
+                    {{ 'AUTENTICACAO.CADASTRO_USUARIO.SENHAS_DEVEM_SER_IGUAIS' | translate }}
+                  }
+                </mat-error>
+              }
+            </mat-form-field>
+          </app-campo-formulario>
+
+          @if (capsLockAtivoNoCampo('confirmacaoSenha')) {
+            <app-aviso-caps-lock />
+          }
+        </div>
+      </div>
+    </section>
 
     <div class="cadastro-formulario__acoes">
-      <button mat-button type="button" [disabled]="carregando()" (click)="limparFormulario()">
+      <button
+        mat-button
+        type="button"
+        [disabled]="carregando() || !formulario.dirty"
+        (click)="confirmarLimpeza()"
+      >
         {{ 'COMPARTILHADO.ACOES.LIMPAR' | translate }}
       </button>
       <button

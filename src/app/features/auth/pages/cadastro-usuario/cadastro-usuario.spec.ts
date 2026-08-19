@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
@@ -11,6 +12,7 @@ import { CadastroUsuarioPage } from './cadastro-usuario';
 interface PaginaDeCadastroParaTeste {
   formulario: {
     setValue(valor: { nome: string; email: string; senha: string; confirmacaoSenha: string }): void;
+    markAsDirty(): void;
     hasError(codigo: string): boolean;
   };
   cadastrar(): void;
@@ -21,6 +23,7 @@ describe('CadastroUsuarioPage', () => {
   let fixture: ComponentFixture<CadastroUsuarioPage>;
   let authApiService: { cadastrar: ReturnType<typeof vi.fn> };
   let mensagemGlobalService: { sucesso: ReturnType<typeof vi.fn>; erro: ReturnType<typeof vi.fn> };
+  let dialog: { open: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     authApiService = {
@@ -29,6 +32,9 @@ describe('CadastroUsuarioPage', () => {
     mensagemGlobalService = {
       sucesso: vi.fn(),
       erro: vi.fn(),
+    };
+    dialog = {
+      open: vi.fn(() => ({ afterClosed: () => of(true) })),
     };
 
     await TestBed.configureTestingModule({
@@ -42,6 +48,10 @@ describe('CadastroUsuarioPage', () => {
         {
           provide: MensagemGlobalService,
           useValue: mensagemGlobalService,
+        },
+        {
+          provide: MatDialog,
+          useValue: dialog,
         },
       ],
     }).compileComponents();
@@ -91,6 +101,8 @@ describe('CadastroUsuarioPage', () => {
 
   it('limpa o formulário sem enviar uma requisição', () => {
     preencherFormulario();
+    pagina().formulario.markAsDirty();
+    fixture.detectChanges();
 
     const botaoLimpar = fixture.nativeElement.querySelector(
       '.cadastro-formulario__acoes button[type="button"]',
@@ -100,6 +112,7 @@ describe('CadastroUsuarioPage', () => {
     fixture.detectChanges();
 
     expect(authApiService.cadastrar).not.toHaveBeenCalled();
+    expect(dialog.open).toHaveBeenCalledOnce();
     expect(fixture.nativeElement.querySelector('input[formcontrolname="nome"]')?.value).toBe('');
     expect(
       fixture.nativeElement.querySelector('input[formcontrolname="confirmacaoSenha"]')?.value,
@@ -109,6 +122,12 @@ describe('CadastroUsuarioPage', () => {
   it('organiza os campos em uma grade e apresenta ações de limpar e salvar', () => {
     expect(fixture.nativeElement.querySelector('mat-card')).toBeNull();
     expect(fixture.nativeElement.querySelector('.cadastro-formulario__campos')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain(
+      'AUTENTICACAO.CADASTRO_USUARIO.SECOES.IDENTIFICACAO.TITULO',
+    );
+    expect(fixture.nativeElement.textContent).toContain(
+      'AUTENTICACAO.CADASTRO_USUARIO.SECOES.ACESSO.TITULO',
+    );
 
     const acoes = fixture.nativeElement.querySelector('.cadastro-formulario__acoes');
     expect(acoes?.textContent).toContain('COMPARTILHADO.ACOES.LIMPAR');

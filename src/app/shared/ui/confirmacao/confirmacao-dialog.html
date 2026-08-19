@@ -1,0 +1,20 @@
+<h2 mat-dialog-title>{{ dados.titulo }}</h2>
+
+<mat-dialog-content>
+  <p>{{ dados.mensagem }}</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" cdkFocusInitial (click)="dialogRef.close(false)">
+    {{ dados.rotuloCancelar }}
+  </button>
+  <button
+    mat-flat-button
+    type="button"
+    class="confirmacao-dialog__confirmar"
+    [class.confirmacao-dialog__confirmar--perigoso]="dados.tom === 'perigoso'"
+    (click)="dialogRef.close(true)"
+  >
+    {{ dados.rotuloConfirmar }}
+  </button>
+</mat-dialog-actions>

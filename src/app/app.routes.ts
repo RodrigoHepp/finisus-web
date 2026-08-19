@@ -33,6 +33,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'cadastros/:tipo',
+        title: tituloTraduzido('CADASTROS.TITULO_ROTA'),
+        loadComponent: () =>
+          import('./features/cadastros/pages/lista-cadastros/lista-cadastros.page').then(
+            (arquivo) => arquivo.ListaCadastrosPage,
+          ),
+      },
+      {
         path: '',
         pathMatch: 'full',
         redirectTo: 'dashboard',

@@ -1,0 +1,38 @@
+:host {
+  display: grid;
+  gap: 1.25rem;
+}
+
+h2 {
+  margin: 0;
+  color: var(--finisus-text);
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+p {
+  margin: 0;
+  color: var(--finisus-text-muted);
+  line-height: 1.5;
+}
+
+mat-dialog-content {
+  min-height: 0;
+  padding: 0;
+}
+
+mat-dialog-actions {
+  min-height: 0;
+  margin: 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--finisus-border);
+}
+
+.confirmacao-dialog__confirmar--perigoso {
+  background: var(--finisus-negative);
+  color: var(--finisus-on-primary);
+}
+
+.confirmacao-dialog__confirmar--perigoso:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--finisus-negative) 88%, #000);
+}

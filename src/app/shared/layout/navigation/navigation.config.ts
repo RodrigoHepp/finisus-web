@@ -28,8 +28,40 @@ export const ITENS_NAVEGACAO_PRINCIPAL: readonly ItemNavegacao[] = [
 
 export const GRUPOS_NAVEGACAO: readonly GrupoNavegacao[] = [
   {
+    id: 'cadastros',
+    rotulo: 'COMPARTILHADO.NAVEGACAO.CADASTROS',
+    icone: 'inventory_2',
+    itens: [
+      {
+        id: 'bancos',
+        rotulo: 'CADASTROS.BANCOS.TITULO',
+        icone: 'account_balance',
+        rota: '/cadastros/bancos',
+      },
+      {
+        id: 'contas',
+        rotulo: 'CADASTROS.CONTAS.TITULO',
+        icone: 'account_balance_wallet',
+        rota: '/cadastros/contas',
+      },
+      {
+        id: 'categorias',
+        rotulo: 'CADASTROS.CATEGORIAS.TITULO',
+        icone: 'category',
+        rota: '/cadastros/categorias',
+      },
+      { id: 'itens', rotulo: 'CADASTROS.ITENS.TITULO', icone: 'sell', rota: '/cadastros/itens' },
+      {
+        id: 'meios-pagamento',
+        rotulo: 'CADASTROS.MEIOS_PAGAMENTO.TITULO',
+        icone: 'payments',
+        rota: '/cadastros/meios-pagamento',
+      },
+    ],
+  },
+  {
     id: 'usuarios',
-    rotulo: 'COMPARTILHADO.NAVEGACAO.USUARIOS',
+    rotulo: 'COMPARTILHADO.NAVEGACAO.ADMINISTRACAO',
     icone: 'group',
     itens: [
       {

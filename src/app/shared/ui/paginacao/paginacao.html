@@ -1,0 +1,54 @@
+<nav class="paginacao" [attr.aria-label]="'CADASTROS.PAGINACAO' | translate">
+  <button
+    mat-icon-button
+    type="button"
+    [disabled]="pagina() === 0"
+    [attr.aria-label]="'PAGINACAO.ANTERIOR' | translate"
+    (click)="navegarPara(pagina() - 1)"
+  >
+    <mat-icon class="material-symbols-outlined" aria-hidden="true">chevron_left</mat-icon>
+  </button>
+
+  <div class="paginacao__paginas">
+    @for (paginaVisivel of paginasVisiveis(); track paginaVisivel) {
+      <button
+        mat-button
+        type="button"
+        class="paginacao__pagina"
+        [class.paginacao__pagina--atual]="paginaVisivel === pagina()"
+        [attr.aria-current]="paginaVisivel === pagina() ? 'page' : null"
+        [attr.aria-label]="'PAGINACAO.IR_PARA' | translate: { pagina: paginaVisivel + 1 }"
+        (click)="navegarPara(paginaVisivel)"
+      >
+        {{ paginaVisivel + 1 }}
+      </button>
+    }
+  </div>
+
+  <button
+    mat-icon-button
+    type="button"
+    class="paginacao__ultima"
+    [disabled]="pagina() >= totalPaginas() - 1"
+    [attr.aria-label]="'PAGINACAO.ULTIMA' | translate"
+    (click)="navegarPara(totalPaginas() - 1)"
+  >
+    <mat-icon class="material-symbols-outlined" aria-hidden="true">last_page</mat-icon>
+  </button>
+
+  <button
+    mat-icon-button
+    type="button"
+    [disabled]="pagina() >= totalPaginas() - 1"
+    [attr.aria-label]="'PAGINACAO.PROXIMA' | translate"
+    (click)="navegarPara(pagina() + 1)"
+  >
+    <mat-icon class="material-symbols-outlined" aria-hidden="true">chevron_right</mat-icon>
+  </button>
+
+  <span class="paginacao__contador" role="status">
+    {{
+      'PAGINACAO.REGISTROS' | translate: { exibidos: registrosExibidos(), total: totalRegistros() }
+    }}
+  </span>
+</nav>

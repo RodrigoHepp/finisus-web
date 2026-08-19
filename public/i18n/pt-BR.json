@@ -2,15 +2,22 @@
   "COMPARTILHADO": {
     "APLICACAO": {
       "NOME": "Finisus",
-      "INICIAL": "F"
+      "INICIAL": "F",
+      "SUBTITULO": "Gestão financeira",
+      "CONTA_ATIVA": "Conta ativa"
     },
     "ACOES": {
       "ENTRAR": "Entrar",
       "CADASTRAR_USUARIO": "Cadastrar usuário",
       "LIMPAR": "Limpar",
       "SALVAR": "Salvar",
+      "CANCELAR": "Cancelar",
+      "EXCLUIR": "Excluir",
+      "EDITAR": "Editar",
+      "TITULO": "Ações",
       "SAIR": "Sair",
-      "FECHAR_MENSAGEM": "Fechar mensagem"
+      "FECHAR_MENSAGEM": "Fechar mensagem",
+      "FECHAR": "Fechar"
     },
     "CAMPOS": {
       "NOME": "Nome",
@@ -26,9 +33,12 @@
     },
     "NAVEGACAO": {
       "PRINCIPAL": "Navegação principal",
+      "SECAO_PRINCIPAL": "Principal",
       "CAMINHO_ATUAL": "Caminho da página",
       "HOME": "Home",
       "USUARIOS": "Usuários",
+      "ADMINISTRACAO": "Administração",
+      "CADASTROS": "Cadastros",
       "CADASTRAR_USUARIO": "Cadastrar usuário",
       "ABRIR_MENU": "Abrir menu de navegação",
       "EXPANDIR_MENU": "Expandir menu",
@@ -51,6 +61,7 @@
   "AUTENTICACAO": {
     "LOGIN": {
       "TITULO_ROTA": "Entrar | Finisus",
+      "SOBRELINHA": "Acesso ao sistema",
       "DESCRICAO": "Entre para organizar sua vida financeira.",
       "ORIENTACAO_CADASTRO": "Ainda não possui conta? Entre em contato com um administrador.",
       "INFORMAR_EMAIL": "Informe seu e-mail.",
@@ -84,13 +95,156 @@
       "CADASTRANDO": "Cadastrando...",
       "SEM_PERMISSAO": "Você não possui permissão para cadastrar usuários.",
       "ERRO": "Não foi possível cadastrar o usuário. Tente novamente em alguns instantes.",
-      "USUARIO_CADASTRADO_COM_SUCESSO": "Usuário {{nome}} cadastrado com sucesso."
+      "USUARIO_CADASTRADO_COM_SUCESSO": "Usuário {{nome}} cadastrado com sucesso.",
+      "CONFIRMACAO_LIMPEZA": {
+        "TITULO": "Limpar formulário",
+        "MENSAGEM": "Os dados informados serão descartados.",
+        "CONFIRMAR": "Limpar"
+      },
+      "SECOES": {
+        "IDENTIFICACAO": {
+          "TITULO": "Identificação",
+          "DESCRICAO": "Informe quem utilizará este acesso."
+        },
+        "ACESSO": {
+          "TITULO": "Acesso",
+          "DESCRICAO": "Defina uma senha segura para a nova conta."
+        }
+      }
     }
   },
   "DASHBOARD": {
     "TITULO_ROTA": "Home | Finisus",
-    "TITULO": "Olá!",
-    "DESCRICAO": "Em breve você verá aqui o resumo das suas finanças.",
-    "PLACEHOLDER": "Seu dashboard está dentro do AppShell."
+    "TITULO": "Visão geral",
+    "DESCRICAO": "Prepare a estrutura financeira do seu espaço de trabalho.",
+    "PRIMEIROS_PASSOS": {
+      "SOBRELINHA": "Comece por aqui",
+      "TITULO": "Organize a base do seu financeiro",
+      "DESCRICAO": "Cadastre os elementos que serão usados nos próximos lançamentos e relatórios.",
+      "BANCOS": {
+        "TITULO": "Bancos",
+        "DESCRICAO": "Registre os bancos que fazem parte da sua rotina financeira.",
+        "ACAO": "Cadastrar bancos"
+      },
+      "CONTAS": {
+        "TITULO": "Contas",
+        "DESCRICAO": "Defina onde seus recursos são recebidos e movimentados.",
+        "ACAO": "Cadastrar contas"
+      },
+      "CATEGORIAS": {
+        "TITULO": "Categorias",
+        "DESCRICAO": "Estruture como seus lançamentos serão organizados.",
+        "ACAO": "Cadastrar categorias"
+      }
+    }
+  },
+  "CADASTROS": {
+    "TITULO_ROTA": "Cadastros | Finisus",
+    "ACOES": {
+      "NOVO": "Novo {{recurso}}",
+      "EDITAR": "Editar {{nome}}",
+      "NENHUM": "Nenhum"
+    },
+    "CAMPOS": {
+      "CODIGO": "Código",
+      "TIPO_CONTA": "Tipo de conta",
+      "TIPO_E_SALDO": "Tipo de conta e saldo",
+      "BANCO": "Banco",
+      "CATEGORIA_PAI": "Categoria pai",
+      "CATEGORIA_PADRAO": "Categoria padrão",
+      "MENU_ACOES": "Ações para {{nome}}"
+    },
+    "TIPOS_CONTA": {
+      "FISICO": "Dinheiro físico",
+      "CORRENTE": "Conta corrente",
+      "POUPANCA": "Poupança",
+      "APLICACAO": "Aplicação"
+    },
+    "BANCOS": {
+      "TITULO": "Bancos",
+      "SINGULAR": "banco",
+      "DESCRICAO": "Mantenha os bancos que você utiliza nas suas contas financeiras."
+    },
+    "CONTAS": {
+      "TITULO": "Contas",
+      "SINGULAR": "conta",
+      "DESCRICAO": "Cadastre as contas que recebem e pagam seus lançamentos."
+    },
+    "CATEGORIAS": {
+      "TITULO": "Categorias",
+      "SINGULAR": "categoria",
+      "DESCRICAO": "Organize seus lançamentos em categorias e subcategorias."
+    },
+    "ITENS": {
+      "TITULO": "Itens",
+      "SINGULAR": "item",
+      "DESCRICAO": "Crie itens reutilizáveis para detalhar seus lançamentos."
+    },
+    "MEIOS_PAGAMENTO": {
+      "TITULO": "Meios de pagamento",
+      "SINGULAR": "meio de pagamento",
+      "DESCRICAO": "Cadastre como seus lançamentos são pagos ou recebidos."
+    },
+    "DETALHES": {
+      "CATEGORIA_PAI": "Categoria pai: #{{id}}",
+      "SEM_CATEGORIA_PAI": "Sem categoria pai",
+      "CATEGORIA_PADRAO": "Categoria padrão: #{{id}}",
+      "SEM_CATEGORIA_PADRAO": "Sem categoria padrão",
+      "BANCO_DO_SISTEMA": "Banco do sistema",
+      "REGISTRO_DO_SISTEMA": "Registro do sistema"
+    },
+    "CONFIRMACAO_EXCLUSAO": {
+      "TITULO": "Excluir cadastro",
+      "MENSAGEM": "Deseja excluir {{nome}}? Esta ação poderá afetar lançamentos que usam este cadastro."
+    },
+    "CONFIRMACAO_DESCARTE": {
+      "TITULO": "Descartar alterações",
+      "MENSAGEM": "As alterações ainda não foram salvas e serão descartadas.",
+      "CONFIRMAR": "Descartar"
+    },
+    "VALIDACOES": {
+      "OBRIGATORIO": "Informe este campo.",
+      "TAMANHO_MAXIMO": "Informe no máximo {{tamanho}} caracteres."
+    },
+    "FORMULARIO": {
+      "SECOES": {
+        "IDENTIFICACAO": "Identificação",
+        "VINCULOS": "Vínculos",
+        "HIERARQUIA": "Hierarquia",
+        "CLASSIFICACAO": "Classificação"
+      },
+      "DESCRICOES_SECOES": {
+        "IDENTIFICACAO": "Informe os dados principais deste cadastro.",
+        "VINCULOS": "Associe este cadastro a outros registros quando necessário.",
+        "HIERARQUIA": "Defina como este cadastro se relaciona à sua estrutura.",
+        "CLASSIFICACAO": "Escolha a classificação que será usada como padrão."
+      }
+    },
+    "MENSAGENS": {
+      "CARREGANDO": "Carregando cadastros...",
+      "CARREGANDO_OPCOES": "Carregando opções...",
+      "NENHUMA_OPCAO_DISPONIVEL": "Nenhuma opção disponível.",
+      "SALVANDO": "Salvando cadastro...",
+      "NENHUM_REGISTRO": "Nenhum cadastro encontrado.",
+      "ERRO_CARREGAR_TITULO": "Não foi possível carregar os cadastros",
+      "ERRO_CARREGAR_DESCRICAO": "Verifique a conexão e tente novamente.",
+      "SEM_PERMISSAO_TITULO": "Você não possui acesso a estes cadastros",
+      "SEM_PERMISSAO_DESCRICAO": "Solicite acesso a um administrador para continuar.",
+      "TENTAR_NOVAMENTE": "Tentar novamente",
+      "CRIADO_COM_SUCESSO": "{{nome}} foi criado com sucesso.",
+      "ATUALIZADO_COM_SUCESSO": "{{nome}} foi atualizado com sucesso.",
+      "EXCLUIDO_COM_SUCESSO": "{{nome}} foi excluído com sucesso.",
+      "ERRO_CARREGAR": "Não foi possível carregar os cadastros. Tente novamente.",
+      "ERRO_SALVAR": "Não foi possível salvar o cadastro. Tente novamente."
+    },
+    "PAGINACAO": "Paginação dos cadastros"
+  },
+  "PAGINACAO": {
+    "ANTERIOR": "Página anterior",
+    "PROXIMA": "Próxima página",
+    "ULTIMA": "Ir para a última página",
+    "IR_PARA": "Ir para a página {{pagina}}",
+    "REGISTROS": "{{exibidos}} registros de {{total}}",
+    "PAGINA_ATUAL": "Página atual"
   }
 }

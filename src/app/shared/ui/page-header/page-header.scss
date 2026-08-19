@@ -1,0 +1,50 @@
+:host {
+  display: block;
+}
+
+.page-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+}
+
+.page-header__texto {
+  display: grid;
+  gap: 0.25rem;
+}
+
+h1,
+p {
+  margin: 0;
+}
+
+h1 {
+  color: var(--finisus-text);
+  font-size: clamp(1.375rem, 1.8vw, 1.75rem);
+  letter-spacing: -0.03em;
+}
+
+p {
+  color: var(--finisus-text-muted);
+  max-width: 42rem;
+}
+
+.page-header__acoes:empty {
+  display: none;
+}
+
+@media (max-width: 42rem) {
+  .page-header {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .page-header__acoes:not(:empty) {
+    display: grid;
+  }
+
+  .page-header__acoes > * {
+    width: 100%;
+  }
+}

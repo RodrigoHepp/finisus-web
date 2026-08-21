@@ -27,10 +27,11 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AuthApiService } from '../../../../core/auth/auth-api.service';
 import { AvisoCapsLockComponent } from '../../../../shared/ui/aviso-caps-lock/aviso-caps-lock';
-import { MensagemGlobalService } from '../../../../shared/ui/mensagem-global/mensagem-global.service';
+import { MensagemGlobalService } from '../../../../core/feedback/mensagem-global.service';
 import { IndicadorProcessamentoComponent } from '../../../../shared/ui/indicador-processamento/indicador-processamento';
 import { CampoFormularioComponent } from '../../../../shared/ui/campo-formulario/campo-formulario';
-import { FocoAcessivelService } from '../../../../shared/ui/foco/foco-acessivel.service';
+import { FocoAcessivelService } from '../../../../core/accessibility/foco-acessivel.service';
+import { validarTextoObrigatorio } from '../../../../shared/forms/texto-obrigatorio.validators';
 import {
   ConfirmacaoDialogComponent,
   ConfirmacaoDialogData,
@@ -80,7 +81,7 @@ export class CadastroUsuarioPage {
 
   protected readonly formulario: FormGroup<ControlesCadastroUsuario> = this.formBuilder.group(
     {
-      nome: ['', [Validators.required, Validators.maxLength(150)]],
+      nome: ['', [Validators.required, validarTextoObrigatorio(), Validators.maxLength(150)]],
       email: ['', [Validators.required, Validators.email]],
       senha: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
       confirmacaoSenha: ['', [Validators.required]],
@@ -115,7 +116,7 @@ export class CadastroUsuarioPage {
     const { nome, email, senha } = this.formulario.getRawValue();
 
     this.authApiService
-      .cadastrar({ nome, email, senha })
+      .cadastrar({ nome: nome.trim(), email: email.trim(), senha })
       .pipe(
         finalize(() => this.carregando.set(false)),
         takeUntilDestroyed(this.destroyRef),

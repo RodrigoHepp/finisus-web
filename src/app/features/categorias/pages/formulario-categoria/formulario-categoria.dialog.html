@@ -1,0 +1,52 @@
+<section class="formulario-registro-dialog">
+  <app-cabecalho-dialogo-formulario
+    [titulo]="
+      (editando ? 'COMPARTILHADO.ACOES.EDITAR' : 'CADASTROS.ACOES.NOVO')
+        | translate: { recurso: ('CADASTROS.CATEGORIAS.SINGULAR' | translate) }
+    "
+    [descricao]="'CADASTROS.CATEGORIAS.DESCRICAO' | translate"
+    [enviando]="enviando()"
+    (fechar)="cancelar()"
+  />
+  <form [formGroup]="formulario" (ngSubmit)="salvar()" novalidate>
+    <div class="formulario-registro-dialog__campos">
+      <app-campo-formulario
+        [rotulo]="'COMPARTILHADO.CAMPOS.NOME' | translate"
+        controleId="categoria-nome"
+        [obrigatorio]="true"
+        ><mat-form-field subscriptSizing="dynamic"
+          ><input id="categoria-nome" matInput formControlName="nome" maxlength="100" />
+          @if (campoInvalido('nome')) {
+            <mat-error><app-mensagem-validacao [controle]="formulario.controls.nome" /></mat-error>
+          }</mat-form-field></app-campo-formulario
+      ><app-campo-formulario
+        [rotulo]="'CADASTROS.CAMPOS.CATEGORIA_PAI' | translate"
+        controleId="categoria-categoriaPaiId"
+        ><mat-form-field subscriptSizing="dynamic"
+          ><mat-select id="categoria-categoriaPaiId" formControlName="categoriaPaiId"
+            ><mat-option [value]="null">{{ 'CADASTROS.ACOES.NENHUM' | translate }}</mat-option>
+            @if (carregandoCategorias()) {
+              <mat-option disabled>{{
+                'CADASTROS.MENSAGENS.CARREGANDO_OPCOES' | translate
+              }}</mat-option>
+            } @else {
+              @for (categoria of categorias(); track categoria.id) {
+                <mat-option [value]="categoria.id">{{ categoria.nome }}</mat-option>
+              }
+            }
+          </mat-select></mat-form-field
+        ></app-campo-formulario
+      >
+    </div>
+    @if (mensagem(); as texto) {
+      <p class="formulario-registro-dialog__erro" role="alert">{{ texto }}</p>
+    }
+    <footer class="formulario-registro-dialog__acoes">
+      <button mat-button type="button" [disabled]="enviando()" (click)="cancelar()">
+        {{ 'COMPARTILHADO.ACOES.CANCELAR' | translate }}</button
+      ><button mat-flat-button type="submit" [disabled]="enviando()">
+        {{ 'COMPARTILHADO.ACOES.SALVAR' | translate }}
+      </button>
+    </footer>
+  </form>
+</section>

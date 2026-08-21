@@ -1,0 +1,95 @@
+<section class="lista-registros-page">
+  <app-page-header
+    [titulo]="'CADASTROS.MEIOS_PAGAMENTO.TITULO' | translate"
+    [descricao]="'CADASTROS.MEIOS_PAGAMENTO.DESCRICAO' | translate"
+    ><button mat-flat-button type="button" (click)="abrirFormulario()">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">add</mat-icon
+      >{{
+        'CADASTROS.ACOES.NOVO'
+          | translate: { recurso: ('CADASTROS.MEIOS_PAGAMENTO.SINGULAR' | translate) }
+      }}
+    </button></app-page-header
+  >
+  @if (carregando() && dados().conteudo.length === 0) {
+    <app-indicador-processamento modo="local" mensagem="CADASTROS.MENSAGENS.CARREGANDO" />
+  } @else if (erro() && dados().conteudo.length === 0) {
+    <section class="lista-registros-page__estado" role="alert">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">cloud_off</mat-icon>
+      <h2>{{ 'CADASTROS.MENSAGENS.ERRO_CARREGAR_TITULO' | translate }}</h2>
+      <p>{{ erro() }}</p>
+      <button mat-stroked-button type="button" (click)="tentarNovamente()">
+        {{ 'CADASTROS.MENSAGENS.TENTAR_NOVAMENTE' | translate }}
+      </button>
+    </section>
+  } @else if (dados().conteudo.length === 0) {
+    <section class="lista-registros-page__estado" role="status">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">payments</mat-icon>
+      <p>{{ 'CADASTROS.MENSAGENS.NENHUM_REGISTRO' | translate }}</p>
+      <button mat-stroked-button type="button" (click)="abrirFormulario()">
+        {{
+          'CADASTROS.ACOES.NOVO'
+            | translate: { recurso: ('CADASTROS.MEIOS_PAGAMENTO.SINGULAR' | translate) }
+        }}
+      </button>
+    </section>
+  } @else {
+    <section class="lista-registros-page__conteudo" [attr.aria-busy]="carregando()">
+      @if (erro()) {
+        <p class="lista-registros-page__erro" role="alert">{{ erro() }}</p>
+      }
+      <div
+        class="lista-registros-page__tabela"
+        tabindex="0"
+        [attr.aria-label]="'CADASTROS.MEIOS_PAGAMENTO.TITULO' | translate"
+      >
+        <table mat-table class="finisus-data-table" [dataSource]="dados().conteudo">
+          <ng-container matColumnDef="nome"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'COMPARTILHADO.CAMPOS.NOME' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let meioPagamento">{{ meioPagamento.nome }}</td></ng-container
+          ><ng-container matColumnDef="acoes"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'COMPARTILHADO.CAMPOS.ACOES' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let meioPagamento">
+              <button
+                mat-icon-button
+                [matMenuTriggerFor]="acoes"
+                [attr.aria-label]="
+                  'CADASTROS.CAMPOS.MENU_ACOES' | translate: { nome: meioPagamento.nome }
+                "
+              >
+                <mat-icon class="material-symbols-outlined" aria-hidden="true"
+                  >more_vert</mat-icon
+                ></button
+              ><mat-menu #acoes="matMenu"
+                ><button mat-menu-item type="button" (click)="abrirFormulario(meioPagamento)">
+                  <mat-icon class="material-symbols-outlined" aria-hidden="true">edit</mat-icon
+                  >{{ 'COMPARTILHADO.ACOES.EDITAR' | translate }}</button
+                ><button
+                  mat-menu-item
+                  type="button"
+                  class="lista-registros-page__acao-perigosa"
+                  (click)="excluir(meioPagamento)"
+                >
+                  <mat-icon class="material-symbols-outlined" aria-hidden="true">delete</mat-icon
+                  >{{ 'COMPARTILHADO.ACOES.EXCLUIR' | translate }}
+                </button></mat-menu
+              >
+            </td></ng-container
+          >
+          <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+          <tr mat-row *matRowDef="let linha; columns: colunas"></tr>
+        </table>
+      </div>
+      <app-paginacao
+        [pagina]="dados().pagina"
+        [totalPaginas]="dados().totalPaginas"
+        [registrosExibidos]="dados().conteudo.length"
+        [totalRegistros]="dados().totalElementos"
+        (navegacaoSolicitada)="navegarParaPagina($event)"
+      />
+    </section>
+  }
+</section>

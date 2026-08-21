@@ -29,7 +29,8 @@
       "EXEMPLO_NOME": "Ex.: Ana Silva",
       "DICA_SENHA_LOGIN": "Digite sua senha",
       "DICA_SENHA_CADASTRO": "Mínimo de 8 caracteres",
-      "DICA_CONFIRMAR_SENHA": "Repita a senha informada"
+      "DICA_CONFIRMAR_SENHA": "Repita a senha informada",
+      "ACOES": "Ações"
     },
     "NAVEGACAO": {
       "PRINCIPAL": "Navegação principal",
@@ -39,6 +40,7 @@
       "USUARIOS": "Usuários",
       "ADMINISTRACAO": "Administração",
       "CADASTROS": "Cadastros",
+      "CREDITO": "Crédito",
       "CADASTRAR_USUARIO": "Cadastrar usuário",
       "ABRIR_MENU": "Abrir menu de navegação",
       "EXPANDIR_MENU": "Expandir menu",
@@ -238,6 +240,88 @@
       "ERRO_SALVAR": "Não foi possível salvar o cadastro. Tente novamente."
     },
     "PAGINACAO": "Paginação dos cadastros"
+  },
+  "TRANSACOES": {
+    "TITULO_ROTA": "Transações | Finisus",
+    "TITULO": "Transações",
+    "DESCRICAO": "Registre, corrija e acompanhe os lançamentos financeiros.",
+    "DESCRICAO_FORMULARIO": "Informe os dados que identificam este lançamento.",
+    "CONTA_ID": "Conta #{{id}}",
+    "TIPOS": {
+      "ENTRADA": "Entrada",
+      "SAIDA": "Saída"
+    },
+    "CAMPOS": {
+      "TIPO": "Tipo",
+      "VALOR": "Valor",
+      "DATA": "Data",
+      "DESCRICAO": "Descrição",
+      "CONTA": "Conta",
+      "CATEGORIA": "Categoria",
+      "MEIO_PAGAMENTO": "Meio de pagamento"
+    },
+    "ACOES": {
+      "NOVA": "Nova transação",
+      "EDITAR": "Editar transação",
+      "ESTORNAR": "Estornar transação",
+      "HISTORICO": "Ver histórico",
+      "NENHUMA": "Nenhuma",
+      "NENHUM": "Nenhum"
+    },
+    "VALIDACOES": {
+      "OBRIGATORIO": "Informe este campo.",
+      "VALOR": "Informe um valor maior que zero.",
+      "DESCRICAO": "Informe uma descrição de até 500 caracteres."
+    },
+    "MENSAGENS": {
+      "CARREGANDO": "Carregando transações...",
+      "CARREGANDO_REFERENCIAS": "Carregando contas e catálogos...",
+      "SALVANDO": "Salvando transação...",
+      "NENHUMA": "Nenhuma transação registrada.",
+      "ESTORNADA": "Transação estornada com sucesso.",
+      "ERRO_CARREGAR": "Não foi possível carregar as transações. Tente novamente.",
+      "ERRO_SALVAR": "Não foi possível salvar a transação. Tente novamente."
+    },
+    "CONFIRMACAO_ESTORNO": {
+      "TITULO": "Estornar transação",
+      "MENSAGEM": "Deseja estornar a transação “{{descricao}}”? O lançamento será preservado no histórico."
+    },
+    "HISTORICO": {
+      "TITULO": "Histórico da transação",
+      "CAMPO": "Campo",
+      "ANTERIOR": "Valor anterior",
+      "NOVO": "Novo valor",
+      "DATA": "Alterado em"
+    }
+  },
+  "CARTOES": {
+    "TITULO_ROTA": "Cartões | Finisus",
+    "TITULO": "Cartões",
+    "DESCRICAO": "Organize limites, fechamento e vencimento dos cartões de crédito.",
+    "ACOES": {
+      "NOVO": "Novo cartão"
+    },
+    "CAMPOS": {
+      "LIMITE": "Limite",
+      "FECHAMENTO": "Dia de fechamento",
+      "VENCIMENTO": "Dia de vencimento"
+    },
+    "VALIDACOES": {
+      "LIMITE": "Informe um limite válido maior que zero.",
+      "DIA": "Informe um dia entre 1 e 31."
+    },
+    "MENSAGENS": {
+      "CARREGANDO": "Carregando cartões...",
+      "NENHUM": "Nenhum cartão cadastrado.",
+      "EXCLUIDO": "{{nome}} foi excluído com sucesso.",
+      "ERRO_TITULO": "Não foi possível carregar os cartões",
+      "ERRO_CARREGAR": "Não foi possível carregar os cartões. Tente novamente.",
+      "ERRO_SALVAR": "Não foi possível salvar o cartão. Tente novamente."
+    },
+    "CONFIRMACAO_EXCLUSAO": {
+      "TITULO": "Excluir cartão",
+      "MENSAGEM": "Deseja excluir {{nome}}? Faturas associadas podem ser afetadas."
+    }
   },
   "PAGINACAO": {
     "ANTERIOR": "Página anterior",

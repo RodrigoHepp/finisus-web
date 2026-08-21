@@ -1,0 +1,14 @@
+.previsoes-page__filtro {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.previsoes-page__filtro mat-form-field {
+  width: min(100%, 15rem);
+}
+@media (max-width: 42rem) {
+  .previsoes-page__filtro {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

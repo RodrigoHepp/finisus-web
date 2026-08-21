@@ -6,6 +6,7 @@ import { environment } from '../../environment/environment';
 import {
   AuthTokens,
   CadastroRequest,
+  AtualizarPerfilRequest,
   LoginRequest,
   UsuarioCadastrado,
   UsuarioLogado,
@@ -33,5 +34,13 @@ export class AuthApiService {
 
   obterUsuarioLogado(): Observable<UsuarioLogado> {
     return this.http.get<UsuarioLogado>(`${this.usuariosUrl}/me`);
+  }
+
+  atualizarPerfil(request: AtualizarPerfilRequest): Observable<UsuarioLogado> {
+    return this.http.patch<UsuarioLogado>(`${this.usuariosUrl}/me`, request);
+  }
+
+  desativarPerfil(): Observable<void> {
+    return this.http.delete<void>(`${this.usuariosUrl}/me`);
   }
 }

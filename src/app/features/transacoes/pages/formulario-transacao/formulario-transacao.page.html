@@ -1,0 +1,158 @@
+<section class="formulario-transacao">
+  <header class="formulario-transacao__cabecalho">
+    <div>
+      <h2 mat-dialog-title>
+        {{ (editando ? 'TRANSACOES.ACOES.EDITAR' : 'TRANSACOES.ACOES.NOVA') | translate }}
+      </h2>
+      <p>{{ 'TRANSACOES.DESCRICAO_FORMULARIO' | translate }}</p>
+    </div>
+    <button
+      mat-icon-button
+      type="button"
+      [disabled]="enviando()"
+      [attr.aria-label]="'COMPARTILHADO.ACOES.FECHAR' | translate"
+      (click)="cancelar()"
+    >
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">close</mat-icon>
+    </button>
+  </header>
+
+  @if (carregando()) {
+    <app-indicador-processamento
+      modo="local"
+      mensagem="TRANSACOES.MENSAGENS.CARREGANDO_REFERENCIAS"
+    />
+  } @else if (erroReferencias(); as texto) {
+    <section class="formulario-transacao__estado" role="alert">
+      <p>{{ texto }}</p>
+      <button mat-stroked-button type="button" (click)="tentarCarregarReferencias()">
+        {{ 'CADASTROS.MENSAGENS.TENTAR_NOVAMENTE' | translate }}
+      </button>
+    </section>
+  } @else {
+    <form [formGroup]="formulario" (ngSubmit)="salvar()" novalidate>
+      <div class="formulario-transacao__campos">
+        <app-campo-formulario
+          [rotulo]="'TRANSACOES.CAMPOS.TIPO' | translate"
+          controleId="transacao-tipo"
+          [obrigatorio]="true"
+        >
+          <mat-form-field subscriptSizing="dynamic"
+            ><mat-select id="transacao-tipo" formControlName="tipo"
+              ><mat-option value="ENTRADA">{{ 'TRANSACOES.TIPOS.ENTRADA' | translate }}</mat-option
+              ><mat-option value="SAIDA">{{
+                'TRANSACOES.TIPOS.SAIDA' | translate
+              }}</mat-option></mat-select
+            >
+            @if (campoInvalido('tipo')) {
+              <mat-error>{{ 'TRANSACOES.VALIDACOES.OBRIGATORIO' | translate }}</mat-error>
+            }
+          </mat-form-field>
+        </app-campo-formulario>
+        <app-campo-formulario
+          [rotulo]="'TRANSACOES.CAMPOS.VALOR' | translate"
+          controleId="transacao-valor"
+          [obrigatorio]="true"
+        >
+          <mat-form-field subscriptSizing="dynamic"
+            ><input id="transacao-valor" matInput inputmode="decimal" formControlName="valor" />
+            @if (campoInvalido('valor')) {
+              <mat-error>{{ 'TRANSACOES.VALIDACOES.VALOR' | translate }}</mat-error>
+            }
+          </mat-form-field>
+        </app-campo-formulario>
+        <app-campo-formulario
+          [rotulo]="'TRANSACOES.CAMPOS.DATA' | translate"
+          controleId="transacao-data"
+          [obrigatorio]="true"
+        >
+          <mat-form-field subscriptSizing="dynamic"
+            ><input id="transacao-data" matInput type="date" formControlName="data" />
+            @if (campoInvalido('data')) {
+              <mat-error>{{ 'TRANSACOES.VALIDACOES.OBRIGATORIO' | translate }}</mat-error>
+            }
+          </mat-form-field>
+        </app-campo-formulario>
+        <app-campo-formulario
+          [rotulo]="'TRANSACOES.CAMPOS.CONTA' | translate"
+          controleId="transacao-contaId"
+          [obrigatorio]="true"
+        >
+          <mat-form-field subscriptSizing="dynamic"
+            ><mat-select id="transacao-contaId" formControlName="contaId">
+              @for (conta of contas(); track conta.id) {
+                <mat-option [value]="conta.id">{{ conta.nome }}</mat-option>
+              }
+            </mat-select>
+            @if (campoInvalido('contaId')) {
+              <mat-error>{{ 'TRANSACOES.VALIDACOES.OBRIGATORIO' | translate }}</mat-error>
+            }
+          </mat-form-field>
+        </app-campo-formulario>
+        <app-campo-formulario
+          [rotulo]="'TRANSACOES.CAMPOS.DESCRICAO' | translate"
+          controleId="transacao-descricao"
+          [obrigatorio]="true"
+          class="formulario-transacao__descricao"
+        >
+          <mat-form-field subscriptSizing="dynamic">
+            <textarea
+              id="transacao-descricao"
+              matInput
+              rows="3"
+              maxlength="500"
+              formControlName="descricao"
+            ></textarea>
+            @if (campoInvalido('descricao')) {
+              <mat-error>
+                <app-mensagem-validacao
+                  [controle]="formulario.controls.descricao"
+                  chaveObrigatorio="TRANSACOES.VALIDACOES.OBRIGATORIO"
+                  chaveTamanhoMaximo="TRANSACOES.VALIDACOES.DESCRICAO"
+                />
+              </mat-error>
+            }
+          </mat-form-field>
+        </app-campo-formulario>
+        <app-campo-formulario
+          [rotulo]="'TRANSACOES.CAMPOS.CATEGORIA' | translate"
+          controleId="transacao-categoriaId"
+          ><mat-form-field subscriptSizing="dynamic"
+            ><mat-select id="transacao-categoriaId" formControlName="categoriaId"
+              ><mat-option [value]="null">{{ 'TRANSACOES.ACOES.NENHUMA' | translate }}</mat-option>
+              @for (categoria of categorias(); track categoria.id) {
+                <mat-option [value]="categoria.id">{{ categoria.nome }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          ></app-campo-formulario
+        >
+        <app-campo-formulario
+          [rotulo]="'TRANSACOES.CAMPOS.MEIO_PAGAMENTO' | translate"
+          controleId="transacao-meioPagamentoId"
+          ><mat-form-field subscriptSizing="dynamic"
+            ><mat-select id="transacao-meioPagamentoId" formControlName="meioPagamentoId"
+              ><mat-option [value]="null">{{ 'TRANSACOES.ACOES.NENHUM' | translate }}</mat-option>
+              @for (meio of meiosPagamento(); track meio.id) {
+                <mat-option [value]="meio.id">{{ meio.nome }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          ></app-campo-formulario
+        >
+      </div>
+      @if (mensagem(); as texto) {
+        <p class="formulario-transacao__erro" role="alert">{{ texto }}</p>
+      }
+      <footer class="formulario-transacao__acoes">
+        <button mat-button type="button" [disabled]="enviando()" (click)="cancelar()">
+          {{ 'COMPARTILHADO.ACOES.CANCELAR' | translate }}</button
+        ><button mat-flat-button type="submit" [disabled]="enviando()">
+          @if (enviando()) {
+            {{ 'TRANSACOES.MENSAGENS.SALVANDO' | translate }}
+          } @else {
+            {{ 'COMPARTILHADO.ACOES.SALVAR' | translate }}
+          }
+        </button>
+      </footer>
+    </form>
+  }
+</section>

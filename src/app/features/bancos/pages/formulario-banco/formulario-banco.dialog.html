@@ -1,0 +1,47 @@
+<section class="formulario-registro-dialog">
+  <app-cabecalho-dialogo-formulario
+    [titulo]="
+      (editando ? 'COMPARTILHADO.ACOES.EDITAR' : 'CADASTROS.ACOES.NOVO')
+        | translate: { recurso: ('CADASTROS.BANCOS.SINGULAR' | translate) }
+    "
+    [descricao]="'CADASTROS.BANCOS.DESCRICAO' | translate"
+    [enviando]="enviando()"
+    (fechar)="cancelar()"
+  />
+  <form [formGroup]="formulario" (ngSubmit)="salvar()" novalidate>
+    <div class="formulario-registro-dialog__campos">
+      <app-campo-formulario
+        [rotulo]="'COMPARTILHADO.CAMPOS.NOME' | translate"
+        controleId="banco-nome"
+        [obrigatorio]="true"
+        ><mat-form-field subscriptSizing="dynamic"
+          ><input id="banco-nome" matInput formControlName="nome" maxlength="150" />
+          @if (campoInvalido('nome')) {
+            <mat-error><app-mensagem-validacao [controle]="formulario.controls.nome" /></mat-error>
+          }</mat-form-field
+      ></app-campo-formulario>
+      <app-campo-formulario
+        [rotulo]="'CADASTROS.CAMPOS.CODIGO' | translate"
+        controleId="banco-codigo"
+        [obrigatorio]="true"
+        ><mat-form-field subscriptSizing="dynamic"
+          ><input id="banco-codigo" matInput formControlName="codigo" maxlength="20" />
+          @if (campoInvalido('codigo')) {
+            <mat-error
+              ><app-mensagem-validacao [controle]="formulario.controls.codigo"
+            /></mat-error>
+          }</mat-form-field
+      ></app-campo-formulario>
+    </div>
+    @if (mensagem(); as texto) {
+      <p class="formulario-registro-dialog__erro" role="alert">{{ texto }}</p>
+    }
+    <footer class="formulario-registro-dialog__acoes">
+      <button mat-button type="button" [disabled]="enviando()" (click)="cancelar()">
+        {{ 'COMPARTILHADO.ACOES.CANCELAR' | translate }}</button
+      ><button mat-flat-button type="submit" [disabled]="enviando()">
+        {{ 'COMPARTILHADO.ACOES.SALVAR' | translate }}
+      </button>
+    </footer>
+  </form>
+</section>

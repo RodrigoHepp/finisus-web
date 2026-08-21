@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 import { ProcessamentoGlobalService } from './core/processamento/processamento-global.service';
@@ -10,6 +10,7 @@ import { IndicadorProcessamentoComponent } from './shared/ui/indicador-processam
   imports: [RouterOutlet, IndicadorProcessamentoComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
   private readonly temaService = inject(TemaService);

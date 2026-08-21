@@ -20,6 +20,10 @@ import {
   GrupoNavegacao,
 } from '../navigation/navigation.config';
 
+interface GrupoNavegacaoComEstado extends GrupoNavegacao {
+  readonly expandido: boolean;
+}
+
 @Component({
   selector: 'app-sidebar',
   imports: [MatIconModule, RouterLink, RouterLinkActive, TranslatePipe],
@@ -61,7 +65,16 @@ export class SidebarComponent {
   private readonly gruposExpandidos = signal<ReadonlySet<string>>(new Set());
 
   protected readonly itensNavegacao = ITENS_NAVEGACAO_PRINCIPAL;
-  protected readonly gruposNavegacao = GRUPOS_NAVEGACAO;
+  protected readonly gruposNavegacao = computed<readonly GrupoNavegacaoComEstado[]>(() => {
+    const gruposExpandidos = this.gruposExpandidos();
+    const urlAtual = this.urlAtual();
+
+    return GRUPOS_NAVEGACAO.map((grupo) => ({
+      ...grupo,
+      expandido:
+        gruposExpandidos.has(grupo.id) || grupo.itens.some((item) => urlAtual === item.rota),
+    }));
+  });
 
   protected selecionarNavegacao(): void {
     this.navegacaoSelecionada.emit();
@@ -71,13 +84,6 @@ export class SidebarComponent {
     if (this.podeRecolher()) {
       this.recolhimentoAlternado.emit();
     }
-  }
-
-  protected grupoEstaExpandido(grupo: GrupoNavegacao): boolean {
-    return (
-      this.gruposExpandidos().has(grupo.id) ||
-      grupo.itens.some((item) => this.urlAtual() === item.rota)
-    );
   }
 
   protected alternarGrupo(id: string): void {

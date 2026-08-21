@@ -6,7 +6,7 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import { AuthApiService } from '../../../../core/auth/auth-api.service';
-import { MensagemGlobalService } from '../../../../shared/ui/mensagem-global/mensagem-global.service';
+import { MensagemGlobalService } from '../../../../core/feedback/mensagem-global.service';
 import { CadastroUsuarioPage } from './cadastro-usuario';
 
 interface PaginaDeCadastroParaTeste {

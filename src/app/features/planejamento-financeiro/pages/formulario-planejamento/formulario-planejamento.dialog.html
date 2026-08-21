@@ -1,0 +1,135 @@
+<section class="formulario-registro-dialog" aria-labelledby="planejamento-titulo">
+  <header class="formulario-registro-dialog__cabecalho">
+    <div>
+      <h2 id="planejamento-titulo">{{ titulo }}</h2>
+      <p>Os campos obrigatórios são necessários para registrar este planejamento.</p>
+    </div>
+    <button mat-icon-button mat-dialog-close type="button" aria-label="Fechar">
+      <span aria-hidden="true">×</span>
+    </button>
+  </header>
+  @if (carregandoReferencias()) {
+    <p class="formulario-registro-dialog__erro">Carregando opções...</p>
+  } @else if (erro()) {
+    <p class="formulario-registro-dialog__erro" role="alert">{{ erro() }}</p>
+  } @else {
+    <form [formGroup]="formulario" (ngSubmit)="salvar()">
+      <div class="formulario-registro-dialog__campos">
+        @switch (dados.recurso) {
+          @case ('recorrencias') {
+            <mat-form-field
+              ><mat-label>Nome</mat-label><input matInput formControlName="nome" maxlength="150"
+            /></mat-form-field>
+            <mat-form-field
+              ><mat-label>Tipo</mat-label
+              ><mat-select formControlName="tipo"
+                ><mat-option value="ENTRADA">Entrada</mat-option
+                ><mat-option value="SAIDA">Saída</mat-option></mat-select
+              ></mat-form-field
+            >
+            <mat-form-field
+              ><mat-label>Valor esperado</mat-label
+              ><input matInput inputmode="decimal" formControlName="valor"
+            /></mat-form-field>
+            <mat-form-field
+              ><mat-label>Dia do mês</mat-label
+              ><input matInput type="number" min="1" max="31" formControlName="dia"
+            /></mat-form-field>
+          }
+          @case ('compras-parceladas') {
+            <mat-form-field
+              ><mat-label>Descrição</mat-label
+              ><input matInput formControlName="descricao" maxlength="300"
+            /></mat-form-field>
+            <mat-form-field
+              ><mat-label>Valor total</mat-label
+              ><input matInput inputmode="decimal" formControlName="valor"
+            /></mat-form-field>
+            <mat-form-field
+              ><mat-label>Número de parcelas</mat-label
+              ><input matInput type="number" min="1" formControlName="parcelas"
+            /></mat-form-field>
+            <mat-form-field
+              ><mat-label>Data da compra</mat-label
+              ><input matInput type="date" formControlName="data"
+            /></mat-form-field>
+          }
+          @case ('investimentos') {
+            <mat-form-field
+              ><mat-label>Nome</mat-label><input matInput formControlName="nome" maxlength="150"
+            /></mat-form-field>
+            <mat-form-field
+              ><mat-label>Tipo</mat-label
+              ><mat-select formControlName="tipoInvestimento"
+                ><mat-option value="RENDA_FIXA">Renda fixa</mat-option
+                ><mat-option value="RENDA_VARIAVEL">Renda variável</mat-option
+                ><mat-option value="FUNDO">Fundo</mat-option
+                ><mat-option value="CRIPTO">Cripto</mat-option
+                ><mat-option value="OUTRO">Outro</mat-option></mat-select
+              ></mat-form-field
+            >
+          }
+          @case ('financiamentos') {
+            <mat-form-field
+              ><mat-label>Descrição</mat-label
+              ><input matInput formControlName="descricao" maxlength="300"
+            /></mat-form-field>
+            <mat-form-field
+              ><mat-label>Valor principal</mat-label
+              ><input matInput inputmode="decimal" formControlName="valor"
+            /></mat-form-field>
+            <mat-form-field
+              ><mat-label>Juros mensais (%)</mat-label
+              ><input matInput inputmode="decimal" formControlName="juros"
+            /></mat-form-field>
+            <mat-form-field
+              ><mat-label>Número de parcelas</mat-label
+              ><input matInput type="number" min="1" formControlName="parcelas"
+            /></mat-form-field>
+            <mat-form-field
+              ><mat-label>Data de início</mat-label
+              ><input matInput type="date" formControlName="data"
+            /></mat-form-field>
+          }
+        }
+        @if (dados.recurso !== 'investimentos') {
+          <mat-form-field
+            ><mat-label>Categoria</mat-label
+            ><mat-select formControlName="categoriaId"
+              ><mat-option value="">Sem categoria</mat-option>
+              @for (categoria of categorias(); track categoria.id) {
+                <mat-option [value]="categoria.id">{{ categoria.nome }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+        }
+        <mat-form-field
+          ><mat-label>Conta</mat-label
+          ><mat-select formControlName="contaId">
+            @for (conta of contas(); track conta.id) {
+              <mat-option [value]="conta.id">{{ conta.nome }}</mat-option>
+            }
+          </mat-select></mat-form-field
+        >
+        @if (dados.recurso === 'recorrencias') {
+          <mat-form-field
+            ><mat-label>Meio de pagamento</mat-label
+            ><mat-select formControlName="meioPagamentoId"
+              ><mat-option value="">Não informado</mat-option>
+              @for (meio of meiosPagamento(); track meio.id) {
+                <mat-option [value]="meio.id">{{ meio.nome }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+        }
+      </div>
+      <p class="formulario-registro-dialog__erro" role="alert">{{ erro() }}</p>
+      <footer class="formulario-registro-dialog__acoes">
+        <button mat-button mat-dialog-close type="button">Cancelar</button
+        ><button mat-flat-button type="submit" [disabled]="enviando()">
+          {{ enviando() ? 'Salvando...' : 'Salvar' }}
+        </button>
+      </footer>
+    </form>
+  }
+</section>

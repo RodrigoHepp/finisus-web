@@ -11,9 +11,10 @@ import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AuthApiService } from '../../../../core/auth/auth-api.service';
+import { FocoAcessivelService } from '../../../../core/accessibility/foco-acessivel.service';
 import { AvisoCapsLockComponent } from '../../../../shared/ui/aviso-caps-lock/aviso-caps-lock';
 import { AuthService } from '../../../../core/auth/auth.service';
-import { MensagemGlobalService } from '../../../../shared/ui/mensagem-global/mensagem-global.service';
+import { MensagemGlobalService } from '../../../../core/feedback/mensagem-global.service';
 import { IndicadorProcessamentoComponent } from '../../../../shared/ui/indicador-processamento/indicador-processamento';
 import { CampoFormularioComponent } from '../../../../shared/ui/campo-formulario/campo-formulario';
 
@@ -43,6 +44,7 @@ export class LoginPage {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly authApiService = inject(AuthApiService);
   private readonly authService = inject(AuthService);
+  private readonly focoAcessivelService = inject(FocoAcessivelService);
   private readonly mensagemGlobalService = inject(MensagemGlobalService);
   private readonly translateService = inject(TranslateService);
 
@@ -61,13 +63,19 @@ export class LoginPage {
     this.mensagem.set(null);
     this.formularioEnviado.set(true);
 
-    if (this.formulario.invalid || this.carregando()) {
+    if (this.formulario.invalid) {
+      this.focarPrimeiroCampoInvalido();
+      return;
+    }
+
+    if (this.carregando()) {
       return;
     }
 
     this.carregando.set(true);
 
-    const credenciais = this.formulario.getRawValue();
+    const valores = this.formulario.getRawValue();
+    const credenciais = { ...valores, email: valores.email.trim() };
 
     this.authApiService
       .login(credenciais)
@@ -117,6 +125,16 @@ export class LoginPage {
     const controle = this.formulario.controls[campo];
 
     return controle.invalid && this.formularioEnviado();
+  }
+
+  private focarPrimeiroCampoInvalido(): void {
+    const campo = (['email', 'senha'] as const).find(
+      (nome) => this.formulario.controls[nome].invalid,
+    );
+
+    if (campo) {
+      this.focoAcessivelService.focarPorId(`login-${campo}`);
+    }
   }
 
   private obterMensagemDeErro(erro: unknown): string {

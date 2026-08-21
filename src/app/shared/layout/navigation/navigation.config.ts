@@ -24,9 +24,58 @@ export const ITENS_NAVEGACAO_PRINCIPAL: readonly ItemNavegacao[] = [
     icone: 'home',
     rota: '/dashboard',
   },
+  {
+    id: 'transacoes',
+    rotulo: 'TRANSACOES.TITULO',
+    icone: 'receipt_long',
+    rota: '/transacoes',
+  },
+  {
+    id: 'recorrencias',
+    rotulo: 'Recorrências',
+    icone: 'autorenew',
+    rota: '/recorrencias',
+  },
+  {
+    id: 'previsoes',
+    rotulo: 'Previsões',
+    icone: 'insights',
+    rota: '/previsoes',
+  },
+  {
+    id: 'compartilhamentos',
+    rotulo: 'Compartilhamentos',
+    icone: 'group',
+    rota: '/compartilhamentos',
+  },
 ];
 
 export const GRUPOS_NAVEGACAO: readonly GrupoNavegacao[] = [
+  {
+    id: 'planejamento',
+    rotulo: 'Planejamento',
+    icone: 'event_note',
+    itens: [
+      {
+        id: 'compras-parceladas',
+        rotulo: 'Compras parceladas',
+        icone: 'shopping_cart',
+        rota: '/compras-parceladas',
+      },
+      {
+        id: 'investimentos',
+        rotulo: 'Investimentos',
+        icone: 'trending_up',
+        rota: '/investimentos',
+      },
+      {
+        id: 'financiamentos',
+        rotulo: 'Financiamentos',
+        icone: 'account_balance',
+        rota: '/financiamentos',
+      },
+    ],
+  },
   {
     id: 'cadastros',
     rotulo: 'COMPARTILHADO.NAVEGACAO.CADASTROS',
@@ -56,6 +105,19 @@ export const GRUPOS_NAVEGACAO: readonly GrupoNavegacao[] = [
         rotulo: 'CADASTROS.MEIOS_PAGAMENTO.TITULO',
         icone: 'payments',
         rota: '/cadastros/meios-pagamento',
+      },
+    ],
+  },
+  {
+    id: 'credito',
+    rotulo: 'COMPARTILHADO.NAVEGACAO.CREDITO',
+    icone: 'credit_card',
+    itens: [
+      {
+        id: 'cartoes',
+        rotulo: 'CARTOES.TITULO',
+        icone: 'credit_card',
+        rota: '/cartoes',
       },
     ],
   },

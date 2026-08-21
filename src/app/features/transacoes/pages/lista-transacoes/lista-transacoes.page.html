@@ -1,0 +1,169 @@
+<section class="transacoes-page">
+  <app-page-header
+    [titulo]="'TRANSACOES.TITULO' | translate"
+    [descricao]="'TRANSACOES.DESCRICAO' | translate"
+    ><button mat-flat-button type="button" (click)="abrirFormulario()">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">add</mat-icon
+      >{{ 'TRANSACOES.ACOES.NOVA' | translate }}
+    </button></app-page-header
+  >
+  @if (carregando() && dados().conteudo.length === 0) {
+    <app-indicador-processamento modo="local" mensagem="TRANSACOES.MENSAGENS.CARREGANDO" />
+  } @else if (erro() && dados().conteudo.length === 0) {
+    <section class="transacoes-page__estado" role="alert">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">cloud_off</mat-icon>
+      <p>{{ erro() }}</p>
+      <button mat-stroked-button type="button" (click)="tentarNovamente()">
+        {{ 'CADASTROS.MENSAGENS.TENTAR_NOVAMENTE' | translate }}
+      </button>
+    </section>
+  } @else if (dados().conteudo.length === 0) {
+    <section class="transacoes-page__estado">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">receipt_long</mat-icon>
+      <p>{{ 'TRANSACOES.MENSAGENS.NENHUMA' | translate }}</p>
+      <button mat-stroked-button type="button" (click)="abrirFormulario()">
+        {{ 'TRANSACOES.ACOES.NOVA' | translate }}
+      </button>
+    </section>
+  } @else {
+    <section class="transacoes-page__lista">
+      <div
+        class="transacoes-page__tabela"
+        tabindex="0"
+        [attr.aria-label]="'TRANSACOES.TITULO' | translate"
+      >
+        <table mat-table class="finisus-data-table" [dataSource]="dados().conteudo">
+          <ng-container matColumnDef="tipo"
+            ><th mat-header-cell *matHeaderCellDef>{{ 'TRANSACOES.CAMPOS.TIPO' | translate }}</th>
+            <td mat-cell *matCellDef="let transacao">
+              <span
+                class="transacoes-page__tipo"
+                [class.transacoes-page__tipo--saida]="transacao.tipo === 'SAIDA'"
+                >{{ 'TRANSACOES.TIPOS.' + transacao.tipo | translate }}</span
+              >
+            </td></ng-container
+          ><ng-container matColumnDef="data"
+            ><th mat-header-cell *matHeaderCellDef>{{ 'TRANSACOES.CAMPOS.DATA' | translate }}</th>
+            <td mat-cell *matCellDef="let transacao">
+              {{ transacao.data | date: 'shortDate' : '' : 'pt-BR' }}
+            </td></ng-container
+          ><ng-container matColumnDef="descricao"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'TRANSACOES.CAMPOS.DESCRICAO' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let transacao">{{ transacao.descricao }}</td></ng-container
+          ><ng-container matColumnDef="valor"
+            ><th mat-header-cell *matHeaderCellDef>{{ 'TRANSACOES.CAMPOS.VALOR' | translate }}</th>
+            <td
+              mat-cell
+              *matCellDef="let transacao"
+              class="transacoes-page__valor"
+              [class.transacoes-page__valor--saida]="transacao.tipo === 'SAIDA'"
+            >
+              {{ transacao.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+            </td></ng-container
+          ><ng-container matColumnDef="conta"
+            ><th mat-header-cell *matHeaderCellDef>{{ 'TRANSACOES.CAMPOS.CONTA' | translate }}</th>
+            <td mat-cell *matCellDef="let transacao">
+              {{ 'TRANSACOES.CONTA_ID' | translate: { id: transacao.contaId } }}
+            </td></ng-container
+          ><ng-container matColumnDef="acoes"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'COMPARTILHADO.ACOES.TITULO' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let transacao">
+              <button
+                mat-icon-button
+                type="button"
+                [matMenuTriggerFor]="acoes"
+                [attr.aria-label]="
+                  'CADASTROS.CAMPOS.MENU_ACOES' | translate: { nome: transacao.descricao }
+                "
+              >
+                <mat-icon class="material-symbols-outlined" aria-hidden="true"
+                  >more_vert</mat-icon
+                ></button
+              ><mat-menu #acoes="matMenu"
+                ><button mat-menu-item type="button" (click)="abrirFormulario(transacao)">
+                  <mat-icon class="material-symbols-outlined" aria-hidden="true">edit</mat-icon
+                  >{{ 'COMPARTILHADO.ACOES.EDITAR' | translate }}</button
+                ><button mat-menu-item type="button" (click)="abrirHistorico(transacao)">
+                  <mat-icon class="material-symbols-outlined" aria-hidden="true">history</mat-icon
+                  >{{ 'TRANSACOES.ACOES.HISTORICO' | translate }}</button
+                ><button
+                  mat-menu-item
+                  class="transacoes-page__estornar"
+                  type="button"
+                  (click)="estornar(transacao)"
+                >
+                  <mat-icon class="material-symbols-outlined" aria-hidden="true">undo</mat-icon
+                  >{{ 'TRANSACOES.ACOES.ESTORNAR' | translate }}
+                </button></mat-menu
+              >
+            </td></ng-container
+          >
+          <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+          <tr mat-row *matRowDef="let linha; columns: colunas"></tr>
+        </table>
+      </div>
+      <footer>
+        <app-paginacao
+          [pagina]="dados().pagina"
+          [totalPaginas]="dados().totalPaginas"
+          [registrosExibidos]="dados().conteudo.length"
+          [totalRegistros]="dados().totalElementos"
+          (navegacaoSolicitada)="navegarParaPagina($event)"
+        />
+      </footer>
+    </section>
+  }
+  @if (transacaoDoHistorico(); as transacao) {
+    <section class="transacoes-page__historico" aria-labelledby="historico-titulo">
+      <header>
+        <div>
+          <h2 id="historico-titulo">{{ 'TRANSACOES.HISTORICO.TITULO' | translate }}</h2>
+          <p>{{ transacao.descricao }}</p>
+        </div>
+        <button
+          mat-icon-button
+          type="button"
+          [attr.aria-label]="'COMPARTILHADO.ACOES.FECHAR' | translate"
+          (click)="fecharHistorico()"
+        >
+          <mat-icon class="material-symbols-outlined" aria-hidden="true">close</mat-icon>
+        </button>
+      </header>
+      @if (carregandoHistorico()) {
+        <app-indicador-processamento modo="inline" mensagem="TRANSACOES.MENSAGENS.CARREGANDO" />
+      } @else {
+        <table mat-table [dataSource]="historico()">
+          <ng-container matColumnDef="campo"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'TRANSACOES.HISTORICO.CAMPO' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let linha">{{ linha.campoAlterado }}</td></ng-container
+          ><ng-container matColumnDef="anterior"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'TRANSACOES.HISTORICO.ANTERIOR' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let linha">{{ linha.valorAnterior || '—' }}</td></ng-container
+          ><ng-container matColumnDef="novo"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'TRANSACOES.HISTORICO.NOVO' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let linha">{{ linha.valorNovo || '—' }}</td></ng-container
+          ><ng-container matColumnDef="data"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'TRANSACOES.HISTORICO.DATA' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let linha">
+              {{ linha.alteradoEm | date: 'short' : '' : 'pt-BR' }}
+            </td></ng-container
+          >
+          <tr mat-header-row *matHeaderRowDef="colunasHistorico"></tr>
+          <tr mat-row *matRowDef="let linha; columns: colunasHistorico"></tr>
+        </table>
+      }
+    </section>
+  }
+</section>

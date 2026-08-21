@@ -1,0 +1,60 @@
+<section class="lista-registros-page">
+  <app-page-header
+    titulo="Faturas"
+    descricao="Acompanhe fechamento, vencimento e situação das faturas deste cartão."
+  >
+    <button mat-stroked-button type="button" (click)="voltar()">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">arrow_back</mat-icon>Cartões
+    </button>
+  </app-page-header>
+  @if (carregando() && dados().conteudo.length === 0) {
+    <app-indicador-processamento modo="local" mensagem="Carregando faturas..." />
+  } @else if (erro()) {
+    <section class="lista-registros-page__estado" role="alert">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">cloud_off</mat-icon>
+      <p>{{ erro() }}</p>
+      <button mat-stroked-button type="button" (click)="tentarNovamente()">Tentar novamente</button>
+    </section>
+  } @else if (dados().conteudo.length === 0) {
+    <section class="lista-registros-page__estado">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">credit_card</mat-icon>
+      <p>Nenhuma fatura cadastrada para este cartão.</p>
+    </section>
+  } @else {
+    <section class="lista-registros-page__conteudo">
+      <div class="lista-registros-page__tabela" tabindex="0" aria-label="Faturas do cartão">
+        <table mat-table class="finisus-data-table" [dataSource]="dados().conteudo">
+          <ng-container matColumnDef="referencia"
+            ><th mat-header-cell *matHeaderCellDef>Referência</th>
+            <td mat-cell *matCellDef="let fatura">{{ fatura.anoMes }}</td></ng-container
+          >
+          <ng-container matColumnDef="fechamento"
+            ><th mat-header-cell *matHeaderCellDef>Fechamento</th>
+            <td mat-cell *matCellDef="let fatura">
+              {{ fatura.fechamento | date: 'shortDate' : '' : 'pt-BR' }}
+            </td></ng-container
+          >
+          <ng-container matColumnDef="vencimento"
+            ><th mat-header-cell *matHeaderCellDef>Vencimento</th>
+            <td mat-cell *matCellDef="let fatura">
+              {{ fatura.vencimento | date: 'shortDate' : '' : 'pt-BR' }}
+            </td></ng-container
+          >
+          <ng-container matColumnDef="situacao"
+            ><th mat-header-cell *matHeaderCellDef>Situação</th>
+            <td mat-cell *matCellDef="let fatura">{{ fatura.status }}</td></ng-container
+          >
+          <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+          <tr mat-row *matRowDef="let linha; columns: colunas"></tr>
+        </table>
+      </div>
+      <app-paginacao
+        [pagina]="dados().pagina"
+        [totalPaginas]="dados().totalPaginas"
+        [registrosExibidos]="dados().conteudo.length"
+        [totalRegistros]="dados().totalElementos"
+        (navegacaoSolicitada)="navegarParaPagina($event)"
+      />
+    </section>
+  }
+</section>

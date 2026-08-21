@@ -6,8 +6,9 @@ import { throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import { AuthApiService } from '../../../../core/auth/auth-api.service';
+import { FocoAcessivelService } from '../../../../core/accessibility/foco-acessivel.service';
 import { AuthService } from '../../../../core/auth/auth.service';
-import { MensagemGlobalService } from '../../../../shared/ui/mensagem-global/mensagem-global.service';
+import { MensagemGlobalService } from '../../../../core/feedback/mensagem-global.service';
 import { LoginPage } from './login.page';
 
 interface PaginaLoginParaTeste {
@@ -21,9 +22,11 @@ describe('LoginPage', () => {
   let component: LoginPage;
   let fixture: ComponentFixture<LoginPage>;
   let authApiService: { login: ReturnType<typeof vi.fn> };
+  let focoAcessivelService: { focarPorId: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     authApiService = { login: vi.fn() };
+    focoAcessivelService = { focarPorId: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [LoginPage],
@@ -42,6 +45,10 @@ describe('LoginPage', () => {
         {
           provide: MensagemGlobalService,
           useValue: { erro: vi.fn() },
+        },
+        {
+          provide: FocoAcessivelService,
+          useValue: focoAcessivelService,
         },
       ],
     }).compileComponents();
@@ -85,6 +92,13 @@ describe('LoginPage', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('mat-error')).not.toBeNull();
+  });
+
+  it('foca o primeiro campo inválido ao enviar', () => {
+    pagina().enviar();
+
+    expect(focoAcessivelService.focarPorId).toHaveBeenCalledWith('login-email');
+    expect(authApiService.login).not.toHaveBeenCalled();
   });
 
   it('alterna a visibilidade da senha sem disparar erro antes do envio', () => {

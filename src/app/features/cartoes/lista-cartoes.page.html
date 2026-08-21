@@ -1,0 +1,106 @@
+<section class="lista-registros-page">
+  <app-page-header
+    [titulo]="'CARTOES.TITULO' | translate"
+    [descricao]="'CARTOES.DESCRICAO' | translate"
+    ><button mat-flat-button type="button" (click)="abrirFormulario()">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">add</mat-icon
+      >{{ 'CARTOES.ACOES.NOVO' | translate }}
+    </button></app-page-header
+  >
+  @if (carregando() && dados().conteudo.length === 0) {
+    <app-indicador-processamento modo="local" mensagem="CARTOES.MENSAGENS.CARREGANDO" />
+  } @else if (erro() && dados().conteudo.length === 0) {
+    <section class="lista-registros-page__estado" role="alert">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">cloud_off</mat-icon>
+      <h2>{{ 'CARTOES.MENSAGENS.ERRO_TITULO' | translate }}</h2>
+      <p>{{ erro() }}</p>
+      <button mat-stroked-button type="button" (click)="tentarNovamente()">
+        {{ 'CADASTROS.MENSAGENS.TENTAR_NOVAMENTE' | translate }}
+      </button>
+    </section>
+  } @else if (dados().conteudo.length === 0) {
+    <section class="lista-registros-page__estado" role="status">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">credit_card</mat-icon>
+      <p>{{ 'CARTOES.MENSAGENS.NENHUM' | translate }}</p>
+      <button mat-stroked-button type="button" (click)="abrirFormulario()">
+        {{ 'CARTOES.ACOES.NOVO' | translate }}
+      </button>
+    </section>
+  } @else {
+    <section class="lista-registros-page__conteudo" [attr.aria-busy]="carregando()">
+      @if (erro()) {
+        <p class="lista-registros-page__erro" role="alert">{{ erro() }}</p>
+      }
+      <div
+        class="lista-registros-page__tabela"
+        tabindex="0"
+        [attr.aria-label]="'CARTOES.TITULO' | translate"
+      >
+        <table mat-table class="finisus-data-table" [dataSource]="dados().conteudo">
+          <ng-container matColumnDef="nome"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'COMPARTILHADO.CAMPOS.NOME' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let cartao">{{ cartao.nome }}</td></ng-container
+          ><ng-container matColumnDef="limite"
+            ><th mat-header-cell *matHeaderCellDef>{{ 'CARTOES.CAMPOS.LIMITE' | translate }}</th>
+            <td mat-cell *matCellDef="let cartao">
+              {{ cartao.limite | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+            </td></ng-container
+          ><ng-container matColumnDef="fechamento"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'CARTOES.CAMPOS.FECHAMENTO' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let cartao">{{ cartao.diaFechamento }}</td></ng-container
+          ><ng-container matColumnDef="vencimento"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'CARTOES.CAMPOS.VENCIMENTO' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let cartao">{{ cartao.diaVencimento }}</td></ng-container
+          ><ng-container matColumnDef="acoes"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'COMPARTILHADO.CAMPOS.ACOES' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let cartao">
+              <button
+                mat-icon-button
+                [matMenuTriggerFor]="acoes"
+                [attr.aria-label]="'CADASTROS.CAMPOS.MENU_ACOES' | translate: { nome: cartao.nome }"
+              >
+                <mat-icon class="material-symbols-outlined" aria-hidden="true"
+                  >more_vert</mat-icon
+                ></button
+              ><mat-menu #acoes="matMenu"
+                ><button mat-menu-item type="button" (click)="abrirFormulario(cartao)">
+                  <mat-icon class="material-symbols-outlined" aria-hidden="true">edit</mat-icon
+                  >{{ 'COMPARTILHADO.ACOES.EDITAR' | translate }}</button
+                ><button mat-menu-item type="button" (click)="verFaturas(cartao)">
+                  <mat-icon class="material-symbols-outlined" aria-hidden="true"
+                    >receipt_long</mat-icon
+                  >Faturas</button
+                ><button
+                  mat-menu-item
+                  type="button"
+                  class="lista-registros-page__acao-perigosa"
+                  (click)="excluir(cartao)"
+                >
+                  <mat-icon class="material-symbols-outlined" aria-hidden="true">delete</mat-icon
+                  >{{ 'COMPARTILHADO.ACOES.EXCLUIR' | translate }}
+                </button></mat-menu
+              >
+            </td></ng-container
+          >
+          <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+          <tr mat-row *matRowDef="let linha; columns: colunas"></tr>
+        </table>
+      </div>
+      <app-paginacao
+        [pagina]="dados().pagina"
+        [totalPaginas]="dados().totalPaginas"
+        [registrosExibidos]="dados().conteudo.length"
+        [totalRegistros]="dados().totalElementos"
+        (navegacaoSolicitada)="navegarParaPagina($event)"
+      />
+    </section>
+  }
+</section>

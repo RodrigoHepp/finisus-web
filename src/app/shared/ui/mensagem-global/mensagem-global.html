@@ -6,7 +6,7 @@
   [class.mensagem-global--informacao]="dados.tipo === 'informacao'"
   [attr.role]="dados.tipo === 'erro' ? 'alert' : 'status'"
 >
-  <mat-icon class="material-symbols-outlined" aria-hidden="true">{{ icone() }}</mat-icon>
+  <mat-icon class="material-symbols-outlined" aria-hidden="true">{{ icone }}</mat-icon>
   <span>{{ dados.texto }}</span>
   <button
     mat-icon-button

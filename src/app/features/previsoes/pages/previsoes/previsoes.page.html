@@ -1,0 +1,72 @@
+<section class="lista-registros-page">
+  <app-page-header
+    titulo="Previsões"
+    descricao="Compare receitas e despesas esperadas antes de fechar o mês."
+  >
+    <button mat-flat-button type="button" (click)="recalcular()">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">refresh</mat-icon>Recalcular
+    </button>
+  </app-page-header>
+  <section class="previsoes-page__filtro" aria-label="Período das previsões">
+    <mat-form-field
+      ><mat-label>Mês de referência</mat-label><input matInput type="month" [formControl]="mes"
+    /></mat-form-field>
+    <button mat-stroked-button type="button" (click)="atualizarConsulta()">Consultar</button>
+  </section>
+  @if (carregando() && dados().conteudo.length === 0) {
+    <app-indicador-processamento modo="local" mensagem="Carregando previsões..." />
+  } @else if (erro()) {
+    <section class="lista-registros-page__estado" role="alert">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">cloud_off</mat-icon>
+      <p>{{ erro() }}</p>
+      <button mat-stroked-button type="button" (click)="atualizarConsulta()">
+        Tentar novamente
+      </button>
+    </section>
+  } @else if (dados().conteudo.length === 0) {
+    <section class="lista-registros-page__estado">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">insights</mat-icon>
+      <p>Não há previsões calculadas para este mês.</p>
+    </section>
+  } @else {
+    <section class="lista-registros-page__conteudo">
+      <div class="lista-registros-page__tabela" tabindex="0" aria-label="Previsões financeiras">
+        <table mat-table class="finisus-data-table" [dataSource]="dados().conteudo">
+          <ng-container matColumnDef="categoria"
+            ><th mat-header-cell *matHeaderCellDef>Categoria</th>
+            <td mat-cell *matCellDef="let linha">
+              {{ linha.categoriaId ? 'Categoria #' + linha.categoriaId : 'Sem categoria' }}
+            </td></ng-container
+          >
+          <ng-container matColumnDef="entrada"
+            ><th mat-header-cell *matHeaderCellDef>Entradas</th>
+            <td mat-cell *matCellDef="let linha">
+              {{ linha.entrada | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+            </td></ng-container
+          >
+          <ng-container matColumnDef="saida"
+            ><th mat-header-cell *matHeaderCellDef>Saídas</th>
+            <td mat-cell *matCellDef="let linha">
+              {{ linha.saida | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+            </td></ng-container
+          >
+          <ng-container matColumnDef="saldo"
+            ><th mat-header-cell *matHeaderCellDef>Saldo previsto</th>
+            <td mat-cell *matCellDef="let linha">
+              {{ linha.entrada - linha.saida | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+            </td></ng-container
+          >
+          <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+          <tr mat-row *matRowDef="let linha; columns: colunas"></tr>
+        </table>
+      </div>
+      <app-paginacao
+        [pagina]="dados().pagina"
+        [totalPaginas]="dados().totalPaginas"
+        [registrosExibidos]="dados().conteudo.length"
+        [totalRegistros]="dados().totalElementos"
+        (navegacaoSolicitada)="navegarParaPagina($event)"
+      />
+    </section>
+  }
+</section>

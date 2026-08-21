@@ -1,0 +1,82 @@
+<section class="lista-registros-page">
+  <app-page-header
+    titulo="Compartilhamentos"
+    descricao="Controle como você participa de despesas e rateios compartilhados."
+  />
+  <section class="compartilhamentos-page__preferencia">
+    <div>
+      <h2>Receber convites</h2>
+      <p>Permita que outras pessoas incluam você em novos rateios.</p>
+    </div>
+    <mat-slide-toggle
+      [checked]="aceitaConvites()"
+      [disabled]="salvandoConsentimento()"
+      (change)="alterarConsentimento($event.checked)"
+      >Aceitar convites</mat-slide-toggle
+    >
+  </section>
+  <h2 class="compartilhamentos-page__titulo">Rateios recebidos</h2>
+  @if (carregando() && dados().conteudo.length === 0) {
+    <app-indicador-processamento modo="local" mensagem="Carregando rateios..." />
+  } @else if (erro()) {
+    <section class="lista-registros-page__estado" role="alert">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">cloud_off</mat-icon>
+      <p>{{ erro() }}</p>
+      <button mat-stroked-button type="button" (click)="tentarNovamente()">Tentar novamente</button>
+    </section>
+  } @else if (dados().conteudo.length === 0) {
+    <section class="lista-registros-page__estado">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">group</mat-icon>
+      <p>Você não possui rateios recebidos.</p>
+    </section>
+  } @else {
+    <section class="lista-registros-page__conteudo">
+      <div class="lista-registros-page__tabela" tabindex="0" aria-label="Rateios recebidos">
+        <table mat-table class="finisus-data-table" [dataSource]="dados().conteudo">
+          <ng-container matColumnDef="origem"
+            ><th mat-header-cell *matHeaderCellDef>Origem</th>
+            <td mat-cell *matCellDef="let rateio">Despesa #{{ rateio.despesaId }}</td></ng-container
+          >
+          <ng-container matColumnDef="valor"
+            ><th mat-header-cell *matHeaderCellDef>Valor</th>
+            <td mat-cell *matCellDef="let rateio">
+              {{
+                rateio.valorFixo
+                  ? (rateio.valorFixo | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR')
+                  : rateio.percentual + '%'
+              }}
+            </td></ng-container
+          >
+          <ng-container matColumnDef="situacao"
+            ><th mat-header-cell *matHeaderCellDef>Situação</th>
+            <td mat-cell *matCellDef="let rateio">{{ rateio.status }}</td></ng-container
+          >
+          <ng-container matColumnDef="acoes"
+            ><th mat-header-cell *matHeaderCellDef>Ações</th>
+            <td mat-cell *matCellDef="let rateio">
+              @if (rateio.status === 'PENDENTE') {
+                <button mat-button type="button" (click)="responder(rateio, true)">Aceitar</button
+                ><button mat-button type="button" (click)="responder(rateio, false)">
+                  Recusar
+                </button>
+              } @else if (rateio.status === 'ACEITO') {
+                <button mat-flat-button type="button" (click)="pagar(rateio)">
+                  Registrar pagamento
+                </button>
+              }
+            </td></ng-container
+          >
+          <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+          <tr mat-row *matRowDef="let linha; columns: colunas"></tr>
+        </table>
+      </div>
+      <app-paginacao
+        [pagina]="dados().pagina"
+        [totalPaginas]="dados().totalPaginas"
+        [registrosExibidos]="dados().conteudo.length"
+        [totalRegistros]="dados().totalElementos"
+        (navegacaoSolicitada)="navegarParaPagina($event)"
+      />
+    </section>
+  }
+</section>

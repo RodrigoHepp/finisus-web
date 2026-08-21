@@ -7,7 +7,7 @@ import { vi } from 'vitest';
 
 import { AuthService } from '../../auth/auth.service';
 import { environment } from '../../../environment/environment';
-import { MensagemGlobalService } from '../../../shared/ui/mensagem-global/mensagem-global.service';
+import { MensagemGlobalService } from '../../feedback/mensagem-global.service';
 import { refreshTokenInterceptor } from './refresh-token.interceptor';
 
 const NOVOS_TOKENS = {

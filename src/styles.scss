@@ -291,6 +291,119 @@ body {
   box-shadow: var(--finisus-shadow-raised);
 }
 
+.lista-registros-page {
+  display: grid;
+  min-width: 0;
+  gap: 1rem;
+}
+
+.lista-registros-page__conteudo {
+  display: grid;
+  min-width: 0;
+  gap: 0.75rem;
+}
+
+.lista-registros-page__tabela {
+  max-width: 100%;
+  overflow: auto;
+  border: 1px solid var(--finisus-border);
+}
+
+.lista-registros-page__tabela .finisus-data-table {
+  width: 100%;
+  min-width: 38rem;
+}
+
+.lista-registros-page__estado {
+  display: grid;
+  justify-items: start;
+  gap: 0.625rem;
+  padding: 1.5rem;
+  border: 1px solid var(--finisus-border);
+  background: var(--finisus-surface);
+}
+
+.lista-registros-page__estado h2,
+.lista-registros-page__estado p,
+.lista-registros-page__erro {
+  margin: 0;
+}
+
+.lista-registros-page__estado mat-icon {
+  color: var(--finisus-primary);
+}
+
+.lista-registros-page__erro,
+.lista-registros-page__acao-perigosa {
+  color: var(--finisus-negative);
+}
+
+.formulario-registro-dialog {
+  display: grid;
+  min-width: min(100%, 34rem);
+}
+
+.formulario-registro-dialog__cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.25rem 1rem;
+  border-bottom: 1px solid var(--finisus-border);
+}
+
+.formulario-registro-dialog__cabecalho h2,
+.formulario-registro-dialog__cabecalho p,
+.formulario-registro-dialog__erro {
+  margin: 0;
+}
+
+.formulario-registro-dialog__cabecalho p {
+  margin-top: 0.25rem;
+  color: var(--finisus-text-muted);
+}
+
+.formulario-registro-dialog form {
+  display: grid;
+  gap: 1rem;
+}
+
+.formulario-registro-dialog__campos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.formulario-registro-dialog__campos app-campo-formulario,
+.formulario-registro-dialog__campos mat-form-field {
+  width: 100%;
+}
+
+.formulario-registro-dialog__erro {
+  padding-inline: 1.25rem;
+  color: var(--finisus-negative);
+}
+
+.formulario-registro-dialog__acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--finisus-border);
+  background: var(--finisus-surface-subtle);
+}
+
+@media (max-width: 42rem) {
+  .formulario-registro-dialog__campos {
+    grid-template-columns: 1fr;
+  }
+
+  .formulario-registro-dialog__acoes button {
+    flex: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -1,0 +1,107 @@
+<section class="lista-registros-page">
+  <app-page-header [titulo]="configuracao.titulo" [descricao]="configuracao.descricao">
+    <button mat-flat-button type="button" (click)="abrirFormulario()">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">add</mat-icon>
+      {{ configuracao.novo }}
+    </button>
+  </app-page-header>
+
+  @if (podeGerar()) {
+    <div class="planejamento-page__acoes">
+      <p>Gere os lançamentos recorrentes do mês atual somente depois de revisar a lista.</p>
+      <button mat-stroked-button type="button" (click)="gerarMesAtual()">Gerar mês atual</button>
+    </div>
+  }
+
+  @if (carregando() && dados().conteudo.length === 0) {
+    <app-indicador-processamento modo="local" mensagem="Carregando registros..." />
+  } @else if (erro() && dados().conteudo.length === 0) {
+    <section class="lista-registros-page__estado" role="alert">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">cloud_off</mat-icon>
+      <p>{{ erro() }}</p>
+      <button mat-stroked-button type="button" (click)="tentarNovamente()">Tentar novamente</button>
+    </section>
+  } @else if (dados().conteudo.length === 0) {
+    <section class="lista-registros-page__estado">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">event_note</mat-icon>
+      <p>{{ configuracao.vazio }}</p>
+      <button mat-stroked-button type="button" (click)="abrirFormulario()">
+        {{ configuracao.novo }}
+      </button>
+    </section>
+  } @else {
+    <section class="lista-registros-page__conteudo">
+      <div
+        class="lista-registros-page__tabela"
+        tabindex="0"
+        [attr.aria-label]="configuracao.titulo"
+      >
+        <table mat-table class="finisus-data-table" [dataSource]="dados().conteudo">
+          <ng-container matColumnDef="nome">
+            <th mat-header-cell *matHeaderCellDef>Nome</th>
+            <td mat-cell *matCellDef="let linha">{{ linha.nome }}</td>
+          </ng-container>
+          <ng-container matColumnDef="detalhes">
+            <th mat-header-cell *matHeaderCellDef>Detalhes</th>
+            <td mat-cell *matCellDef="let linha">{{ linha.detalhes }}</td>
+          </ng-container>
+          <ng-container matColumnDef="valor">
+            <th mat-header-cell *matHeaderCellDef>Valor</th>
+            <td mat-cell *matCellDef="let linha">
+              {{
+                linha.valor === undefined
+                  ? '—'
+                  : (linha.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR')
+              }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Situação</th>
+            <td mat-cell *matCellDef="let linha">
+              <span class="planejamento-page__status">{{ linha.status }}</span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="acoes">
+            <th mat-header-cell *matHeaderCellDef>Ações</th>
+            <td mat-cell *matCellDef="let linha">
+              <button
+                mat-icon-button
+                type="button"
+                [matMenuTriggerFor]="acoes"
+                [attr.aria-label]="'Ações para ' + linha.nome"
+              >
+                <mat-icon class="material-symbols-outlined" aria-hidden="true">more_vert</mat-icon>
+              </button>
+              <mat-menu #acoes="matMenu">
+                @if (permiteEdicao()) {
+                  <button mat-menu-item type="button" (click)="abrirFormulario(linha.registro)">
+                    <mat-icon class="material-symbols-outlined" aria-hidden="true">edit</mat-icon
+                    >Editar
+                  </button>
+                }
+                <button
+                  mat-menu-item
+                  class="lista-registros-page__acao-perigosa"
+                  type="button"
+                  (click)="confirmarEncerramento(linha)"
+                >
+                  <mat-icon class="material-symbols-outlined" aria-hidden="true">cancel</mat-icon
+                  >{{ recurso === 'investimentos' ? 'Inativar' : 'Cancelar' }}
+                </button>
+              </mat-menu>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+          <tr mat-row *matRowDef="let linha; columns: colunas"></tr>
+        </table>
+      </div>
+      <app-paginacao
+        [pagina]="dados().pagina"
+        [totalPaginas]="dados().totalPaginas"
+        [registrosExibidos]="dados().conteudo.length"
+        [totalRegistros]="dados().totalElementos"
+        (navegacaoSolicitada)="navegarParaPagina($event)"
+      />
+    </section>
+  }
+</section>

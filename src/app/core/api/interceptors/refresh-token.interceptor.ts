@@ -8,7 +8,7 @@ import { AuthApiService } from '../../auth/auth-api.service';
 import { AuthService } from '../../auth/auth.service';
 import { AuthTokens } from '../../auth/auth.models';
 import { environment } from '../../../environment/environment';
-import { MensagemGlobalService } from '../../../shared/ui/mensagem-global/mensagem-global.service';
+import { MensagemGlobalService } from '../../feedback/mensagem-global.service';
 
 let renovacaoEmAndamento: Observable<AuthTokens> | null = null;
 

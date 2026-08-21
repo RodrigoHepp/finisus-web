@@ -33,11 +33,46 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'cadastros/:tipo',
+        path: 'cadastros',
         title: tituloTraduzido('CADASTROS.TITULO_ROTA'),
+        loadChildren: () =>
+          import('./features/cadastros/cadastros.routes').then(
+            (arquivo) => arquivo.CADASTROS_ROUTES,
+          ),
+      },
+      {
+        path: 'transacoes',
+        title: tituloTraduzido('TRANSACOES.TITULO_ROTA'),
         loadComponent: () =>
-          import('./features/cadastros/pages/lista-cadastros/lista-cadastros.page').then(
-            (arquivo) => arquivo.ListaCadastrosPage,
+          import('./features/transacoes/pages/lista-transacoes/lista-transacoes.page').then(
+            (arquivo) => arquivo.ListaTransacoesPage,
+          ),
+      },
+      {
+        path: 'previsoes',
+        loadComponent: () =>
+          import('./features/previsoes/pages/previsoes/previsoes.page').then(
+            (arquivo) => arquivo.PrevisoesPage,
+          ),
+      },
+      {
+        path: 'compartilhamentos',
+        loadComponent: () =>
+          import('./features/compartilhamentos/pages/compartilhamentos/compartilhamentos.page').then(
+            (arquivo) => arquivo.CompartilhamentosPage,
+          ),
+      },
+      {
+        path: 'cartoes',
+        title: tituloTraduzido('CARTOES.TITULO_ROTA'),
+        loadChildren: () =>
+          import('./features/cartoes/cartoes.routes').then((arquivo) => arquivo.CARTOES_ROUTES),
+      },
+      {
+        path: '',
+        loadChildren: () =>
+          import('./features/planejamento-financeiro/planejamento-financeiro.routes').then(
+            (arquivo) => arquivo.PLANEJAMENTO_FINANCEIRO_ROUTES,
           ),
       },
       {

@@ -1,0 +1,7 @@
+@if (erros()?.['required']) {
+  {{ chaveObrigatorio() | translate }}
+} @else if (erros()?.['maxlength']; as erro) {
+  {{ chaveTamanhoMaximo() | translate: { tamanho: erro.requiredLength } }}
+} @else if (chavePadrao(); as chave) {
+  {{ chave | translate }}
+}

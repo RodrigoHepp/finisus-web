@@ -1,0 +1,27 @@
+.compartilhamentos-page__preferencia {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--finisus-border);
+  background: var(--finisus-surface-subtle);
+}
+.compartilhamentos-page__preferencia h2,
+.compartilhamentos-page__preferencia p,
+.compartilhamentos-page__titulo {
+  margin: 0;
+}
+.compartilhamentos-page__preferencia p {
+  margin-top: 0.25rem;
+  color: var(--finisus-text-muted);
+}
+.compartilhamentos-page__titulo {
+  font-size: 1rem;
+}
+@media (max-width: 42rem) {
+  .compartilhamentos-page__preferencia {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

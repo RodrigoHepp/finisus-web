@@ -22,6 +22,11 @@ export interface UsuarioLogado {
   ativo: boolean;
 }
 
+export interface AtualizarPerfilRequest {
+  nome: string;
+  email: string;
+}
+
 export interface UsuarioCadastrado {
   id: number;
   nome: string;

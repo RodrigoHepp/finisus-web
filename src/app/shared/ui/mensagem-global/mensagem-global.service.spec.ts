@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { vi } from 'vitest';
 
 import { MensagemGlobalComponent } from './mensagem-global';
-import { MensagemGlobalService } from './mensagem-global.service';
+import { MensagemGlobalService } from '../../../core/feedback/mensagem-global.service';
 
 describe('MensagemGlobalService', () => {
   it('configura uma mensagem de erro com anúncio assertivo e duração maior', () => {

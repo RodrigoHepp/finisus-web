@@ -72,6 +72,38 @@ describe('SidebarComponent', () => {
     expect(fixture.nativeElement.querySelector('.nav-submenu-item')).not.toBeNull();
   });
 
+  it('mantém Home como o único destino principal', () => {
+    const sidebar = fixture.nativeElement as HTMLElement;
+
+    expect(
+      Array.from(sidebar.querySelectorAll('.sidebar-navigation-item')).some((item) =>
+        item.textContent?.includes('COMPARTILHADO.NAVEGACAO.HOME'),
+      ),
+    ).toBe(true);
+    expect(
+      Array.from(sidebar.querySelectorAll('.nav-group-button')).some((item) =>
+        item.textContent?.includes('COMPARTILHADO.NAVEGACAO.VISAO_GERAL'),
+      ),
+    ).toBe(false);
+  });
+
+  it('agrupa previsões com os demais recursos de planejamento', () => {
+    const sidebar = fixture.nativeElement as HTMLElement;
+    const botaoPlanejamento = Array.from(
+      sidebar.querySelectorAll<HTMLButtonElement>('.nav-group-button'),
+    ).find((botao) => botao.textContent?.includes('PLANEJAMENTO_FINANCEIRO.NAVEGACAO.GRUPO'));
+
+    if (!botaoPlanejamento) {
+      throw new Error('Grupo de planejamento não encontrado.');
+    }
+
+    botaoPlanejamento.click();
+    fixture.detectChanges();
+
+    const itens = Array.from(sidebar.querySelectorAll('.nav-submenu-item'));
+    expect(itens.some((item) => item.textContent?.includes('PREVISOES.TITULO'))).toBe(true);
+  });
+
   it('mantém os ícones de navegação visíveis quando a barra está recolhida', () => {
     fixture.componentRef.setInput('recolhida', true);
     fixture.detectChanges();

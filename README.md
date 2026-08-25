@@ -1,6 +1,6 @@
 # Finisus Web
 
-Frontend do Finisus, desenvolvido com Angular 22 e Angular Material. Nesta etapa, a aplicação entrega autenticação por JWT, cadastro protegido de usuários, tema claro/escuro e um dashboard estático.
+Frontend do Finisus, desenvolvido com Angular 22 e Angular Material. A aplicação oferece autenticação por JWT, tema claro/escuro e gestão financeira de cadastros, transações, cartões, recorrências, compras parceladas, investimentos e financiamentos.
 
 ## Escopo atual
 
@@ -8,13 +8,15 @@ Frontend do Finisus, desenvolvido com Angular 22 e Angular Material. Nesta etapa
 - Restauração segura da sessão em `sessionStorage` após recarregar a página.
 - Renovação coordenada do access token quando uma requisição protegida retorna `401`.
 - Cadastro de usuários em `/usuarios/novo`, acessível somente com sessão autenticada.
-- Dashboard de apresentação, sem dados financeiros carregados da API.
+- Cadastros de bancos, contas, categorias, itens e meios de pagamento.
+- Transações, cartões e faturas, recorrências, compras parceladas, investimentos e financiamentos.
+- Listagens paginadas, formulários reativos, estados de carregamento/erro e confirmações para ações destrutivas.
 - Tema claro/escuro, com preferência salva no navegador.
 - Mensagens globais acessíveis e indicadores de processamento reutilizáveis.
 
 ## Pré-requisitos
 
-- Node.js 24 ou versão compatível com Angular 22.
+- Node.js 22 (veja `.nvmrc` e `engines` no `package.json`).
 - npm 11.
 - API do Finisus em execução em `http://localhost:8080`.
 
@@ -24,6 +26,7 @@ Instale as dependências e inicie o servidor de desenvolvimento:
 
 ```bash
 npm install
+npx playwright install chromium
 npm start
 ```
 
@@ -31,14 +34,16 @@ Abra `http://localhost:4200` no navegador. A URL base da API local está configu
 
 ## Scripts
 
-| Comando                | Finalidade                              |
-| ---------------------- | --------------------------------------- |
-| `npm start`            | Inicia a aplicação em desenvolvimento.  |
-| `npm test`             | Executa os testes unitários com Vitest. |
-| `npm run lint`         | Analisa o código com ESLint.            |
-| `npm run format:check` | Verifica a formatação com Prettier.     |
-| `npm run format`       | Formata os arquivos do projeto.         |
-| `npm run build`        | Gera a build de produção em `dist/`.    |
+| Comando                | Finalidade                                        |
+| ---------------------- | ------------------------------------------------- |
+| `npm start`            | Inicia a aplicação em desenvolvimento.            |
+| `npm test`             | Executa os testes unitários com Vitest.           |
+| `npm run e2e`          | Executa jornadas determinísticas com Playwright.  |
+| `npm run lint`         | Analisa o código com ESLint.                      |
+| `npm run format:check` | Verifica a formatação com Prettier.               |
+| `npm run format`       | Formata os arquivos do projeto.                   |
+| `npm run build`        | Gera a build de produção em `dist/`.              |
+| `npm run build:stats`  | Gera a build e estatísticas em `dist/stats.json`. |
 
 ## Autenticação
 
@@ -57,7 +62,11 @@ Termos técnicos consolidados do Angular e do contrato do backend, como `auth`, 
 
 ## Integração contínua
 
-O workflow em `.github/workflows/ci.yml` executa, a cada push e pull request, instalação determinística, verificação de formatação, lint, testes unitários e build.
+O workflow em `.github/workflows/ci.yml` executa, a cada push e pull request, instalação determinística, Chromium do Playwright, verificação de formatação, lint, testes unitários, build e jornadas E2E. As jornadas interceptam a API no navegador; portanto, não exigem uma API local em execução.
+
+## Orçamento de bundle
+
+O orçamento inicial de produção é de 500 kB para aviso e 1 MB para erro. A build atual gera aproximadamente 621,54 kB iniciais e, por isso, emite um aviso sem falhar. O limite não foi elevado: antes de qualquer ajuste, execute `npm run build:stats` e analise `dist/stats.json` para identificar dependências ou código que possa ser carregado sob demanda.
 
 ## Licença e contribuições
 

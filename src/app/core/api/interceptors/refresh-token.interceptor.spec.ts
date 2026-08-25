@@ -80,8 +80,12 @@ describe('refreshTokenInterceptor', () => {
         (caminho) => requisicao.url === `${environment.apiUrl}${caminho}`,
       ),
     );
-    requisicoesIniciais[0].flush(null, { status: 401, statusText: 'Unauthorized' });
-    requisicoesIniciais[1].flush(null, { status: 401, statusText: 'Unauthorized' });
+    const [requisicaoContas, requisicaoCategorias] = requisicoesIniciais;
+    if (!requisicaoContas || !requisicaoCategorias) {
+      throw new Error('As duas requisições protegidas deveriam ter sido iniciadas.');
+    }
+    requisicaoContas.flush(null, { status: 401, statusText: 'Unauthorized' });
+    requisicaoCategorias.flush(null, { status: 401, statusText: 'Unauthorized' });
 
     const renovacao = httpTestingController.expectOne(`${environment.apiUrl}/auth/refresh`);
     expect(renovacao.request.body).toEqual({ refreshToken: 'refresh-token' });

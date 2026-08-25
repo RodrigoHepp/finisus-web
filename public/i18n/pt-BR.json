@@ -37,10 +37,10 @@
       "SECAO_PRINCIPAL": "Principal",
       "CAMINHO_ATUAL": "Caminho da página",
       "HOME": "Home",
-      "USUARIOS": "Usuários",
       "ADMINISTRACAO": "Administração",
       "CADASTROS": "Cadastros",
-      "CREDITO": "Crédito",
+      "MOVIMENTACOES": "Movimentações",
+      "COMPARTILHAMENTOS": "Compartilhamentos",
       "CADASTRAR_USUARIO": "Cadastrar usuário",
       "ABRIR_MENU": "Abrir menu de navegação",
       "EXPANDIR_MENU": "Expandir menu",
@@ -59,6 +59,9 @@
     "MENSAGENS": {
       "ERRO_CONEXAO_BACKEND": "Não foi possível conectar ao servidor. Verifique se o backend está em execução."
     }
+  },
+  "PREVISOES": {
+    "TITULO": "Previsões"
   },
   "AUTENTICACAO": {
     "LOGIN": {
@@ -321,6 +324,146 @@
     "CONFIRMACAO_EXCLUSAO": {
       "TITULO": "Excluir cartão",
       "MENSAGEM": "Deseja excluir {{nome}}? Faturas associadas podem ser afetadas."
+    }
+  },
+  "PLANEJAMENTO_FINANCEIRO": {
+    "TITULOS": {
+      "RECORRENCIAS": "Recorrências",
+      "COMPRAS_PARCELADAS": "Compras parceladas",
+      "INVESTIMENTOS": "Investimentos",
+      "FINANCIAMENTOS": "Financiamentos",
+      "PLANEJAMENTO": "Planejamento"
+    },
+    "NAVEGACAO": {
+      "GRUPO": "Planejamento"
+    },
+    "CAMPOS": {
+      "NOME": "Nome",
+      "TIPO": "Tipo",
+      "VALOR_ESPERADO": "Valor esperado",
+      "DIA_DO_MES": "Dia do mês",
+      "DESCRICAO": "Descrição",
+      "VALOR_TOTAL": "Valor total",
+      "NUMERO_PARCELAS": "Número de parcelas",
+      "DATA_COMPRA": "Data da compra",
+      "DATA": "Data",
+      "CONTA": "Conta",
+      "CONTA_ORIGEM": "Conta de origem",
+      "CATEGORIA": "Categoria",
+      "PRINCIPAL": "Valor principal",
+      "JUROS_MENSAIS": "Juros mensais (%)",
+      "DATA_INICIO": "Data de início"
+    },
+    "VALIDACOES": {
+      "VALOR": "Informe um valor maior que zero.",
+      "DIA": "Informe um dia entre 1 e 31.",
+      "PARCELAS": "Informe ao menos uma parcela.",
+      "DATA": "Informe uma data válida.",
+      "CONTA": "Informe uma conta.",
+      "JUROS": "Informe uma taxa de juros válida.",
+      "OBRIGATORIO": "Este campo é obrigatório."
+    },
+    "MENSAGENS": {
+      "CARREGANDO_REFERENCIAS": "Carregando opções do formulário...",
+      "SALVANDO": "Salvando...",
+      "ERRO_SALVAR": "Não foi possível salvar. Corrija os dados e tente novamente.",
+      "ERRO_CARREGAR": "Não foi possível carregar os registros. Tente novamente.",
+      "ERRO_REFERENCIAS": "Não foi possível carregar as opções do formulário.",
+      "CARREGANDO": "Carregando registros...",
+      "TENTAR_NOVAMENTE": "Tentar novamente",
+      "NENHUM_REGISTRO": "Nenhum registro cadastrado.",
+      "GERANDO_MES": "Gerando lançamentos...",
+      "ERRO_GERAR_MES": "Não foi possível gerar os lançamentos deste mês.",
+      "MES_GERADO": "{{quantidade}} lançamento(s) gerado(s) para {{anoMes}}.",
+      "NENHUM_LANCAMENTO_GERADO": "Não havia recorrências pendentes para {{anoMes}}.",
+      "RECORRENCIA_INATIVADA": "Recorrência inativada com sucesso.",
+      "INVESTIMENTO_INATIVADO": "Investimento inativado com sucesso.",
+      "COMPRA_CANCELADA": "Compra parcelada cancelada com sucesso.",
+      "FINANCIAMENTO_CANCELADO": "Financiamento cancelado com sucesso.",
+      "ERRO_INATIVAR_RECORRENCIA": "Não foi possível inativar esta recorrência.",
+      "ERRO_INATIVAR_INVESTIMENTO": "Não foi possível inativar este investimento.",
+      "ERRO_CANCELAR_COMPRA": "Não foi possível cancelar esta compra parcelada.",
+      "ERRO_CANCELAR_FINANCIAMENTO": "Não foi possível cancelar este financiamento."
+    },
+    "CONFIRMACAO_DESCARTE": {
+      "TITULO": "Descartar alterações",
+      "MENSAGEM": "As alterações ainda não foram salvas e serão descartadas.",
+      "CONFIRMAR": "Descartar"
+    },
+    "RECORRENCIAS": {
+      "DESCRICAO": "Planeje lançamentos que se repetem e gere o mês quando estiver pronto.",
+      "GERAR_MES_AJUDA": "Gere os lançamentos recorrentes do mês atual somente depois de revisar a lista.",
+      "ACOES": {
+        "NOVA": "Nova recorrência",
+        "EDITAR": "Editar recorrência",
+        "GERAR_MES": "Gerar mês atual",
+        "INATIVAR": "Inativar"
+      },
+      "DESCRICAO_FORMULARIO": "Defina o lançamento que se repetirá mensalmente.",
+      "CONFIRMACAO_INATIVACAO": {
+        "TITULO": "Inativar recorrência",
+        "MENSAGEM": "Deseja inativar “{{nome}}”?"
+      }
+    },
+    "COMPRAS_PARCELADAS": {
+      "DESCRICAO": "Registre compras cujas parcelas devem aparecer nos próximos meses.",
+      "DESCRICAO_FORMULARIO": "Registre a compra e as parcelas previstas.",
+      "ACOES": { "NOVA": "Nova compra parcelada", "CANCELAR": "Cancelar compra" },
+      "CONFIRMACAO_CANCELAMENTO": {
+        "TITULO": "Cancelar compra parcelada",
+        "MENSAGEM": "Deseja cancelar “{{nome}}”?"
+      }
+    },
+    "INVESTIMENTOS": {
+      "DESCRICAO": "Organize os investimentos e a conta de origem de cada um.",
+      "DESCRICAO_FORMULARIO": "Defina o tipo e a conta de origem.",
+      "ACOES": {
+        "NOVO": "Novo investimento",
+        "EDITAR": "Editar investimento",
+        "INATIVAR": "Inativar"
+      },
+      "CONFIRMACAO_INATIVACAO": {
+        "TITULO": "Inativar investimento",
+        "MENSAGEM": "Deseja inativar “{{nome}}”?"
+      },
+      "TIPOS": {
+        "RENDA_FIXA": "Renda fixa",
+        "RENDA_VARIAVEL": "Renda variável",
+        "FUNDO": "Fundo",
+        "CRIPTO": "Cripto",
+        "OUTRO": "Outro"
+      }
+    },
+    "FINANCIAMENTOS": {
+      "DESCRICAO": "Acompanhe contratos, parcelas e a situação de cada financiamento.",
+      "DESCRICAO_FORMULARIO": "Informe as condições do contrato financeiro.",
+      "ACOES": { "NOVO": "Novo financiamento", "CANCELAR": "Cancelar financiamento" },
+      "CONFIRMACAO_CANCELAMENTO": {
+        "TITULO": "Cancelar financiamento",
+        "MENSAGEM": "Deseja cancelar “{{nome}}”?"
+      }
+    },
+    "ACOES": {
+      "EDITAR": "Editar",
+      "CANCELAR": "Cancelar",
+      "INATIVAR": "Inativar",
+      "VOLTAR": "Voltar",
+      "NENHUMA_CATEGORIA": "Sem categoria"
+    },
+    "COLUNAS": {
+      "SITUACAO": "Situação",
+      "ACOES": "Ações",
+      "PARCELAS": "Parcelas",
+      "JUROS_MES": "Juros/mês"
+    },
+    "STATUS": {
+      "ATIVA": "Ativa",
+      "INATIVA": "Inativa",
+      "ATIVO": "Ativo",
+      "INATIVO": "Inativo",
+      "CANCELADA": "Cancelada",
+      "CANCELADO": "Cancelado",
+      "FINALIZADO": "Finalizado"
     }
   },
   "PAGINACAO": {

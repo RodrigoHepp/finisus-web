@@ -193,18 +193,23 @@ describe('CadastroUsuarioPage', () => {
       'button[mat-icon-button]',
     ) as NodeListOf<HTMLButtonElement>;
 
-    botoesVisibilidade[0].click();
+    const [botaoSenha, botaoConfirmacao] = botoesVisibilidade;
+    if (!botaoSenha || !botaoConfirmacao) {
+      throw new Error('Os controles de visibilidade de senha deveriam estar disponíveis.');
+    }
+
+    botaoSenha.click();
     fixture.detectChanges();
 
     expect(campoSenha.type).toBe('text');
     expect(campoConfirmacao.type).toBe('password');
     expect(fixture.nativeElement.querySelector('mat-error')).toBeNull();
 
-    botoesVisibilidade[1].click();
+    botaoConfirmacao.click();
     fixture.detectChanges();
 
     expect(campoConfirmacao.type).toBe('text');
-    expect(botoesVisibilidade[1].getAttribute('aria-pressed')).toBe('true');
+    expect(botaoConfirmacao.getAttribute('aria-pressed')).toBe('true');
   });
 
   function pagina(): PaginaDeCadastroParaTeste {

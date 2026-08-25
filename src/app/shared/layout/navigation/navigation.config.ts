@@ -24,53 +24,60 @@ export const ITENS_NAVEGACAO_PRINCIPAL: readonly ItemNavegacao[] = [
     icone: 'home',
     rota: '/dashboard',
   },
-  {
-    id: 'transacoes',
-    rotulo: 'TRANSACOES.TITULO',
-    icone: 'receipt_long',
-    rota: '/transacoes',
-  },
-  {
-    id: 'recorrencias',
-    rotulo: 'Recorrências',
-    icone: 'autorenew',
-    rota: '/recorrencias',
-  },
-  {
-    id: 'previsoes',
-    rotulo: 'Previsões',
-    icone: 'insights',
-    rota: '/previsoes',
-  },
-  {
-    id: 'compartilhamentos',
-    rotulo: 'Compartilhamentos',
-    icone: 'group',
-    rota: '/compartilhamentos',
-  },
 ];
 
 export const GRUPOS_NAVEGACAO: readonly GrupoNavegacao[] = [
   {
+    id: 'movimentacoes',
+    rotulo: 'COMPARTILHADO.NAVEGACAO.MOVIMENTACOES',
+    icone: 'swap_horiz',
+    itens: [
+      {
+        id: 'transacoes',
+        rotulo: 'TRANSACOES.TITULO',
+        icone: 'receipt_long',
+        rota: '/transacoes',
+      },
+      {
+        id: 'cartoes',
+        rotulo: 'CARTOES.TITULO',
+        icone: 'credit_card',
+        rota: '/cartoes',
+      },
+    ],
+  },
+  {
     id: 'planejamento',
-    rotulo: 'Planejamento',
+    rotulo: 'PLANEJAMENTO_FINANCEIRO.NAVEGACAO.GRUPO',
     icone: 'event_note',
     itens: [
       {
+        id: 'previsoes',
+        rotulo: 'PREVISOES.TITULO',
+        icone: 'insights',
+        rota: '/previsoes',
+      },
+      {
+        id: 'recorrencias',
+        rotulo: 'PLANEJAMENTO_FINANCEIRO.TITULOS.RECORRENCIAS',
+        icone: 'autorenew',
+        rota: '/recorrencias',
+      },
+      {
         id: 'compras-parceladas',
-        rotulo: 'Compras parceladas',
+        rotulo: 'PLANEJAMENTO_FINANCEIRO.TITULOS.COMPRAS_PARCELADAS',
         icone: 'shopping_cart',
         rota: '/compras-parceladas',
       },
       {
         id: 'investimentos',
-        rotulo: 'Investimentos',
+        rotulo: 'PLANEJAMENTO_FINANCEIRO.TITULOS.INVESTIMENTOS',
         icone: 'trending_up',
         rota: '/investimentos',
       },
       {
         id: 'financiamentos',
-        rotulo: 'Financiamentos',
+        rotulo: 'PLANEJAMENTO_FINANCEIRO.TITULOS.FINANCIAMENTOS',
         icone: 'account_balance',
         rota: '/financiamentos',
       },
@@ -109,23 +116,16 @@ export const GRUPOS_NAVEGACAO: readonly GrupoNavegacao[] = [
     ],
   },
   {
-    id: 'credito',
-    rotulo: 'COMPARTILHADO.NAVEGACAO.CREDITO',
-    icone: 'credit_card',
-    itens: [
-      {
-        id: 'cartoes',
-        rotulo: 'CARTOES.TITULO',
-        icone: 'credit_card',
-        rota: '/cartoes',
-      },
-    ],
-  },
-  {
     id: 'usuarios',
     rotulo: 'COMPARTILHADO.NAVEGACAO.ADMINISTRACAO',
     icone: 'group',
     itens: [
+      {
+        id: 'compartilhamentos',
+        rotulo: 'COMPARTILHADO.NAVEGACAO.COMPARTILHAMENTOS',
+        icone: 'group',
+        rota: '/compartilhamentos',
+      },
       {
         id: 'cadastrar-usuario',
         rotulo: 'COMPARTILHADO.NAVEGACAO.CADASTRAR_USUARIO',

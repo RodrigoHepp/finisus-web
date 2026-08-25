@@ -69,10 +69,35 @@ export const routes: Routes = [
           import('./features/cartoes/cartoes.routes').then((arquivo) => arquivo.CARTOES_ROUTES),
       },
       {
-        path: '',
-        loadChildren: () =>
-          import('./features/planejamento-financeiro/planejamento-financeiro.routes').then(
-            (arquivo) => arquivo.PLANEJAMENTO_FINANCEIRO_ROUTES,
+        path: 'recorrencias',
+        title: tituloTraduzido('PLANEJAMENTO_FINANCEIRO.TITULOS.RECORRENCIAS'),
+        loadComponent: () =>
+          import('./features/recorrencias/pages/lista-recorrencias/lista-recorrencias.page').then(
+            (arquivo) => arquivo.ListaRecorrenciasPage,
+          ),
+      },
+      {
+        path: 'compras-parceladas',
+        title: tituloTraduzido('PLANEJAMENTO_FINANCEIRO.TITULOS.COMPRAS_PARCELADAS'),
+        loadComponent: () =>
+          import('./features/compras-parceladas/pages/lista-compras-parceladas/lista-compras-parceladas.page').then(
+            (arquivo) => arquivo.ListaComprasParceladasPage,
+          ),
+      },
+      {
+        path: 'investimentos',
+        title: tituloTraduzido('PLANEJAMENTO_FINANCEIRO.TITULOS.INVESTIMENTOS'),
+        loadComponent: () =>
+          import('./features/investimentos/pages/lista-investimentos/lista-investimentos.page').then(
+            (arquivo) => arquivo.ListaInvestimentosPage,
+          ),
+      },
+      {
+        path: 'financiamentos',
+        title: tituloTraduzido('PLANEJAMENTO_FINANCEIRO.TITULOS.FINANCIAMENTOS'),
+        loadComponent: () =>
+          import('./features/financiamentos/pages/lista-financiamentos/lista-financiamentos.page').then(
+            (arquivo) => arquivo.ListaFinanciamentosPage,
           ),
       },
       {

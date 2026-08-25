@@ -1,0 +1,149 @@
+<section class="formulario-registro-dialog" aria-labelledby="financiamento-titulo">
+  <header class="formulario-registro-dialog__cabecalho">
+    <div>
+      <h2 id="financiamento-titulo">
+        {{ 'PLANEJAMENTO_FINANCEIRO.FINANCIAMENTOS.ACOES.NOVO' | translate }}
+      </h2>
+      <p>{{ 'PLANEJAMENTO_FINANCEIRO.FINANCIAMENTOS.DESCRICAO_FORMULARIO' | translate }}</p>
+    </div>
+    <button
+      mat-icon-button
+      type="button"
+      [disabled]="enviando()"
+      [attr.aria-label]="'COMPARTILHADO.ACOES.FECHAR' | translate"
+      (click)="cancelar()"
+    >
+      ×
+    </button>
+  </header>
+  @if (carregandoReferencias()) {
+    <app-indicador-processamento
+      modo="local"
+      mensagem="PLANEJAMENTO_FINANCEIRO.MENSAGENS.CARREGANDO_REFERENCIAS"
+    />
+  } @else if (erroReferencias(); as mensagem) {
+    <section class="lista-registros-page__estado" role="alert">
+      <p>{{ mensagem }}</p>
+      <button mat-stroked-button type="button" (click)="tentarCarregarReferencias()">
+        {{ 'PLANEJAMENTO_FINANCEIRO.MENSAGENS.TENTAR_NOVAMENTE' | translate }}
+      </button>
+    </section>
+  } @else {
+    <form [formGroup]="formulario" (ngSubmit)="salvar()" novalidate>
+      <div class="formulario-registro-dialog__campos">
+        <app-campo-formulario
+          [rotulo]="'PLANEJAMENTO_FINANCEIRO.CAMPOS.DESCRICAO' | translate"
+          controleId="financiamento-descricao"
+          [obrigatorio]="true"
+          ><mat-form-field subscriptSizing="dynamic"
+            ><input
+              id="financiamento-descricao"
+              matInput
+              formControlName="descricao"
+              maxlength="300"
+            />
+            @if (campoInvalido('descricao')) {
+              <mat-error
+                ><app-mensagem-validacao [controle]="formulario.controls.descricao"
+              /></mat-error>
+            }</mat-form-field
+        ></app-campo-formulario>
+        <app-campo-formulario
+          [rotulo]="'PLANEJAMENTO_FINANCEIRO.CAMPOS.PRINCIPAL' | translate"
+          controleId="financiamento-principal"
+          [obrigatorio]="true"
+          ><mat-form-field subscriptSizing="dynamic"
+            ><input
+              id="financiamento-principal"
+              matInput
+              inputmode="decimal"
+              formControlName="principal"
+            />
+            @if (campoInvalido('principal')) {
+              <mat-error>{{ 'PLANEJAMENTO_FINANCEIRO.VALIDACOES.VALOR' | translate }}</mat-error>
+            }
+          </mat-form-field></app-campo-formulario
+        >
+        <app-campo-formulario
+          [rotulo]="'PLANEJAMENTO_FINANCEIRO.CAMPOS.JUROS_MENSAIS' | translate"
+          controleId="financiamento-taxaJurosMensal"
+          [obrigatorio]="true"
+          ><mat-form-field subscriptSizing="dynamic"
+            ><input
+              id="financiamento-taxaJurosMensal"
+              matInput
+              inputmode="decimal"
+              formControlName="taxaJurosMensal"
+            />
+            @if (campoInvalido('taxaJurosMensal')) {
+              <mat-error>{{ 'PLANEJAMENTO_FINANCEIRO.VALIDACOES.JUROS' | translate }}</mat-error>
+            }
+          </mat-form-field></app-campo-formulario
+        >
+        <app-campo-formulario
+          [rotulo]="'PLANEJAMENTO_FINANCEIRO.CAMPOS.NUMERO_PARCELAS' | translate"
+          controleId="financiamento-numeroParcelas"
+          [obrigatorio]="true"
+          ><mat-form-field subscriptSizing="dynamic"
+            ><input
+              id="financiamento-numeroParcelas"
+              matInput
+              type="number"
+              min="1"
+              formControlName="numeroParcelas"
+            />
+            @if (campoInvalido('numeroParcelas')) {
+              <mat-error>{{ 'PLANEJAMENTO_FINANCEIRO.VALIDACOES.PARCELAS' | translate }}</mat-error>
+            }
+          </mat-form-field></app-campo-formulario
+        >
+        <app-campo-formulario
+          [rotulo]="'PLANEJAMENTO_FINANCEIRO.CAMPOS.DATA_INICIO' | translate"
+          controleId="financiamento-dataInicio"
+          [obrigatorio]="true"
+          ><mat-form-field subscriptSizing="dynamic"
+            ><input
+              id="financiamento-dataInicio"
+              matInput
+              type="date"
+              formControlName="dataInicio"
+            />
+            @if (campoInvalido('dataInicio')) {
+              <mat-error>{{ 'PLANEJAMENTO_FINANCEIRO.VALIDACOES.DATA' | translate }}</mat-error>
+            }
+          </mat-form-field></app-campo-formulario
+        >
+        <app-campo-formulario
+          [rotulo]="'PLANEJAMENTO_FINANCEIRO.CAMPOS.CONTA' | translate"
+          controleId="financiamento-contaId"
+          [obrigatorio]="true"
+          ><mat-form-field subscriptSizing="dynamic"
+            ><mat-select id="financiamento-contaId" formControlName="contaId">
+              @for (conta of contas(); track conta.id) {
+                <mat-option [value]="conta.id">{{ conta.nome }}</mat-option>
+              }
+            </mat-select>
+            @if (campoInvalido('contaId')) {
+              <mat-error>{{ 'PLANEJAMENTO_FINANCEIRO.VALIDACOES.CONTA' | translate }}</mat-error>
+            }
+          </mat-form-field></app-campo-formulario
+        >
+      </div>
+      @if (erro(); as mensagem) {
+        <p class="formulario-registro-dialog__erro" role="alert">{{ mensagem }}</p>
+      }
+      <footer class="formulario-registro-dialog__acoes">
+        <button mat-button type="button" [disabled]="enviando()" (click)="cancelar()">
+          {{ 'COMPARTILHADO.ACOES.CANCELAR' | translate }}</button
+        ><button mat-flat-button type="submit" [disabled]="enviando()">
+          {{
+            (enviando()
+              ? 'PLANEJAMENTO_FINANCEIRO.MENSAGENS.SALVANDO'
+              : 'COMPARTILHADO.ACOES.SALVAR'
+            ) | translate
+          }}
+        </button>
+      </footer>
+    </form>
+  }
+</section>

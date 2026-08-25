@@ -51,7 +51,10 @@ export class SidebarComponent {
         ? [partesDoNome[0], partesDoNome[partesDoNome.length - 1]]
         : partesDoNome;
 
-    return partesParaIniciais.map((parte) => parte.charAt(0).toLocaleUpperCase('pt-BR')).join('');
+    return partesParaIniciais
+      .filter((parte): parte is string => typeof parte === 'string')
+      .map((parte) => parte.charAt(0).toLocaleUpperCase('pt-BR'))
+      .join('');
   });
 
   private readonly urlAtual = toSignal(

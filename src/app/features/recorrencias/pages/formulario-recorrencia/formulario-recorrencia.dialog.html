@@ -1,0 +1,163 @@
+<section class="formulario-registro-dialog" aria-labelledby="recorrencia-titulo">
+  <header class="formulario-registro-dialog__cabecalho">
+    <div>
+      <h2 id="recorrencia-titulo">
+        {{
+          (editando
+            ? 'PLANEJAMENTO_FINANCEIRO.RECORRENCIAS.ACOES.EDITAR'
+            : 'PLANEJAMENTO_FINANCEIRO.RECORRENCIAS.ACOES.NOVA'
+          ) | translate
+        }}
+      </h2>
+      <p>{{ 'PLANEJAMENTO_FINANCEIRO.RECORRENCIAS.DESCRICAO_FORMULARIO' | translate }}</p>
+    </div>
+    <button
+      mat-icon-button
+      type="button"
+      [disabled]="enviando()"
+      [attr.aria-label]="'COMPARTILHADO.ACOES.FECHAR' | translate"
+      (click)="cancelar()"
+    >
+      ×
+    </button>
+  </header>
+
+  @if (carregandoReferencias()) {
+    <app-indicador-processamento
+      modo="local"
+      mensagem="PLANEJAMENTO_FINANCEIRO.MENSAGENS.CARREGANDO_REFERENCIAS"
+    />
+  } @else if (erroReferencias(); as mensagem) {
+    <section class="lista-registros-page__estado" role="alert">
+      <p>{{ mensagem }}</p>
+      <button mat-stroked-button type="button" (click)="tentarCarregarReferencias()">
+        {{ 'CADASTROS.MENSAGENS.TENTAR_NOVAMENTE' | translate }}
+      </button>
+    </section>
+  } @else {
+    <form [formGroup]="formulario" (ngSubmit)="salvar()" novalidate>
+      <div class="formulario-registro-dialog__campos">
+        <app-campo-formulario
+          [rotulo]="'PLANEJAMENTO_FINANCEIRO.CAMPOS.NOME' | translate"
+          controleId="recorrencia-nome"
+          [obrigatorio]="true"
+        >
+          <mat-form-field subscriptSizing="dynamic">
+            <input id="recorrencia-nome" matInput formControlName="nome" maxlength="150" />
+            @if (campoInvalido('nome')) {
+              <mat-error
+                ><app-mensagem-validacao [controle]="formulario.controls.nome"
+              /></mat-error>
+            }
+          </mat-form-field>
+        </app-campo-formulario>
+        <app-campo-formulario
+          [rotulo]="'PLANEJAMENTO_FINANCEIRO.CAMPOS.TIPO' | translate"
+          controleId="recorrencia-tipo"
+          [obrigatorio]="true"
+        >
+          <mat-form-field subscriptSizing="dynamic">
+            <mat-select id="recorrencia-tipo" formControlName="tipo">
+              <mat-option value="ENTRADA">{{ 'TRANSACOES.TIPOS.ENTRADA' | translate }}</mat-option>
+              <mat-option value="SAIDA">{{ 'TRANSACOES.TIPOS.SAIDA' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </app-campo-formulario>
+        <app-campo-formulario
+          [rotulo]="'PLANEJAMENTO_FINANCEIRO.CAMPOS.VALOR_ESPERADO' | translate"
+          controleId="recorrencia-valorEsperado"
+          [obrigatorio]="true"
+        >
+          <mat-form-field subscriptSizing="dynamic">
+            <input
+              id="recorrencia-valorEsperado"
+              matInput
+              inputmode="decimal"
+              formControlName="valorEsperado"
+            />
+            @if (campoInvalido('valorEsperado')) {
+              <mat-error>{{ 'PLANEJAMENTO_FINANCEIRO.VALIDACOES.VALOR' | translate }}</mat-error>
+            }
+          </mat-form-field>
+        </app-campo-formulario>
+        <app-campo-formulario
+          [rotulo]="'PLANEJAMENTO_FINANCEIRO.CAMPOS.DIA_DO_MES' | translate"
+          controleId="recorrencia-diaDoMes"
+          [obrigatorio]="true"
+        >
+          <mat-form-field subscriptSizing="dynamic">
+            <input
+              id="recorrencia-diaDoMes"
+              matInput
+              type="number"
+              min="1"
+              max="31"
+              formControlName="diaDoMes"
+            />
+            @if (campoInvalido('diaDoMes')) {
+              <mat-error>{{ 'PLANEJAMENTO_FINANCEIRO.VALIDACOES.DIA' | translate }}</mat-error>
+            }
+          </mat-form-field>
+        </app-campo-formulario>
+        <app-campo-formulario
+          [rotulo]="'TRANSACOES.CAMPOS.CATEGORIA' | translate"
+          controleId="recorrencia-categoriaId"
+        >
+          <mat-form-field subscriptSizing="dynamic">
+            <mat-select id="recorrencia-categoriaId" formControlName="categoriaId">
+              <mat-option [value]="null">{{ 'TRANSACOES.ACOES.NENHUMA' | translate }}</mat-option>
+              @for (categoria of categorias(); track categoria.id) {
+                <mat-option [value]="categoria.id">{{ categoria.nome }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </app-campo-formulario>
+        <app-campo-formulario
+          [rotulo]="'TRANSACOES.CAMPOS.CONTA' | translate"
+          controleId="recorrencia-contaId"
+          [obrigatorio]="true"
+        >
+          <mat-form-field subscriptSizing="dynamic">
+            <mat-select id="recorrencia-contaId" formControlName="contaId">
+              @for (conta of contas(); track conta.id) {
+                <mat-option [value]="conta.id">{{ conta.nome }}</mat-option>
+              }
+            </mat-select>
+            @if (campoInvalido('contaId')) {
+              <mat-error>{{ 'TRANSACOES.VALIDACOES.OBRIGATORIO' | translate }}</mat-error>
+            }
+          </mat-form-field>
+        </app-campo-formulario>
+        <app-campo-formulario
+          [rotulo]="'TRANSACOES.CAMPOS.MEIO_PAGAMENTO' | translate"
+          controleId="recorrencia-meioPagamentoId"
+        >
+          <mat-form-field subscriptSizing="dynamic">
+            <mat-select id="recorrencia-meioPagamentoId" formControlName="meioPagamentoId">
+              <mat-option [value]="null">{{ 'TRANSACOES.ACOES.NENHUM' | translate }}</mat-option>
+              @for (meio of meiosPagamento(); track meio.id) {
+                <mat-option [value]="meio.id">{{ meio.nome }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </app-campo-formulario>
+      </div>
+      @if (erro(); as mensagem) {
+        <p class="formulario-registro-dialog__erro" role="alert">{{ mensagem }}</p>
+      }
+      <footer class="formulario-registro-dialog__acoes">
+        <button mat-button type="button" [disabled]="enviando()" (click)="cancelar()">
+          {{ 'COMPARTILHADO.ACOES.CANCELAR' | translate }}
+        </button>
+        <button mat-flat-button type="submit" [disabled]="enviando()">
+          {{
+            (enviando()
+              ? 'PLANEJAMENTO_FINANCEIRO.MENSAGENS.SALVANDO'
+              : 'COMPARTILHADO.ACOES.SALVAR'
+            ) | translate
+          }}
+        </button>
+      </footer>
+    </form>
+  }
+</section>

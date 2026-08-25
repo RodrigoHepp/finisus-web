@@ -1,0 +1,27 @@
+.lista-recorrencias__acoes {
+  align-items: center;
+  background: var(--finisus-surface-subtle);
+  border: 1px solid var(--finisus-border);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.lista-recorrencias__acoes p {
+  color: var(--finisus-text-muted);
+  margin: 0;
+}
+
+.lista-recorrencias__status {
+  color: var(--finisus-text-muted);
+  font-size: 0.8125rem;
+  font-weight: 650;
+}
+
+@media (max-width: 42rem) {
+  .lista-recorrencias__acoes {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

@@ -13,6 +13,7 @@ describe('BreadcrumbsComponent', () => {
       providers: [
         provideRouter([
           { path: 'dashboard', component: BreadcrumbsComponent },
+          { path: 'previsoes', component: BreadcrumbsComponent },
           { path: 'usuarios/novo', component: BreadcrumbsComponent },
         ]),
         provideTranslateService(),
@@ -34,6 +35,21 @@ describe('BreadcrumbsComponent', () => {
     expect(itens[0].textContent.trim()).toBe('COMPARTILHADO.NAVEGACAO.HOME');
     expect(itens[1].textContent.trim()).toBe('COMPARTILHADO.NAVEGACAO.ADMINISTRACAO');
     expect(itens[2].textContent.trim()).toBe('COMPARTILHADO.NAVEGACAO.CADASTRAR_USUARIO');
+    expect(itens[2].querySelector('[aria-current="page"]')).not.toBeNull();
+  });
+
+  it('exibe o planejamento para previsões', async () => {
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/previsoes');
+    fixture.detectChanges();
+
+    const itens = fixture.nativeElement.querySelectorAll('ol > li:not(.breadcrumbs-separator)');
+
+    expect(itens).toHaveLength(3);
+    expect(itens[0].textContent.trim()).toBe('COMPARTILHADO.NAVEGACAO.HOME');
+    expect(itens[1].textContent.trim()).toBe('PLANEJAMENTO_FINANCEIRO.NAVEGACAO.GRUPO');
+    expect(itens[2].textContent.trim()).toBe('PREVISOES.TITULO');
     expect(itens[2].querySelector('[aria-current="page"]')).not.toBeNull();
   });
 });

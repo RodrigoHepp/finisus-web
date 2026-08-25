@@ -1,0 +1,122 @@
+<section class="lista-registros-page">
+  <app-page-header
+    [titulo]="'PLANEJAMENTO_FINANCEIRO.TITULOS.COMPRAS_PARCELADAS' | translate"
+    [descricao]="'PLANEJAMENTO_FINANCEIRO.COMPRAS_PARCELADAS.DESCRICAO' | translate"
+  >
+    <button mat-flat-button type="button" (click)="abrirFormulario()">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">add</mat-icon>
+      {{ 'PLANEJAMENTO_FINANCEIRO.COMPRAS_PARCELADAS.ACOES.NOVA' | translate }}
+    </button>
+  </app-page-header>
+  @if (carregando() && dados().conteudo.length === 0) {
+    <app-indicador-processamento
+      modo="local"
+      mensagem="PLANEJAMENTO_FINANCEIRO.MENSAGENS.CARREGANDO"
+    />
+  } @else if (erro() && dados().conteudo.length === 0) {
+    <section class="lista-registros-page__estado" role="alert">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">cloud_off</mat-icon>
+      <p>{{ erro() }}</p>
+      <button mat-stroked-button type="button" (click)="tentarNovamente()">
+        {{ 'PLANEJAMENTO_FINANCEIRO.MENSAGENS.TENTAR_NOVAMENTE' | translate }}
+      </button>
+    </section>
+  } @else if (dados().conteudo.length === 0) {
+    <section class="lista-registros-page__estado">
+      <mat-icon class="material-symbols-outlined" aria-hidden="true">event_note</mat-icon>
+      <p>{{ 'PLANEJAMENTO_FINANCEIRO.MENSAGENS.NENHUM_REGISTRO' | translate }}</p>
+      <button mat-stroked-button type="button" (click)="abrirFormulario()">
+        {{ 'PLANEJAMENTO_FINANCEIRO.COMPRAS_PARCELADAS.ACOES.NOVA' | translate }}
+      </button>
+    </section>
+  } @else {
+    <section class="lista-registros-page__conteudo">
+      <div
+        class="lista-registros-page__tabela"
+        tabindex="0"
+        [attr.aria-label]="'PLANEJAMENTO_FINANCEIRO.TITULOS.COMPRAS_PARCELADAS' | translate"
+      >
+        <table mat-table class="finisus-data-table" [dataSource]="dados().conteudo">
+          <ng-container matColumnDef="descricao"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'PLANEJAMENTO_FINANCEIRO.CAMPOS.DESCRICAO' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let item">{{ item.descricao }}</td></ng-container
+          >
+          <ng-container matColumnDef="valor"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'PLANEJAMENTO_FINANCEIRO.CAMPOS.VALOR_TOTAL' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let item">
+              {{ item.valorTotal | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+            </td></ng-container
+          >
+          <ng-container matColumnDef="parcelas"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'PLANEJAMENTO_FINANCEIRO.COLUNAS.PARCELAS' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let item">{{ item.numeroParcelas }}</td></ng-container
+          >
+          <ng-container matColumnDef="data"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'PLANEJAMENTO_FINANCEIRO.CAMPOS.DATA_COMPRA' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let item">{{ item.dataCompra }}</td></ng-container
+          >
+          <ng-container matColumnDef="status"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'PLANEJAMENTO_FINANCEIRO.COLUNAS.SITUACAO' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let item">
+              <span class="lista-compras-parceladas__status">{{
+                (item.canceladaEm
+                  ? 'PLANEJAMENTO_FINANCEIRO.STATUS.CANCELADA'
+                  : 'PLANEJAMENTO_FINANCEIRO.STATUS.ATIVA'
+                ) | translate
+              }}</span>
+            </td></ng-container
+          >
+          <ng-container matColumnDef="acoes"
+            ><th mat-header-cell *matHeaderCellDef>
+              {{ 'PLANEJAMENTO_FINANCEIRO.COLUNAS.ACOES' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let item">
+              <button
+                mat-icon-button
+                type="button"
+                [matMenuTriggerFor]="acoes"
+                [attr.aria-label]="
+                  ('PLANEJAMENTO_FINANCEIRO.COLUNAS.ACOES' | translate) + ': ' + item.descricao
+                "
+              >
+                <mat-icon class="material-symbols-outlined" aria-hidden="true"
+                  >more_vert</mat-icon
+                ></button
+              ><mat-menu #acoes="matMenu"
+                ><button
+                  mat-menu-item
+                  class="lista-registros-page__acao-perigosa"
+                  type="button"
+                  [disabled]="atualizando() || !!item.canceladaEm"
+                  (click)="confirmarCancelamento(item)"
+                >
+                  <mat-icon class="material-symbols-outlined" aria-hidden="true">cancel</mat-icon
+                  >{{ 'PLANEJAMENTO_FINANCEIRO.ACOES.CANCELAR' | translate }}
+                </button></mat-menu
+              >
+            </td></ng-container
+          >
+          <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+          <tr mat-row *matRowDef="let item; columns: colunas"></tr>
+        </table>
+      </div>
+      <app-paginacao
+        [pagina]="dados().pagina"
+        [totalPaginas]="dados().totalPaginas"
+        [registrosExibidos]="dados().conteudo.length"
+        [totalRegistros]="dados().totalElementos"
+        (navegacaoSolicitada)="navegarParaPagina($event)"
+      />
+    </section>
+  }
+</section>

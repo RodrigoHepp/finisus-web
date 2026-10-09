@@ -1,0 +1,143 @@
+:host {
+  display: block;
+  color: #20392f;
+}
+h1 {
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  letter-spacing: -0.04em;
+  margin-bottom: 0.6rem;
+}
+h2 {
+  font-size: 1.25rem;
+}
+.introducao {
+  color: #617269;
+  line-height: 1.6;
+  max-width: 56rem;
+}
+.barra-acoes,
+.acoes {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.barra-acoes {
+  justify-content: space-between;
+  margin: 1.5rem 0;
+}
+.painel {
+  background: #fff;
+  border: 1px solid #e1e8e0;
+  border-radius: 1rem;
+  padding: 1.4rem;
+  margin-top: 1rem;
+}
+.campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1rem;
+}
+form {
+  margin-top: 1rem;
+}
+mat-form-field {
+  width: 100%;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+th {
+  text-align: left;
+  color: #617269;
+  font-size: 0.75rem;
+}
+td,
+th {
+  padding: 0.85rem 0.55rem;
+  border-bottom: 1px solid #edf1eb;
+}
+td .acoes {
+  justify-content: end;
+}
+.rolagem {
+  overflow-x: auto;
+}
+.erro {
+  background: #fff0eb;
+  color: #8d2c20;
+  padding: 1rem;
+  border-radius: 0.6rem;
+}
+.sucesso {
+  background: #e8f2e3;
+  padding: 1rem;
+  border-radius: 0.6rem;
+}
+.orientacao {
+  color: #617269;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+.colunas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.subpainel {
+  border: 1px solid #e1e8e0;
+  border-radius: 0.7rem;
+  padding: 1rem;
+  margin-top: 0.8rem;
+}
+.rotulo-linha {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+}
+input[type='file'] {
+  display: block;
+  max-width: 100%;
+  margin: 1rem 0;
+}
+dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.7rem 1rem;
+}
+dt {
+  color: #617269;
+}
+dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.etapas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0;
+  list-style-position: inside;
+  color: #617269;
+}
+.etapas .ativo {
+  color: #245a45;
+  font-weight: 700;
+}
+@media (max-width: 760px) {
+  .painel {
+    padding: 1rem;
+  }
+  .colunas {
+    grid-template-columns: 1fr;
+  }
+  .campos {
+    grid-template-columns: 1fr;
+  }
+  td,
+  th {
+    padding: 0.6rem 0.4rem;
+  }
+}

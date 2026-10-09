@@ -42,3 +42,18 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+/test-results/
+/playwright-report/
+*.local
+.env
+.env.*
+!.env.example
+
+/test-results-*/
+
+# Cache de ferramentas Python
+__pycache__/
+*.pyc
+*.pyo
+/.scannerwork/

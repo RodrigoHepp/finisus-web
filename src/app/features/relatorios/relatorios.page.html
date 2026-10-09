@@ -1,0 +1,132 @@
+<header class="cabecalho-pagina">
+  <div>
+    <p class="sobretitulo">Entenda suas finanças</p>
+    <h1>Visão financeira</h1>
+    <p>Valores e resultados calculados pelo Finisus.</p>
+  </div>
+</header>
+<section class="painel">
+  <mat-form-field
+    ><mat-label>Consulta financeira</mat-label
+    ><mat-select [value]="selecionado()" (selectionChange)="selecionar($event.value)">
+      @for (relatorio of relatorios; track relatorio.id) {
+        <mat-option [value]="relatorio.id">{{ relatorio.rotulo }}</mat-option>
+      }
+    </mat-select></mat-form-field
+  >
+  <p class="nota-contexto">{{ orientacao() }}</p>
+  <form class="grade-formulario" [formGroup]="formulario" (ngSubmit)="carregar()">
+    @if (selecionado() === 'visao-geral' || selecionado() === 'patrimonio') {
+      <mat-form-field
+        ><mat-label>Data de referência</mat-label
+        ><input matInput type="date" formControlName="referencia" /><mat-error
+          >Informe a data de referência.</mat-error
+        ></mat-form-field
+      >
+    }
+    @if (selecionado() === 'visao-geral') {
+      <mat-form-field
+        ><mat-label>Janela de compromissos (dias)</mat-label
+        ><input matInput type="number" min="1" max="90" formControlName="janelaDias" /><mat-error
+          >Informe de 1 a 90 dias inteiros.</mat-error
+        ></mat-form-field
+      >
+    }
+    @if (selecionado() === 'agenda' || selecionado() === 'compartilhados') {
+      <mat-form-field
+        ><mat-label>Início</mat-label
+        ><input matInput type="date" formControlName="inicio" /><mat-error
+          >Informe a data inicial.</mat-error
+        ></mat-form-field
+      ><mat-form-field
+        ><mat-label>Fim</mat-label><input matInput type="date" formControlName="fim" /><mat-error
+          >Informe a data final.</mat-error
+        ></mat-form-field
+      >
+    }
+    @if (['mensal', 'periodo', 'balancete', 'analise', 'previsao'].includes(selecionado())) {
+      <mat-form-field
+        ><mat-label>Competência / mês final</mat-label
+        ><input matInput type="month" formControlName="anoMes" /><mat-error
+          >Informe a competência.</mat-error
+        ></mat-form-field
+      >
+    }
+    @if (['anual', 'composicao', 'balancete-anual'].includes(selecionado())) {
+      <mat-form-field
+        ><mat-label>Ano</mat-label><input matInput formControlName="ano" maxlength="4" /><mat-error
+          >Informe o ano com quatro dígitos.</mat-error
+        ></mat-form-field
+      >
+    }
+    @if (['periodo', 'analise', 'previsao'].includes(selecionado())) {
+      <mat-form-field
+        ><mat-label>Quantidade de meses</mat-label
+        ><input matInput type="number" min="1" max="12" formControlName="periodoMeses" /><mat-error
+          >Informe de 1 a 12 meses inteiros.</mat-error
+        ></mat-form-field
+      >
+    }
+    @if (selecionado() === 'balancete' || selecionado() === 'balancete-anual') {
+      <mat-form-field
+        ><mat-label>Tipo</mat-label
+        ><mat-select formControlName="tipo"
+          ><mat-option value="">Todos</mat-option><mat-option value="ENTRADA">Receitas</mat-option
+          ><mat-option value="SAIDA">Despesas</mat-option></mat-select
+        ></mat-form-field
+      ><mat-form-field
+        ><mat-label>Identificação da categoria</mat-label
+        ><input matInput inputmode="numeric" formControlName="categoriaId" /><mat-hint
+          >Opcional; filtre pelo identificador do cadastro.</mat-hint
+        ><mat-error>Use somente dígitos para identificar a categoria.</mat-error></mat-form-field
+      ><mat-form-field
+        ><mat-label>Identificação da conta</mat-label
+        ><input matInput inputmode="numeric" formControlName="contaId" /><mat-error
+          >Use somente dígitos para identificar a conta.</mat-error
+        ></mat-form-field
+      >
+    }
+    <div class="acoes-formulario">
+      <button mat-flat-button type="submit" [disabled]="carregando()">Consultar</button>
+      @if (selecionado() === 'previsao') {
+        <button mat-stroked-button type="button" (click)="recalcular()" [disabled]="ocupado()">
+          Recalcular previsão
+        </button>
+      }
+    </div>
+  </form>
+</section>
+@if (erro()) {
+  <p class="aviso erro" role="alert">{{ erro() }}</p>
+}
+@if (sucesso()) {
+  <output class="aviso">{{ sucesso() }}</output>
+}
+@if (carregando()) {
+  <output>Consultando o Finisus…</output>
+}
+@if (recalculando()) {
+  <output>Recalculando a previsão no servidor…</output>
+}
+@if (avisoHistorico()) {
+  <p class="aviso">
+    Esta consulta não é uma fotografia histórica integral. Saldos e dívidas foram consultados no
+    estado atual; confira a data informada abaixo.
+  </p>
+}
+@if (dados(); as resultado) {
+  <section class="painel resultados-relatorio" aria-label="Resultado financeiro">
+    <h2>{{ rotuloResultado() }}</h2>
+    <p>{{ contextoResultado() }}</p>
+    <fin-visao-financeira [valor]="resultado" />
+    @if (['balancete', 'balancete-anual', 'previsao'].includes(selecionado())) {
+      <mat-paginator
+        [length]="total()"
+        [pageIndex]="pagina()"
+        [pageSize]="20"
+        (page)="paginar($event)"
+        aria-label="Paginação do relatório"
+      />
+    }
+  </section>
+}

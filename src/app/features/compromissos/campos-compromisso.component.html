@@ -1,0 +1,33 @@
+<div class="grade-formulario">
+  @for (campo of campos(); track campo.chave) {
+    <mat-form-field appearance="outline"
+      ><mat-label>{{ campo.rotulo }}</mat-label>
+      @if (campo.tipo === 'select') {
+        <mat-select [formControl]="formulario().controls[campo.chave]">
+          @if (!campo.obrigatorio) {
+            <mat-option [value]="null">Não informar</mat-option>
+          }
+          @for (opcao of opcoes()(campo); track opcao.valor) {
+            <mat-option [value]="opcao.valor">{{ opcao.rotulo }}</mat-option>
+          }
+        </mat-select>
+      } @else {
+        <input
+          matInput
+          [type]="campo.tipo"
+          [formControl]="formulario().controls[campo.chave]"
+          [attr.min]="campo.minimo ?? null"
+          [attr.max]="campo.maximo ?? null"
+          [attr.maxlength]="campo.comprimentoMaximo ?? null"
+          [attr.step]="campo.tipo === 'number' ? (campoInteiro(campo.chave) ? '1' : 'any') : null"
+        />
+      }
+      @if (campo.orientacao) {
+        <mat-hint>{{ campo.orientacao }}</mat-hint>
+      }
+      <mat-error
+        >Preencha {{ campo.rotulo.toLowerCase() }} com um valor válido.</mat-error
+      ></mat-form-field
+    >
+  }
+</div>

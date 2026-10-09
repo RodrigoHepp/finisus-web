@@ -1,50 +1,107 @@
-import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { authGuard } from './core/auth/auth.guard';
 
-export const routes: Routes = [
+import { permissaoGuard, sessaoGuard } from './infraestrutura/sessao/sessao.guard';
+import { alteracoesPendentesGuard } from './infraestrutura/alteracoes-pendentes.guard';
+export const rotas: Routes = [
   {
-    path: 'login',
-    title: tituloTraduzido('AUTENTICACAO.LOGIN.TITULO_ROTA'),
-    loadComponent: () =>
-      import('./features/auth/pages/login/login.page').then((arquivo) => arquivo.LoginPage),
+    path: 'entrar',
+    loadComponent: () => import('./features/sessao/sessao.page').then((m) => m.SessaoPage),
+  },
+  {
+    path: 'cadastro',
+    pathMatch: 'full',
+    redirectTo: 'usuarios',
   },
   {
     path: '',
-    canActivate: [authGuard],
+    canActivate: [sessaoGuard],
     loadComponent: () =>
-      import('./shared/layout/app-shell/app-shell').then((arquivo) => arquivo.AppShellComponent),
+      import('./shared/estrutura-principal.component').then((m) => m.EstruturaPrincipalComponent),
     children: [
+      { path: '', pathMatch: 'full', redirectTo: 'visao-geral' },
       {
-        path: 'usuarios/novo',
-        title: tituloTraduzido('AUTENTICACAO.CADASTRO_USUARIO.TITULO_ROTA'),
+        path: 'usuarios',
+        data: { permissoes: ['USUARIO_CADASTRAR', 'USUARIO_DESBLOQUEAR'] },
+        canActivate: [permissaoGuard],
+        canDeactivate: [alteracoesPendentesGuard],
         loadComponent: () =>
-          import('./features/auth/pages/cadastro-usuario/cadastro-usuario').then(
-            (arquivo) => arquivo.CadastroUsuarioPage,
+          import('./features/acesso-usuarios/acesso-usuarios.page').then(
+            (m) => m.AcessoUsuariosPage,
           ),
       },
       {
-        path: 'dashboard',
-        title: tituloTraduzido('DASHBOARD.TITULO_ROTA'),
+        path: 'visao-geral',
+        data: { jornada: 'visao-geral' },
         loadComponent: () =>
-          import('./features/dashboard/pages/dashboard/dashboard').then(
-            (arquivo) => arquivo.DashboardPage,
+          import('./features/relatorios/relatorios.page').then((m) => m.RelatoriosPage),
+      },
+      {
+        path: 'relatorios',
+        data: { jornada: 'relatorios' },
+        loadComponent: () =>
+          import('./features/relatorios/relatorios.page').then((m) => m.RelatoriosPage),
+      },
+      {
+        path: 'cadastros',
+        data: { jornada: 'cadastros' },
+        canDeactivate: [alteracoesPendentesGuard],
+        loadComponent: () =>
+          import('./features/dia-a-dia/dia-a-dia.page').then((m) => m.DiaADiaPage),
+      },
+      {
+        path: 'contas',
+        data: { jornada: 'contas' },
+        canDeactivate: [alteracoesPendentesGuard],
+        loadComponent: () =>
+          import('./features/dia-a-dia/dia-a-dia.page').then((m) => m.DiaADiaPage),
+      },
+      {
+        path: 'movimentacoes',
+        data: { jornada: 'movimentacoes' },
+        canDeactivate: [alteracoesPendentesGuard],
+        loadComponent: () =>
+          import('./features/dia-a-dia/dia-a-dia.page').then((m) => m.DiaADiaPage),
+      },
+      {
+        path: 'cartoes',
+        data: { jornada: 'cartoes' },
+        canDeactivate: [alteracoesPendentesGuard],
+        loadComponent: () =>
+          import('./features/compromissos/compromissos.page').then((m) => m.CompromissosPage),
+      },
+      {
+        path: 'compromissos',
+        data: { jornada: 'compromissos' },
+        canDeactivate: [alteracoesPendentesGuard],
+        loadComponent: () =>
+          import('./features/compromissos/compromissos.page').then((m) => m.CompromissosPage),
+      },
+      {
+        path: 'investimentos',
+        canDeactivate: [alteracoesPendentesGuard],
+        loadComponent: () =>
+          import('./features/investimentos/investimentos.page').then((m) => m.InvestimentosPage),
+      },
+      {
+        path: 'compartilhamentos',
+        canDeactivate: [alteracoesPendentesGuard],
+        loadComponent: () =>
+          import('./features/divisoes-compartilhadas/divisoes-compartilhadas.page').then(
+            (m) => m.DivisoesCompartilhadasPage,
           ),
       },
       {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: 'dashboard',
+        path: 'importacoes',
+        canDeactivate: [alteracoesPendentesGuard],
+        loadComponent: () =>
+          import('./features/importacoes/importacoes.page').then((m) => m.ImportacoesPage),
+      },
+      {
+        path: 'perfil',
+        canDeactivate: [alteracoesPendentesGuard],
+        loadComponent: () => import('./features/perfil/perfil.page').then((m) => m.PerfilPage),
       },
     ],
   },
-  {
-    path: '**',
-    redirectTo: '',
-  },
+  { path: '**', redirectTo: 'visao-geral' },
 ];
-
-function tituloTraduzido(chave: string) {
-  return () => inject(TranslateService).get(chave);
-}

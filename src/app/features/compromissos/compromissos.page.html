@@ -1,0 +1,707 @@
+<section class="compromissos">
+  <header class="cabecalho-pagina">
+    <div>
+      <p class="sobretitulo">
+        {{ jornadaCartoes ? 'Crédito com clareza' : 'Planeje seus próximos passos' }}
+      </p>
+      <h1>{{ jornadaCartoes ? 'Cartões e compras' : 'Compromissos' }}</h1>
+      <p>
+        Compromissos futuros e pagamentos realizados têm momentos diferentes. Os valores e
+        cronogramas são informados pelo Finisus.
+      </p>
+    </div>
+  </header>
+  <nav class="abas" aria-label="Tipo de compromisso">
+    @for (tab of abas; track tab.chave) {
+      <button
+        mat-button
+        [class.atual]="tipo() === tab.chave"
+        [attr.aria-current]="tipo() === tab.chave ? 'page' : null"
+        (click)="alterarTipo(tab.chave)"
+        [disabled]="ocupado()"
+      >
+        {{ tab.rotulo }}
+      </button>
+    }
+  </nav>
+  @if (erro()) {
+    <p class="aviso erro" role="alert">
+      {{ erro() }}
+      <button mat-button (click)="carregar()" [disabled]="ocupado()">Tentar novamente</button>
+    </p>
+  }
+  @if (sucesso()) {
+    <output class="aviso sucesso">{{ sucesso() }}</output>
+  }
+  @if (erroConsultaReferencias()) {
+    <output class="aviso">{{ erroConsultaReferencias() }}</output>
+  }
+  @if (carregando() || ocupado()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Processando solicitação" />
+  }
+
+  <div class="barra-acoes">
+    <h2>{{ titulo() }}</h2>
+    <button
+      mat-flat-button
+      (click)="
+        iniciar(
+          'criar',
+          'Cadastrar ' +
+            (tipo() === 'cartoes'
+              ? 'cartão'
+              : tipo() === 'compras'
+                ? 'compra parcelada'
+                : tipo() === 'obrigacoes'
+                  ? 'conta a pagar'
+                  : tipo() === 'recorrencias'
+                    ? 'recorrência'
+                    : 'financiamento')
+        )
+      "
+      [disabled]="ocupado()"
+    >
+      Novo cadastro
+    </button>
+    @if (tipo() === 'cartoes') {
+      <button
+        mat-stroked-button
+        (click)="iniciar('ciclos', 'Processar ciclos de faturas')"
+        [disabled]="ocupado()"
+      >
+        Processar ciclos
+      </button>
+    }
+  </div>
+  @if (tipo() === 'obrigacoes') {
+    <form class="filtros" [formGroup]="filtros" (ngSubmit)="carregar()">
+      <mat-form-field
+        ><mat-label>Situação</mat-label
+        ><mat-select formControlName="status"
+          ><mat-option value="">Todas</mat-option
+          ><mat-option value="EM_ABERTO">Em aberto</mat-option
+          ><mat-option value="VENCIDA">Vencida</mat-option><mat-option value="PAGA">Paga</mat-option
+          ><mat-option value="CANCELADA">Cancelada</mat-option></mat-select
+        ></mat-form-field
+      ><mat-form-field
+        ><mat-label>Vencimento inicial</mat-label
+        ><input matInput type="date" formControlName="inicio" /></mat-form-field
+      ><mat-form-field
+        ><mat-label>Vencimento final</mat-label
+        ><input matInput type="date" formControlName="fim" /></mat-form-field
+      ><button mat-stroked-button type="submit" [disabled]="ocupado()">Filtrar</button>
+    </form>
+  }
+  @if (pagina(); as data) {
+    @if (data.conteudo.length === 0) {
+      <p class="vazio">Nenhum registro nesta página. Cadastre o primeiro para começar.</p>
+    }
+    <div class="grade-entidade">
+      @for (entidade of data.conteudo; track entidade.id) {
+        <article class="entidade" [class.selecionado]="selecionado()?.id === entidade.id">
+          <div class="cabecalho-entidade">
+            <span class="estado">{{ estado(entidade) }}</span
+            ><span class="identificador">#{{ entidade.id }}</span>
+          </div>
+          <h3>{{ nome(entidade) }}</h3>
+          <p class="valor">
+            {{ valor(entidade) | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+          </p>
+          <p class="discreto">{{ rotuloValor() }}</p>
+          <button mat-stroked-button (click)="selecionar(entidade)" [disabled]="ocupado()">
+            Ver detalhes
+          </button>
+        </article>
+      }
+    </div>
+    <div class="paginacao" aria-label="Paginação">
+      <button
+        mat-button
+        (click)="carregar(data.pagina - 1)"
+        [disabled]="data.pagina === 0 || carregando() || ocupado()"
+      >
+        Anterior</button
+      ><span
+        >Página {{ data.pagina + 1 }} de {{ data.totalPaginas || 1 }} ·
+        {{ data.totalElementos }} registros</span
+      ><button
+        mat-button
+        (click)="carregar(data.pagina + 1)"
+        [disabled]="data.pagina + 1 >= data.totalPaginas || carregando() || ocupado()"
+      >
+        Próxima
+      </button>
+    </div>
+  }
+
+  @if (selecionado(); as entidade) {
+    <section class="detalhe" aria-label="Detalhes do compromisso">
+      <div class="barra-acoes">
+        <div>
+          <p class="sobretitulo">Detalhes · #{{ entidade.id }}</p>
+          <h2>{{ nome(entidade) }}</h2>
+          <p>{{ estado(entidade) }}</p>
+        </div>
+        <div class="acoes">
+          @if (tipo() === 'cartoes' || tipo() === 'recorrencias') {
+            <button
+              mat-stroked-button
+              (click)="iniciar('editar', 'Editar cadastro')"
+              [disabled]="ocupado()"
+            >
+              Editar</button
+            ><button mat-button (click)="inativarEntidade()" [disabled]="ocupado()">
+              Inativar
+            </button>
+          } @else {
+            <button mat-button (click)="cancelarEntidade()" [disabled]="ocupado()">
+              Cancelar compromisso
+            </button>
+          }
+        </div>
+      </div>
+      @if (compra(); as p) {
+        <dl class="informacoes">
+          <div>
+            <dt>Valor total</dt>
+            <dd>{{ p.valorTotal | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+          </div>
+          <div>
+            <dt>Parcelas</dt>
+            <dd>{{ p.numeroParcelas }}</dd>
+          </div>
+          <div>
+            <dt>Compra</dt>
+            <dd>{{ dataCivil(p.dataCompra) }}</dd>
+          </div>
+          <div>
+            <dt>Conta</dt>
+            <dd>#{{ p.contaId }}</dd>
+          </div>
+        </dl>
+        <p>
+          Parcelas e lançamentos futuros são criados pelo Finisus.
+          {{ p.cartaoId ? 'Vinculada ao cartão #' + p.cartaoId : 'Sem cartão vinculado' }}.
+        </p>
+      }
+      @if (recorrencia(); as r) {
+        <dl class="informacoes">
+          <div>
+            <dt>Valor esperado</dt>
+            <dd>{{ r.valorEsperado | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+          </div>
+          <div>
+            <dt>Dia do mês</dt>
+            <dd>{{ r.diaDoMes }}</dd>
+          </div>
+          <div>
+            <dt>Movimentação</dt>
+            <dd>{{ rotulo(r.tipo) }}</dd>
+          </div>
+          <div>
+            <dt>Conta</dt>
+            <dd>#{{ r.contaId }}</dd>
+          </div>
+        </dl>
+        <p>
+          O cadastro define a expectativa. Gere e realize as ocorrências no painel mensal abaixo.
+        </p>
+      }
+      @if (cartao(); as c) {
+        <dl class="informacoes">
+          <div>
+            <dt>Limite</dt>
+            <dd>{{ c.limite | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+          </div>
+          <div>
+            <dt>Fechamento</dt>
+            <dd>Dia {{ c.diaFechamento }}</dd>
+          </div>
+          <div>
+            <dt>Vencimento</dt>
+            <dd>Dia {{ c.diaVencimento }}</dd>
+          </div>
+        </dl>
+        <div class="barra-acoes">
+          <h3>Faturas</h3>
+          <button
+            mat-flat-button
+            (click)="iniciar('criar-fatura', 'Criar fatura')"
+            [disabled]="ocupado() || !c.ativo"
+          >
+            Criar fatura
+          </button>
+        </div>
+        @if (faturas(); as data) {
+          @if (!data.conteudo.length) {
+            <p class="vazio">Nenhuma fatura nesta página.</p>
+          }
+          <div class="linhas">
+            @for (i of data.conteudo; track i.id) {
+              <div class="linha">
+                <div>
+                  <strong>{{ i.anoMes }}</strong>
+                  <p>Vence {{ dataCivil(i.vencimento) }} · {{ rotulo(i.status) }}</p>
+                </div>
+                <button mat-stroked-button (click)="selecionarFatura(i)" [disabled]="ocupado()">
+                  Abrir fatura
+                </button>
+              </div>
+            }
+          </div>
+          <div class="paginacao">
+            <button
+              mat-button
+              (click)="carregarFaturas(data.pagina - 1)"
+              [disabled]="data.pagina === 0 || ocupado()"
+            >
+              Anterior</button
+            ><span>{{ data.pagina + 1 }} / {{ data.totalPaginas || 1 }}</span
+            ><button
+              mat-button
+              (click)="carregarFaturas(data.pagina + 1)"
+              [disabled]="data.pagina + 1 >= data.totalPaginas || ocupado()"
+            >
+              Próxima
+            </button>
+          </div>
+        }
+      }
+      @if (fatura(); as i) {
+        <section class="subdetalhe">
+          <h3>Fatura de {{ i.anoMes }} · {{ rotulo(i.status) }}</h3>
+          <p>Fechamento {{ dataCivil(i.fechamento) }} · vencimento {{ dataCivil(i.vencimento) }}</p>
+          <dl class="informacoes">
+            <div>
+              <dt>Total</dt>
+              <dd>{{ i.valorTotal | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+            </div>
+            <div>
+              <dt>Pago</dt>
+              <dd>{{ i.valorPago | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+            </div>
+            <div>
+              <dt>Em aberto</dt>
+              <dd>{{ i.valorEmAberto | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+            </div>
+            <div>
+              <dt>Crédito aplicado</dt>
+              <dd>{{ i.creditoAplicado | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+            </div>
+            <div>
+              <dt>Crédito</dt>
+              <dd>{{ i.credito | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+            </div>
+          </dl>
+          <div class="acoes">
+            <button
+              mat-stroked-button
+              (click)="iniciar('editar-fatura', 'Editar fatura')"
+              [disabled]="ocupado() || i.status === 'CANCELADA'"
+            >
+              Editar</button
+            ><button
+              mat-stroked-button
+              (click)="iniciar('despesa-fatura', 'Registrar gasto na fatura')"
+              [disabled]="ocupado() || i.status !== 'ABERTA'"
+            >
+              Registrar gasto</button
+            ><button
+              mat-stroked-button
+              (click)="executarComandoFatura('fechar')"
+              [disabled]="ocupado() || i.status !== 'ABERTA'"
+            >
+              Fechar fatura</button
+            ><button
+              mat-flat-button
+              (click)="iniciar('pagar-fatura', 'Pagar fatura')"
+              [disabled]="ocupado() || i.status !== 'FECHADA' || i.valorEmAberto <= 0"
+            >
+              Pagar</button
+            ><button
+              mat-button
+              (click)="executarComandoFatura('estornar-pagamento')"
+              [disabled]="ocupado() || i.valorPago <= 0"
+            >
+              Estornar último pagamento</button
+            ><button
+              mat-button
+              (click)="executarComandoFatura('cancelar')"
+              [disabled]="ocupado() || i.status === 'CANCELADA'"
+            >
+              Cancelar fatura
+            </button>
+          </div>
+          <h4>Lançamentos</h4>
+          @if (!i.transacoes.length) {
+            <p class="vazio">Nenhum lançamento nesta fatura.</p>
+          }
+          <div class="linhas">
+            @for (t of i.transacoes; track t.id) {
+              <div class="linha">
+                <div>
+                  <strong>{{ nomeTransacao(t) }}</strong>
+                  <p>{{ dataCivil(t.data) }} · {{ rotulo(t.tipo) }}</p>
+                </div>
+                <strong>{{ t.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong>
+              </div>
+            }
+          </div>
+        </section>
+      }
+      @if (obrigacao(); as o) {
+        <p>Credor: {{ o.credor }} · vencimento {{ dataCivil(o.dataVencimento) }}</p>
+        <dl class="informacoes">
+          <div>
+            <dt>Valor</dt>
+            <dd>{{ o.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+          </div>
+          <div>
+            <dt>Pago</dt>
+            <dd>{{ o.valorPago | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+          </div>
+          <div>
+            <dt>Saldo pendente</dt>
+            <dd>{{ o.saldoPendente | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+          </div>
+        </dl>
+        <button
+          mat-flat-button
+          (click)="iniciar('pagar-obrigacao', 'Registrar pagamento')"
+          [disabled]="ocupado() || o.status === 'CANCELADA' || o.saldoPendente <= 0"
+        >
+          Registrar pagamento
+        </button>
+        <h3>Pagamentos e estornos</h3>
+        @if (!pagamentos().length) {
+          <p class="vazio">Nenhum pagamento registrado.</p>
+        }
+        @for (p of pagamentos(); track p.id) {
+          <div class="linha">
+            <div>
+              <strong>{{ p.valorCaixa | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong>
+              <p>
+                {{ dataCivil(p.dataPagamento) }} · {{ p.estornadoEm ? 'Estornado' : 'Ativo' }} ·
+                principal {{ p.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+              </p>
+              <p>
+                Juros {{ p.juros | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }} · encargos
+                {{ p.encargos | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }} · desconto
+                {{ p.desconto | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+              </p>
+            </div>
+            <button
+              mat-button
+              (click)="estornarObrigacao(p)"
+              [disabled]="ocupado() || !!p.estornadoEm"
+            >
+              Estornar pagamento
+            </button>
+          </div>
+        }
+        @if (pagamentos().length) {
+          <button mat-button (click)="estornarObrigacao(null)" [disabled]="ocupado()">
+            Estornar todos os pagamentos ativos
+          </button>
+        }
+      }
+      @if (financiamento(); as f) {
+        <p>
+          Taxa mensal informada: {{ f.taxaJurosMensal }}% · {{ f.numeroParcelas }} parcelas · início
+          {{ dataCivil(f.dataInicio) }} · versão {{ f.cronogramaVersao }}
+        </p>
+        <div class="acoes">
+          <button
+            mat-flat-button
+            (click)="iniciar('amortizar', 'Amortizar financiamento')"
+            [disabled]="ocupado() || f.status !== 'ATIVO'"
+          >
+            Amortizar</button
+          ><button
+            mat-stroked-button
+            (click)="iniciar('refinanciar', 'Refinanciar financiamento')"
+            [disabled]="ocupado() || f.status !== 'ATIVO'"
+          >
+            Refinanciar com novo contrato
+          </button>
+        </div>
+        <h3>Cronograma atual</h3>
+        @if (parcelas(); as data) {
+          @if (!data.conteudo.length) {
+            <p class="vazio">Nenhuma parcela nesta página.</p>
+          }
+          @for (p of data.conteudo; track p.id) {
+            <div class="parcela">
+              <div class="linha">
+                <div>
+                  <strong>Parcela {{ p.numero }} · #{{ p.id }}</strong>
+                  <p>{{ dataCivil(p.vencimento) }} · {{ rotulo(p.status) }}</p>
+                </div>
+                <strong>{{ p.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong>
+              </div>
+              <dl class="informacoes compacto">
+                <div>
+                  <dt>Principal</dt>
+                  <dd>
+                    {{
+                      p.principal === null
+                        ? 'Não informado'
+                        : (p.principal | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR')
+                    }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Juros</dt>
+                  <dd>
+                    {{
+                      p.juros === null
+                        ? 'Não informado'
+                        : (p.juros | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR')
+                    }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Encargos</dt>
+                  <dd>
+                    {{
+                      p.encargos === null
+                        ? 'Não informado'
+                        : (p.encargos | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR')
+                    }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Saldo devedor final</dt>
+                  <dd>
+                    {{
+                      p.saldoDevedorFinal === null
+                        ? 'Não informado'
+                        : (p.saldoDevedorFinal | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR')
+                    }}
+                  </dd>
+                </div>
+              </dl>
+              <div class="acoes">
+                <button
+                  mat-stroked-button
+                  (click)="iniciar('pagar-parcela', 'Pagar parcela ' + p.numero, p)"
+                  [disabled]="ocupado() || p.status === 'PAGA' || f.status !== 'ATIVO'"
+                >
+                  Pagar parcela</button
+                ><button
+                  mat-button
+                  (click)="comandoParcela(p, 'estornar')"
+                  [disabled]="ocupado() || p.status !== 'PAGA'"
+                >
+                  Estornar</button
+                ><button
+                  mat-button
+                  (click)="comandoParcela(p, 'corrigir-erro')"
+                  [disabled]="ocupado() || p.status === 'PAGA' || f.status !== 'ATIVO'"
+                >
+                  Corrigir erro de lançamento</button
+                ><button
+                  mat-button
+                  (click)="comandoParcela(p, 'finalizar')"
+                  [disabled]="ocupado() || p.status === 'PAGA' || f.status !== 'ATIVO'"
+                >
+                  Finalizar por refinanciamento
+                </button>
+              </div>
+            </div>
+          }
+          <div class="paginacao">
+            <button
+              mat-button
+              (click)="carregarParcelas(data.pagina - 1)"
+              [disabled]="data.pagina === 0 || ocupado()"
+            >
+              Anterior</button
+            ><span>{{ data.pagina + 1 }} / {{ data.totalPaginas || 1 }}</span
+            ><button
+              mat-button
+              (click)="carregarParcelas(data.pagina + 1)"
+              [disabled]="data.pagina + 1 >= data.totalPaginas || ocupado()"
+            >
+              Próxima
+            </button>
+          </div>
+        }
+        @if (amortizacao(); as a) {
+          <section class="aviso">
+            <h3>Amortização registrada</h3>
+            <output>
+              Saldo devedor anterior
+              {{ a.saldoDevedorAnterior | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }} · atual
+              {{ a.saldoDevedorAtual | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }} ·
+              {{ a.parcelasRestantes }} parcelas restantes. Movimentação #{{ a.transacaoId }}.
+            </output>
+          </section>
+        }
+        <div class="barra-acoes">
+          <h3>Cronograma histórico</h3>
+          <mat-form-field
+            ><mat-label>Versão</mat-label
+            ><input
+              matInput
+              type="number"
+              min="1"
+              step="1"
+              [formControl]="controlVersao" /></mat-form-field
+          ><button mat-stroked-button (click)="carregarHistorico()" [disabled]="ocupado()">
+            Consultar versão
+          </button>
+        </div>
+        @if (historicoParcelas(); as linhas) {
+          @if (!linhas.length) {
+            <p>Nenhuma parcela nesta versão.</p>
+          }
+          @for (p of linhas; track p.parcelaIdOrigem) {
+            <div class="linha">
+              <span
+                >Parcela {{ p.numero }} · {{ dataCivil(p.vencimento) }} ·
+                {{ rotulo(p.status) }}</span
+              ><strong>{{ p.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong>
+            </div>
+          }
+        }
+      }
+    </section>
+  }
+
+  @if (tipo() === 'recorrencias') {
+    <section class="detalhe">
+      <h2>Ocorrências mensais</h2>
+      <p>
+        Gerar registra compromissos esperados. Realizar cria a movimentação financeira,
+        separadamente.
+      </p>
+      <div class="barra-acoes">
+        <mat-form-field
+          ><mat-label>Mês</mat-label
+          ><input matInput type="month" [formControl]="controlMes" /><mat-error
+            >Informe um mês válido.</mat-error
+          ></mat-form-field
+        ><button mat-stroked-button (click)="carregarOcorrencias()" [disabled]="ocupado()">
+          Consultar ocorrências</button
+        ><button mat-flat-button (click)="carregarOcorrencias(true)" [disabled]="ocupado()">
+          Gerar compromissos do mês
+        </button>
+      </div>
+      @if (ocorrencias(); as linhas) {
+        @if (!linhas.length) {
+          <p class="vazio">Nenhuma ocorrência para o mês.</p>
+        }
+        @for (o of linhas; track o.id) {
+          <div class="linha">
+            <div>
+              <strong>{{ o.descricao }}</strong>
+              <p>{{ dataCivil(o.vencimento) }} · {{ rotulo(o.tipo) }} · {{ rotulo(o.status) }}</p>
+            </div>
+            <span>{{ o.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</span
+            ><button
+              mat-stroked-button
+              (click)="realizar(o)"
+              [disabled]="ocupado() || o.status !== 'PENDENTE'"
+            >
+              Realizar
+            </button>
+          </div>
+        }
+      }
+    </section>
+  }
+
+  @if (tarefa()) {
+    <section class="painel-formulario">
+      <h2 id="titulo-formulario-compromisso" tabindex="-1">{{ tituloTarefa() }}</h2>
+      @if (tarefa() === 'refinanciar') {
+        <p>
+          Informe a parcela inicial do cronograma exibido e os dados do novo financiamento. O
+          servidor calcula e preserva os cronogramas.
+        </p>
+      }
+      @if (tarefa() === 'pagar-fatura') {
+        <p>O crédito, o saldo em aberto e o pagamento parcial são controlados pelo Finisus.</p>
+      }
+      <form [formGroup]="formulario" (ngSubmit)="enviar()">
+        <fin-campos-compromisso
+          [formulario]="formulario"
+          [campos]="campos()"
+          [opcoes]="opcoesCampo"
+        />
+        @if (tarefa() === 'despesa-fatura') {
+          <h3>Detalhamento do gasto (opcional)</h3>
+          <p>Os itens são enviados com os valores informados. O Finisus valida o total do gasto.</p>
+          @for (item of itensDespesa.controls; track item; let indice = $index) {
+            <div class="parcela" [formGroup]="item">
+              <div class="grade-formulario">
+                <mat-form-field
+                  ><mat-label>Item do catálogo</mat-label
+                  ><mat-select formControlName="itemId"
+                    ><mat-option [value]="null">Sem item de catálogo</mat-option>
+                    @for (opcao of itens(); track opcao.id) {
+                      <mat-option [value]="opcao.id">{{ opcao.nome }}</mat-option>
+                    }
+                  </mat-select></mat-form-field
+                ><mat-form-field
+                  ><mat-label>Descrição do item</mat-label
+                  ><input matInput formControlName="descricao" maxlength="300" /></mat-form-field
+                ><mat-form-field
+                  ><mat-label>Quantidade (opcional)</mat-label
+                  ><input
+                    matInput
+                    type="number"
+                    min="0.000001"
+                    step="any"
+                    formControlName="quantidade"
+                  /><mat-error>Informe quantidade positiva.</mat-error></mat-form-field
+                ><mat-form-field
+                  ><mat-label>Valor do item (R$)</mat-label
+                  ><input
+                    matInput
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    formControlName="valor"
+                  /><mat-error>Informe valor positivo.</mat-error></mat-form-field
+                ><mat-form-field
+                  ><mat-label>Categoria do item</mat-label
+                  ><mat-select formControlName="categoriaId"
+                    ><mat-option [value]="null">Sem categoria</mat-option>
+                    @for (opcao of categorias(); track opcao.id) {
+                      <mat-option [value]="opcao.id">{{ opcao.nome }}</mat-option>
+                    }
+                  </mat-select></mat-form-field
+                >
+              </div>
+              <button
+                mat-button
+                type="button"
+                (click)="removerItemDespesa(indice)"
+                [disabled]="ocupado()"
+              >
+                Remover item {{ indice + 1 }}
+              </button>
+            </div>
+          }
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="adicionarItemDespesa()"
+            [disabled]="ocupado()"
+          >
+            Adicionar item
+          </button>
+        }
+        <div class="acoes">
+          <button mat-flat-button type="submit" [disabled]="ocupado()">
+            {{ ocupado() ? 'Salvando…' : 'Confirmar dados' }}</button
+          ><button mat-button type="button" (click)="cancelarFormulario()" [disabled]="ocupado()">
+            Fechar formulário
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+</section>

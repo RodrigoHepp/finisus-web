@@ -1,0 +1,248 @@
+<div class="cabecalho">
+  <div>
+    <h1>Seu dinheiro em cada conta</h1>
+    <p class="subtitulo">Saldos atuais, conferência e transferências entre suas contas.</p>
+  </div>
+  <button mat-flat-button (click)="novaConta()" [disabled]="ocupado()">Nova conta</button>
+</div>
+@if (erro()) {
+  <p class="erro" role="alert">
+    {{ erro() }} <button mat-button (click)="carregar()">Tentar novamente</button>
+  </p>
+}
+@if (sucesso()) {
+  <output class="sucesso">{{ sucesso() }}</output>
+}
+@if (ocupado()) {
+  <output>Carregando…</output>
+}
+@if (editando()) {
+  <section class="painel">
+    <h2>{{ idEdicao() === null ? 'Criar conta' : 'Editar conta' }}</h2>
+    <form [formGroup]="formulario" (ngSubmit)="salvar()">
+      <div class="campos">
+        <mat-form-field
+          ><mat-label>Nome da conta</mat-label
+          ><input matInput formControlName="nome" maxlength="150" /><mat-error
+            >Informe um nome até 150 caracteres.</mat-error
+          ></mat-form-field
+        ><mat-form-field
+          ><mat-label>Tipo de conta</mat-label
+          ><mat-select formControlName="tipo">
+            @for (tipo of tipos; track tipo.valor) {
+              <mat-option [value]="tipo.valor">{{ tipo.rotulo }}</mat-option>
+            }
+          </mat-select></mat-form-field
+        >
+        @if (formulario.controls.tipo.value !== 'FISICO') {
+          <fin-seletor-referencia
+            tipo="bancos"
+            rotulo="Banco"
+            [controle]="formulario.controls.bancoId"
+            [desabilitado]="ocupado()"
+            [obrigatorio]="true"
+          />
+        } @else {
+          <p>Dinheiro em espécie não possui vínculo com banco.</p>
+        }
+      </div>
+      <div class="acoes">
+        <button mat-flat-button [disabled]="ocupado()">Salvar conta</button
+        ><button mat-button type="button" (click)="cancelar()">Cancelar</button>
+      </div>
+    </form>
+  </section>
+}
+<div class="grade">
+  @for (conta of pagina()?.conteudo ?? []; track conta.id) {
+    <article class="registro">
+      <h2>{{ conta.nome }}</h2>
+      <p>
+        {{ rotuloTipo(conta.tipo) }} · {{ conta.ativo ? 'Ativa' : 'Inativa' }} · #{{ conta.id }}
+      </p>
+      <p class="valor-monetario">
+        {{ conta.saldo | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+      </p>
+      <div class="acoes">
+        <button mat-button (click)="detalhar(conta)" [disabled]="ocupado()">Conferir conta</button
+        ><button mat-button (click)="editar(conta)" [disabled]="ocupado()">Editar</button
+        ><button mat-button (click)="inativar(conta)" [disabled]="ocupado() || !conta.ativo">
+          Inativar
+        </button>
+      </div>
+    </article>
+  } @empty {
+    @if (!ocupado() && !erro()) {
+      <p>Nenhuma conta nesta página.</p>
+    }
+  }
+</div>
+@if (pagina(); as resultado) {
+  <mat-paginator
+    [length]="resultado.totalElementos"
+    [pageIndex]="resultado.pagina"
+    [pageSize]="20"
+    [hidePageSize]="true"
+    (page)="carregar($event.pageIndex)"
+    aria-label="Páginas das contas"
+  />
+}
+@if (selecionado(); as conta) {
+  <section class="painel">
+    <h2>Conferir {{ conta.nome }}</h2>
+    <p>
+      Saldo atual: {{ conta.saldo | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }} · Banco:
+      {{ conta.bancoId ?? 'Não informado' }}
+    </p>
+    <div class="acoes">
+      <button mat-button (click)="reconciliar()" [disabled]="ocupado()">Reconciliar saldo</button
+      ><button mat-button (click)="carregarAjustes()" [disabled]="ocupado()">
+        Histórico de ajustes</button
+      ><button mat-button (click)="fecharDetalhes()">Fechar</button>
+    </div>
+    @if (reconciliacao(); as r) {
+      <h3>{{ r.conciliado ? 'Saldo conciliado' : 'Divergência identificada' }}</h3>
+      <dl>
+        <dt>Saldo materializado</dt>
+        <dd>{{ r.saldoMaterializado | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+        <dt>Saldo calculado pelo Finisus</dt>
+        <dd>{{ r.saldoCalculado | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+        <dt>Divergência</dt>
+        <dd>{{ r.divergencia | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+        <dt>Movimentos / ajustes</dt>
+        <dd>{{ r.quantidadeMovimentos }} / {{ r.quantidadeAjustes }}</dd>
+      </dl>
+    }
+    @if (conta.ativo) {
+      <h3>Informar saldo conferido</h3>
+      <p class="orientacao">
+        O ajuste é registrado no histórico. Informe o valor verificado e o motivo.
+      </p>
+      <form [formGroup]="formularioAjuste" (ngSubmit)="ajustar()">
+        <div class="campos">
+          <mat-form-field
+            ><mat-label>Saldo informado (R$)</mat-label
+            ><input
+              matInput
+              type="number"
+              min="0"
+              step="0.01"
+              formControlName="saldoInformado"
+            /><mat-error>Informe um saldo igual ou maior que zero.</mat-error></mat-form-field
+          ><mat-form-field
+            ><mat-label>Motivo do ajuste</mat-label
+            ><textarea matInput formControlName="motivo" maxlength="500"></textarea
+            ><mat-error>Informe o motivo até 500 caracteres.</mat-error></mat-form-field
+          >
+        </div>
+        <button mat-flat-button [disabled]="ocupado()">Registrar ajuste</button>
+      </form>
+    }
+    @if (ajustes(); as historico) {
+      <h3>Histórico de ajustes</h3>
+      @for (a of historico.conteudo; track a.id) {
+        <article class="registro">
+          <h4>
+            {{ a.dataAjuste.slice(8, 10) }}/{{ a.dataAjuste.slice(5, 7) }}/{{
+              a.dataAjuste.slice(0, 4)
+            }}
+            · #{{ a.id }}
+          </h4>
+          <p>{{ a.motivo }}</p>
+          <dl>
+            <dt>Saldo anterior</dt>
+            <dd>{{ a.saldoAnterior | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+            <dt>Calculado antes do ajuste</dt>
+            <dd>{{ a.saldoCalculadoAnterior | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+            <dt>Saldo informado</dt>
+            <dd>{{ a.saldoInformado | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+            <dt>Ajuste registrado</dt>
+            <dd>{{ a.valorAjuste | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+          </dl>
+        </article>
+      } @empty {
+        <p>Nenhum ajuste registrado.</p>
+      }
+      <mat-paginator
+        [length]="historico.totalElementos"
+        [pageIndex]="historico.pagina"
+        [pageSize]="20"
+        [hidePageSize]="true"
+        (page)="carregarAjustes($event.pageIndex)"
+        aria-label="Páginas dos ajustes"
+      />
+    }
+  </section>
+}
+<section class="painel">
+  <h2>Transferir entre contas</h2>
+  <p class="orientacao">
+    A transferência move saldo entre suas contas, sem criar receita ou despesa.
+  </p>
+  <form [formGroup]="formularioTransferencia" (ngSubmit)="transferir()">
+    <div class="campos">
+      <fin-seletor-referencia
+        tipo="contas"
+        rotulo="Conta de origem"
+        [controle]="formularioTransferencia.controls.contaOrigemId"
+        [obrigatorio]="true"
+        [desabilitado]="ocupado()"
+      /><fin-seletor-referencia
+        tipo="contas"
+        rotulo="Conta de destino"
+        [controle]="formularioTransferencia.controls.contaDestinoId"
+        [obrigatorio]="true"
+        [desabilitado]="ocupado()"
+      /><mat-form-field
+        ><mat-label>Valor (R$)</mat-label
+        ><input matInput type="number" min="0.01" step="0.01" formControlName="valor" /><mat-error
+          >Informe um valor positivo.</mat-error
+        ></mat-form-field
+      ><mat-form-field
+        ><mat-label>Data da transferência</mat-label
+        ><input matInput type="date" formControlName="data" /><mat-error
+          >Informe a data.</mat-error
+        ></mat-form-field
+      ><mat-form-field
+        ><mat-label>Descrição da transferência</mat-label
+        ><input matInput maxlength="300" formControlName="descricao" /><mat-error
+          >Informe uma descrição até 300 caracteres.</mat-error
+        ></mat-form-field
+      >
+    </div>
+    <button mat-flat-button [disabled]="ocupado()">Confirmar transferência</button>
+  </form>
+</section>
+<section class="painel">
+  <h2>Consultar uma transferência</h2>
+  <p class="orientacao">
+    Guarde o identificador da transferência para consultar e conferir a operação.
+  </p>
+  <mat-form-field
+    ><mat-label>Identificador da transferência</mat-label
+    ><input matInput type="number" min="1" [formControl]="consultaTransferencia" /><mat-error
+      >Informe um identificador positivo.</mat-error
+    ></mat-form-field
+  ><button mat-button (click)="buscarTransferencia()" [disabled]="ocupado()">Consultar</button>
+  @if (transferencia(); as t) {
+    <h3>Transferência #{{ t.id }}</h3>
+    <p>{{ t.descricao }} · {{ t.status === 'ATIVA' ? 'Ativa' : 'Estornada' }}</p>
+    <dl>
+      <dt>Origem → destino</dt>
+      <dd>{{ t.contaOrigemId }} → {{ t.contaDestinoId }}</dd>
+      <dt>Valor</dt>
+      <dd>{{ t.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+      <dt>Data</dt>
+      <dd>{{ t.data.slice(8, 10) }}/{{ t.data.slice(5, 7) }}/{{ t.data.slice(0, 4) }}</dd>
+      @if (t.estornadaEm) {
+        <dt>Estornada em</dt>
+        <dd>{{ t.estornadaEm | date: 'dd/MM/yyyy HH:mm' }}</dd>
+      }
+    </dl>
+    @if (t.status === 'ATIVA') {
+      <button mat-button (click)="estornarTransferencia()" [disabled]="ocupado()">
+        Estornar transferência
+      </button>
+    }
+  }
+</section>

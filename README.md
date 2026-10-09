@@ -1,66 +1,46 @@
-# Finisus Web
+# Finisus — finanças pessoais
 
-Frontend do Finisus, desenvolvido com Angular 22 e Angular Material. Nesta etapa, a aplicação entrega autenticação por JWT, cadastro protegido de usuários, tema claro/escuro e um dashboard estático.
+Frontend Angular de finanças pessoais, com componentes standalone, tipagem estrita, Angular Material/CDK e rotas lazy por jornada.
 
-## Escopo atual
+## Executar
 
-- Login com consulta do usuário autenticado em `GET /usuarios/me` após receber os tokens.
-- Restauração segura da sessão em `sessionStorage` após recarregar a página.
-- Renovação coordenada do access token quando uma requisição protegida retorna `401`.
-- Cadastro de usuários em `/usuarios/novo`, acessível somente com sessão autenticada.
-- Dashboard de apresentação, sem dados financeiros carregados da API.
-- Tema claro/escuro, com preferência salva no navegador.
-- Mensagens globais acessíveis e indicadores de processamento reutilizáveis.
+Node 24.18.0 (compatível com ^24.15.0) e npm 11.16.0.
 
-## Pré-requisitos
-
-- Node.js 24 ou versão compatível com Angular 22.
-- npm 11.
-- API do Finisus em execução em `http://localhost:8080`.
-
-## Executar localmente
-
-Instale as dependências e inicie o servidor de desenvolvimento:
-
-```bash
-npm install
+```powershell
+npm ci
 npm start
 ```
 
-Abra `http://localhost:4200` no navegador. A URL base da API local está configurada em `src/app/environment/environment.ts` como `http://localhost:8080/api/v1`.
+Abra http://localhost:4200. Configure `urlApi` em `src/environment.ts` para o backend de teste, padrão `http://localhost:8080/api/v1`. A origem do frontend precisa estar autorizada pelo CORS backend. A aplicação não usa dados fictícios quando a API falha.
 
-## Scripts
+Não há cadastro público. Entre com uma conta existente; usuários com `USUARIO_CADASTRAR` podem cadastrar outras contas em “Usuários e acesso”. `USUARIO_DESBLOQUEAR` permite desbloqueio manual por ID, exigindo novo login do titular. Usuários novos não recebem essas permissões. O primeiro administrador depende da migration V2 e do procedimento manual documentado em `../finisus-backend/docs/autenticacao.md`; não existe senha padrão criada pelo frontend.
 
-| Comando                | Finalidade                              |
-| ---------------------- | --------------------------------------- |
-| `npm start`            | Inicia a aplicação em desenvolvimento.  |
-| `npm test`             | Executa os testes unitários com Vitest. |
-| `npm run lint`         | Analisa o código com ESLint.            |
-| `npm run format:check` | Verifica a formatação com Prettier.     |
-| `npm run format`       | Formata os arquivos do projeto.         |
-| `npm run build`        | Gera a build de produção em `dist/`.    |
+## Jornadas
 
-## Autenticação
+Visão geral e relatórios financeiros; cadastros; contas/reconciliação/ajustes/transferências; transações/itens/correções/histórico; cartões/faturas/compras parceladas; obrigações/recorrências/financiamentos; investimentos/posições; divisões/responsabilidades/alocações/reembolsos; revisão PDF; perfil/privacidade. Despesas/rateios legados e migração foram removidos. A configuração opt-in permanece publicada no contrato atual de divisões.
 
-O backend expõe a API em `/api/v1`. O frontend envia JSON para `POST /auth/login`, recebe `accessToken`, `refreshToken` e `expiraEm` e, então, busca o perfil em `GET /usuarios/me` usando `Authorization: Bearer <accessToken>`.
+[Arquitetura e sessão](docs/arquitetura.md), [limites](docs/limites.md), [matriz de contratos](docs/contratos/matriz-integracao.md), [cobertura por operação](docs/contratos/cobertura-implementacao.md).
 
-Somente `/auth/login` e `/auth/refresh` são públicos. O endpoint de cadastro permanece protegido e recebe o token Bearer do usuário autenticado. Não há endpoint de logout no contrato atual: encerrar a sessão remove os dados guardados no navegador.
+## Verificar
 
-## Organização do código
+```powershell
+npm run typecheck
+npm run lint
+npm test
+npm run test:cobertura
+npm run build
+npx playwright install chromium
+npm run e2e
+npm run format:check
+node scripts/gerar-dtos.mjs --check
+```
 
-- `src/app/core`: serviços globais, autenticação, interceptors e processamento de sessão.
-- `src/app/shared`: layout e componentes reutilizáveis, como mensagens globais e indicadores de processamento.
-- `src/app/features`: páginas de negócio, como autenticação e dashboard.
-- `src/app/environment`: configuração da API por ambiente.
+As suítes padrão HTTP e E2E utilizam contratos simulados explícitos; não comprovam integração real nem permissões em produção. Sem backend, login e comandos mostram a falha de conexão.
 
-Termos técnicos consolidados do Angular e do contrato do backend, como `auth`, `guard`, `interceptor`, `request` e `response`, permanecem em inglês. Nomes do domínio da aplicação usam português.
+A CI Angular e a análise automática do SonarQube Cloud estão descritas em [qualidade](docs/qualidade.md). A análise Sonar depende da integração do projeto com o GitHub; não exige token no workflow e não importa a cobertura local.
 
-## Integração contínua
+## Integração com API real
 
-O workflow em `.github/workflows/ci.yml` executa, a cada push e pull request, instalação determinística, verificação de formatação, lint, testes unitários e build.
+Use http://localhost:4200, origem autorizada pelo CORS da API atual. A suíte financeira `npm run e2e:integracao` cria dados fictícios e requer base de teste autorizada e credenciais administrativas de teste em `FINISUS_E2E_ADMIN_EMAIL`/`FINISUS_E2E_ADMIN_PASSWORD`. Sem essas variáveis, seus cenários financeiros são explicitamente pulados; os testes sem mutação continuam executáveis. Não use contas pessoais nem publique credenciais. O cadastro dos usuários fictícios recebe Bearer do administrador e não concede permissões a eles.
 
-## Licença e contribuições
-
-O Finisus Web é disponibilizado sob a [GNU Affero General Public License v3.0 ou posterior](LICENSE). Uma licença comercial alternativa poderá ser negociada nos termos de [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md).
-
-Consulte [CONTRIBUTING.md](CONTRIBUTING.md) antes de abrir uma issue ou pull request. Contribuições aceitas exigem concordância com o [Contributor License Agreement](CLA.md); o texto é um modelo operacional e precisa de revisão jurídica antes de ser usado como contrato definitivo.
+O contrato documentado contém 142 operações. A suíte sem mutação verifica OpenAPI, CORS e guard. Os cenários financeiros e administrativos dependem de ambiente e credenciais de teste autorizados. Veja [relatório](docs/integracao-real.md); essas verificações não homologam os comandos administrativos reais.

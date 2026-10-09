@@ -1,0 +1,108 @@
+<header class="cabecalho-pagina">
+  <div>
+    <p class="sobretitulo">Sua conta</p>
+    <h1>Perfil e privacidade</h1>
+    <p>Controle seus dados e sua participação em compartilhamentos.</p>
+  </div>
+</header>
+@if (erro()) {
+  <p class="aviso erro" role="alert">{{ erro() }}</p>
+}
+@if (sucesso()) {
+  <output class="aviso">{{ sucesso() }}</output>
+}
+@if (ocupado()) {
+  <output>Processando…</output>
+}
+@if (carregado()) {
+  <section class="painel">
+    <h2>Dados pessoais</h2>
+    <form class="grade-formulario" [formGroup]="formulario" (ngSubmit)="salvar()">
+      <mat-form-field
+        ><mat-label>Nome</mat-label
+        ><input matInput formControlName="nome" autocomplete="name" /><mat-error
+          >Informe um nome com até 150 caracteres.</mat-error
+        ></mat-form-field
+      ><mat-form-field
+        ><mat-label>E-mail</mat-label
+        ><input matInput type="email" formControlName="email" autocomplete="email" /><mat-error
+          >Informe um e-mail válido.</mat-error
+        ></mat-form-field
+      >
+      <div class="acoes-formulario">
+        <button mat-flat-button type="submit" [disabled]="ocupado()">Salvar perfil</button>
+      </div>
+    </form>
+    <mat-checkbox
+      [checked]="aceita()"
+      (change)="consultarPreferencia($event.checked)"
+      [disabled]="ocupado()"
+      >Aceito participar de despesas compartilhadas</mat-checkbox
+    >
+  </section>
+}
+<section class="painel">
+  <h2>Exportar meus dados</h2>
+  <p>
+    Baixe um arquivo JSON portátil com os seus dados retornados pelo Finisus. Guarde-o em local
+    privado.
+  </p>
+  <button mat-stroked-button (click)="baixarDados()" [disabled]="ocupado()">Exportar dados</button>
+</section>
+<section class="painel">
+  <h2>Solicitar anonimização</h2>
+  <p>
+    Esta ação registra um pedido para análise. Ela não apaga nem anonimiza imediatamente os
+    registros financeiros.
+  </p>
+  <form [formGroup]="privacidade" (ngSubmit)="solicitarAnonimizacao()">
+    <mat-form-field class="largura-total"
+      ><mat-label>Motivo da solicitação</mat-label
+      ><textarea matInput formControlName="motivo" maxlength="500" rows="3"></textarea
+      ><mat-error>Informe um motivo com até 500 caracteres.</mat-error></mat-form-field
+    >
+    <div class="acoes-formulario">
+      <button mat-stroked-button type="submit" [disabled]="ocupado()">Registrar solicitação</button>
+    </div>
+  </form>
+  <h3>Acompanhamento</h3>
+  @if (solicitacoes().length === 0) {
+    <p>Nenhuma solicitação registrada.</p>
+  }
+  @for (requisicao of solicitacoes(); track requisicao.id) {
+    <article class="registro">
+      <h4>Solicitação #{{ requisicao.id }} · {{ status(requisicao.status) }}</h4>
+      <p>{{ requisicao.motivo }}</p>
+      <p>
+        Solicitada em {{ dataCivil(requisicao.solicitadaEm) }}
+        @if (requisicao.concluidaEm) {
+          · Concluída em {{ dataCivil(requisicao.concluidaEm) }}
+        }
+      </p>
+      @if (requisicao.observacao) {
+        <p>{{ requisicao.observacao }}</p>
+      }
+    </article>
+  }
+</section>
+<section class="painel">
+  <h2>Inativar a conta</h2>
+  <p>
+    Encerra o acesso e revoga as sessões. Os dados financeiros e o histórico compartilhado são
+    preservados; esta ação não é exclusão definitiva.
+  </p>
+  @if (!confirmarInativacao()) {
+    <button mat-stroked-button (click)="confirmarInativacao.set(true)">
+      Quero inativar minha conta
+    </button>
+  } @else {
+    <div class="aviso" role="alert">
+      <p>Confirma a inativação e o encerramento desta sessão?</p>
+      <button mat-flat-button (click)="inativar()" [disabled]="ocupado()">
+        Confirmar inativação</button
+      ><button mat-button (click)="confirmarInativacao.set(false)" [disabled]="ocupado()">
+        Manter conta ativa
+      </button>
+    </div>
+  }
+</section>

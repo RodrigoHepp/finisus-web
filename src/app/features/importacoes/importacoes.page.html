@@ -1,0 +1,359 @@
+<h1>Importar documento</h1>
+<p class="introducao">
+  Envie um PDF legível, revise os dados extraídos e confirme as decisões. A importação de cobranças
+  cria compromissos; não registra pagamentos.
+</p>
+<ol class="etapas" aria-label="Etapas da importação">
+  <li [class.ativo]="!documento()">Enviar PDF</li>
+  <li [class.ativo]="documento()?.status === 'PENDENTE_REVISAO' && !revisado()">Revisar dados</li>
+  <li [class.ativo]="revisado()">Confirmar</li>
+  <li [class.ativo]="documento()?.status === 'CONFIRMADA'">Resultado</li>
+</ol>
+@if (erro()) {
+  <p role="alert" class="erro">{{ erro() }}</p>
+}
+@if (sucesso()) {
+  <output class="sucesso">{{ sucesso() }}</output>
+}
+@if (ocupado()) {
+  <output>Processando…</output>
+}
+@if (!documento()) {
+  <div class="colunas">
+    <section class="painel">
+      <h2>Enviar PDF</h2>
+      <p class="orientacao">
+        Até 10 MB. PDFs digitalizados sem texto e documentos protegidos podem não ser reconhecidos.
+        Identifique o banco e o destino já cadastrados.
+      </p>
+      <form [formGroup]="formularioEnvio" (ngSubmit)="enviarArquivo()">
+        <fin-seletor-referencia
+          tipo="bancos"
+          rotulo="Banco"
+          [controle]="formularioEnvio.controls.bancoId"
+          [obrigatorio]="true"
+          [desabilitado]="salvando()"
+        />
+        <mat-form-field
+          ><mat-label>Tipo pretendido</mat-label
+          ><mat-select formControlName="tipoDocumento"
+            ><mat-option value="EXTRATO_CONTA">Extrato de conta</mat-option
+            ><mat-option value="FATURA_CARTAO">Fatura de cartão</mat-option
+            ><mat-option value="COBRANCA">Cobrança</mat-option></mat-select
+          ></mat-form-field
+        >
+        @if (formularioEnvio.controls.tipoDocumento.value === 'FATURA_CARTAO') {
+          <mat-form-field
+            ><mat-label>Identificador da fatura de destino</mat-label
+            ><input matInput type="number" min="1" formControlName="destinoId" /><mat-error
+              >Informe uma fatura existente.</mat-error
+            ></mat-form-field
+          >
+        } @else {
+          <fin-seletor-referencia
+            tipo="contas"
+            rotulo="Conta de destino"
+            [controle]="formularioEnvio.controls.destinoId"
+            [obrigatorio]="true"
+            [desabilitado]="salvando()"
+          />
+        }
+        <label class="rotulo-linha" for="arquivo-pdf">Arquivo PDF</label
+        ><input
+          id="arquivo-pdf"
+          type="file"
+          accept="application/pdf,.pdf"
+          (change)="selecionarArquivo($event)"
+        /><button mat-flat-button [disabled]="salvando() || !arquivo()">Extrair dados</button>
+      </form>
+    </section>
+    <section class="painel">
+      <h2>Retomar uma importação</h2>
+      <p class="orientacao">
+        Use o identificador recebido ao enviar o arquivo. Não há consulta global de importações no
+        contrato atual.
+      </p>
+      <form [formGroup]="formularioRetomada" (ngSubmit)="retomar()">
+        <mat-form-field
+          ><mat-label>Identificador da importação</mat-label
+          ><input matInput type="number" min="1" formControlName="id" /><mat-error
+            >Informe o identificador.</mat-error
+          ></mat-form-field
+        ><button mat-button [disabled]="ocupado()">Buscar importação</button>
+      </form>
+    </section>
+  </div>
+}
+@if (documento(); as doc) {
+  <section class="painel">
+    <div class="barra-acoes">
+      <h2>
+        Importação #{{ doc.id }} · {{ doc.status === 'CONFIRMADA' ? 'Confirmada' : 'Em revisão' }}
+      </h2>
+      <button mat-button (click)="reiniciar()" [disabled]="salvando()">Outro documento</button>
+    </div>
+    <p>
+      Guarde o identificador <strong>#{{ doc.id }}</strong> para retomar esta importação.
+    </p>
+    <dl>
+      <dt>Arquivo</dt>
+      <dd>{{ doc.nomeArquivo }}</dd>
+      <dt>Tipo detectado</dt>
+      <dd>{{ tipo(doc.tipoDocumento) }}</dd>
+      <dt>Tipo pretendido</dt>
+      <dd>{{ tipo(doc.tipoDocumentoPretendido) }}</dd>
+      <dt>Origem identificada</dt>
+      <dd>{{ doc.identificadorOrigem ?? 'Não identificada' }}</dd>
+      <dt>Período</dt>
+      <dd>{{ dataCivil(doc.periodoInicio) }} a {{ dataCivil(doc.periodoFim) }}</dd>
+      <dt>Vencimento</dt>
+      <dd>{{ dataCivil(doc.dataVencimento) }}</dd>
+      <dt>Saldo inicial / final do documento</dt>
+      <dd>{{ formatarMoeda(doc.saldoInicial) }} / {{ formatarMoeda(doc.saldoFinal) }}</dd>
+      <dt>Total do documento</dt>
+      <dd>{{ formatarMoeda(doc.valorTotal) }}</dd>
+    </dl>
+  </section>
+  @if (revisao(); as reviewData) {
+    @for (divergence of reviewData.divergencias; track $index) {
+      <output class="erro">
+        {{ divergence.mensagem }} · Pretendido: {{ tipo(divergence.esperado) }} · Detectado:
+        {{ tipo(divergence.detectado) }}
+      </output>
+    }
+    @if (reviewData.possiveisDuplicidades.length) {
+      <section class="painel">
+        <h2>Possíveis duplicidades</h2>
+        <p class="orientacao">
+          Compare antes de decidir. Nenhum registro será descartado automaticamente; transferências
+          identificadas exigem avaliação do lançamento.
+        </p>
+        @for (duplicate of reviewData.possiveisDuplicidades; track $index) {
+          <div class="subpainel">
+            <p>
+              Lançamento #{{ duplicate.lancamentoImportadoId }} ·
+              {{
+                duplicate.nivel === 'EXATA' ? 'Correspondência exata' : 'Correspondência provável'
+              }}
+              · {{ dataCivil(duplicate.data) }} · {{ formatarMoeda(duplicate.valor) }} ·
+              {{ duplicate.descricao }}
+            </p>
+            <p>
+              Transação {{ duplicate.transacaoId ?? 'não informada' }} · Obrigação
+              {{ duplicate.obrigacaoFinanceiraId ?? 'não informada' }} · Transferência
+              {{ duplicate.transferenciaId ?? 'não informada' }}
+            </p>
+            <ul>
+              @for (evidence of duplicate.evidencias; track $index) {
+                <li>{{ evidence }}</li>
+              }
+            </ul>
+          </div>
+        }
+      </section>
+    }
+  }
+  @if (doc.status !== 'CONFIRMADA') {
+    <section class="painel">
+      <h2>Revisão humana</h2>
+      <p class="orientacao">
+        Escolha uma decisão para cada linha e justifique. Para associar transações, data, valor,
+        tipo e destino devem coincidir. A validação final pertence ao Finisus.
+      </p>
+      <form [formGroup]="formularioDestino">
+        @if (doc.tipoDocumento === 'FATURA_CARTAO') {
+          <mat-form-field
+            ><mat-label>Identificador da fatura confirmada</mat-label
+            ><input matInput type="number" min="1" formControlName="destinoId" /><mat-error
+              >Informe uma fatura existente.</mat-error
+            ></mat-form-field
+          >
+        } @else {
+          <fin-seletor-referencia
+            tipo="contas"
+            rotulo="Conta confirmada"
+            [controle]="formularioDestino.controls.destinoId"
+            [obrigatorio]="true"
+            [desabilitado]="salvando()"
+          />
+        }
+      </form>
+      @for (linha of doc.lancamentos; track linha.id; let indice = $index) {
+        <article class="subpainel">
+          <h3>Lançamento {{ linha.ordem }} · #{{ linha.id }}</h3>
+          <div class="colunas">
+            <section>
+              <h4>Extraído do PDF</h4>
+              <p>
+                {{ dataCivil(linha.dataOriginal) }} · {{ formatarMoeda(linha.valorOriginal) }} ·
+                {{ tipoTransacao(linha.tipoOriginal) }}
+              </p>
+              <p>{{ linha.descricaoOriginal ?? 'Descrição não identificada' }}</p>
+              <p class="orientacao">{{ linha.conteudoOriginal }}</p>
+              @if (linha.pendenteConfirmacao) {
+                <p class="erro">
+                  Revisão necessária: {{ linha.motivoPendencia ?? 'Confira os dados extraídos.' }}
+                </p>
+              }
+            </section>
+            <form [formGroup]="linhas.at(indice)">
+              <h4>Dados revisados</h4>
+              <div class="campos">
+                <mat-form-field
+                  ><mat-label>Data revisada</mat-label
+                  ><input matInput type="date" formControlName="data" /></mat-form-field
+                ><mat-form-field
+                  ><mat-label>Valor revisado (R$)</mat-label
+                  ><input
+                    matInput
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    formControlName="valor" /></mat-form-field
+                ><mat-form-field
+                  ><mat-label>Tipo revisado</mat-label
+                  ><mat-select formControlName="tipo"
+                    ><mat-option value="ENTRADA">Entrada</mat-option
+                    ><mat-option value="SAIDA">Saída</mat-option></mat-select
+                  ></mat-form-field
+                >
+              </div>
+              <mat-form-field
+                ><mat-label>Descrição revisada</mat-label
+                ><input matInput formControlName="descricao" /></mat-form-field
+              ><mat-form-field
+                ><mat-label>Decisão deste lançamento</mat-label
+                ><mat-select formControlName="decisao"
+                  ><mat-option value="CRIAR">Criar novo lançamento</mat-option
+                  ><mat-option value="IGNORAR">Descartar com justificativa</mat-option>
+                  @if (doc.tipoDocumento === 'COBRANCA') {
+                    <mat-option value="ASSOCIAR_OBRIGACAO">Associar obrigação existente</mat-option>
+                  } @else {
+                    <mat-option value="ASSOCIAR_TRANSACAO">Associar transação existente</mat-option>
+                  }</mat-select
+                ><mat-error>Escolha uma decisão.</mat-error></mat-form-field
+              >
+              @if (linhas.at(indice).controls.decisao.value.startsWith('ASSOCIAR')) {
+                <mat-form-field
+                  ><mat-label>Identificador existente</mat-label
+                  ><input matInput type="number" min="1" formControlName="existenteId" /><mat-error
+                    >Informe um identificador positivo.</mat-error
+                  ></mat-form-field
+                >
+              }
+              <div class="campos">
+                <fin-seletor-referencia
+                  tipo="categorias"
+                  rotulo="Categoria"
+                  [controle]="linhas.at(indice).controls.categoriaId"
+                  [desabilitado]="salvando()"
+                /><fin-seletor-referencia
+                  tipo="itens"
+                  rotulo="Item"
+                  [controle]="linhas.at(indice).controls.itemId"
+                  [desabilitado]="salvando()"
+                />
+              </div>
+              <mat-form-field
+                ><mat-label>Justificativa da decisão</mat-label
+                ><textarea
+                  matInput
+                  formControlName="justificativa"
+                  maxlength="500"
+                  rows="2"
+                ></textarea
+                ><mat-error>Justifique a decisão (até 500 caracteres).</mat-error></mat-form-field
+              >
+            </form>
+          </div>
+          @if (linha.revisoes.length) {
+            <details>
+              <summary>Histórico das revisões</summary>
+              @for (historico of linha.revisoes; track historico.id) {
+                <p>
+                  {{ decisao(historico.decisao) }} · {{ dataCivil(historico.revisadoEm) }} · Revisor
+                  #{{ historico.revisadoPor }}
+                </p>
+                <p>{{ historico.justificativa }}</p>
+                <p class="orientacao">
+                  Anterior: {{ dataCivil(historico.anterior.data) }} ·
+                  {{ formatarMoeda(historico.anterior.valor) }} ·
+                  {{ historico.anterior.descricao }}. Revisado:
+                  {{ dataCivil(historico.novo.data) }} · {{ formatarMoeda(historico.novo.valor) }} ·
+                  {{ historico.novo.descricao }}.
+                </p>
+              }
+            </details>
+          }
+        </article>
+      } @empty {
+        <p>
+          Nenhum lançamento extraído. Confira se o PDF possui texto e é compatível com o leitor.
+        </p>
+      }
+      <div class="barra-acoes">
+        <button
+          mat-flat-button
+          (click)="salvarRevisao()"
+          [disabled]="salvando() || linhas.length === 0"
+        >
+          Salvar revisão</button
+        ><button
+          mat-flat-button
+          (click)="confirmarImportacao()"
+          [disabled]="salvando() || !revisado()"
+        >
+          Confirmar importação
+        </button>
+      </div>
+      @if (revisado()) {
+        <output>Revisão salva. Confira os dados antes de confirmar.</output>
+      }
+    </section>
+  }
+  @if (doc.status === 'CONFIRMADA') {
+    <section class="painel">
+      <h2>Resultado confirmado</h2>
+      <p class="orientacao">
+        Os valores abaixo foram devolvidos pelo Finisus. Obrigações criadas continuam aguardando
+        pagamento.
+      </p>
+      <div class="rolagem">
+        <table>
+          <thead>
+            <tr>
+              <th>Lançamento</th>
+              <th>Data</th>
+              <th>Valor</th>
+              <th>Resultado</th>
+              <th>Referência criada ou associada</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (linha of doc.lancamentos; track linha.id) {
+              <tr>
+                <td>{{ linha.descricao }}</td>
+                <td>{{ dataCivil(linha.data) }}</td>
+                <td>{{ formatarMoeda(linha.valor) }}</td>
+                <td>{{ estado(linha.estado) }}</td>
+                <td>
+                  @if (linha.transacaoId) {
+                    Transação #{{ linha.transacaoId }}
+                  } @else if (linha.obrigacaoFinanceiraId) {
+                    Obrigação #{{ linha.obrigacaoFinanceiraId }}
+                  } @else {
+                    Sem referência
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5">Nenhum lançamento.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+}

@@ -1,0 +1,113 @@
+<div class="cabecalho">
+  <div>
+    <h1>Organize seus cadastros</h1>
+    <p class="subtitulo">Referências para suas contas e movimentações.</p>
+  </div>
+  <button mat-flat-button (click)="novoCadastro()" [disabled]="ocupado()">Novo cadastro</button>
+</div>
+<mat-form-field
+  ><mat-label>Grupo de cadastros</mat-label
+  ><mat-select [value]="tipo()" (selectionChange)="alterarTipo($event.value)">
+    @for (entrada of tipos; track entrada) {
+      <mat-option [value]="entrada">{{ rotulos[entrada] }}</mat-option>
+    }
+  </mat-select></mat-form-field
+>
+@if (erro()) {
+  <p class="erro" role="alert">
+    {{ erro() }} <button mat-button (click)="carregar()">Tentar novamente</button>
+  </p>
+}
+@if (sucesso()) {
+  <output class="sucesso">{{ sucesso() }}</output>
+}
+@if (ocupado()) {
+  <output>Carregando…</output>
+}
+@if (editando()) {
+  <section class="painel">
+    <h2>{{ idEdicao() === null ? 'Novo cadastro' : 'Editar cadastro' }}</h2>
+    <form [formGroup]="formulario" (ngSubmit)="salvar()">
+      <mat-form-field
+        ><mat-label>Nome</mat-label
+        ><input matInput formControlName="nome" autocomplete="off" /><mat-error
+          >Informe um nome dentro do limite permitido.</mat-error
+        ></mat-form-field
+      >
+      @if (tipo() === 'bancos') {
+        <mat-form-field
+          ><mat-label>Código do banco</mat-label
+          ><input matInput formControlName="codigo" maxlength="20" /><mat-error
+            >Informe o código, até 20 caracteres.</mat-error
+          ></mat-form-field
+        >
+      }
+      @if (tipo() === 'categorias' || tipo() === 'itens') {
+        <fin-seletor-referencia
+          tipo="categorias"
+          [rotulo]="tipo() === 'categorias' ? 'Categoria pai' : 'Categoria padrão'"
+          [controle]="formulario.controls.referencia"
+          [desabilitado]="ocupado()"
+        />
+      }
+      <div class="acoes">
+        <button mat-flat-button type="submit" [disabled]="ocupado()">Salvar</button
+        ><button mat-button type="button" (click)="cancelar()">Cancelar</button>
+      </div>
+    </form>
+  </section>
+}
+@if (selecionado(); as record) {
+  <section class="painel">
+    <h2>Detalhes de {{ record.nome }}</h2>
+    <dl>
+      <dt>Identificador</dt>
+      <dd>{{ record.id }}</dd>
+      <dt>Situação</dt>
+      <dd>{{ doSistema(record) ? 'Banco do sistema' : ativo(record) ? 'Ativo' : 'Inativo' }}</dd>
+      @if (codigo(record)) {
+        <dt>Código</dt>
+        <dd>{{ codigo(record) }}</dd>
+      }
+      @if (referencia(record) !== null) {
+        <dt>Categoria vinculada</dt>
+        <dd>{{ referencia(record) }}</dd>
+      }
+    </dl>
+    <button mat-button (click)="selecionado.set(null)">Fechar detalhes</button>
+  </section>
+}
+<div class="grade">
+  @for (record of pagina()?.conteudo ?? []; track record.id) {
+    <article class="registro">
+      <h2>{{ record.nome }}</h2>
+      <p>
+        #{{ record.id }} ·
+        {{ doSistema(record) ? 'Banco do sistema' : ativo(record) ? 'Ativo' : 'Inativo' }}
+      </p>
+      <div class="acoes">
+        <button mat-button (click)="detalhar(record)" [disabled]="ocupado()">Detalhes</button>
+        @if (!doSistema(record)) {
+          <button mat-button (click)="editar(record)" [disabled]="ocupado()">Editar</button
+          ><button mat-button (click)="inativar(record)" [disabled]="ocupado() || !ativo(record)">
+            Inativar
+          </button>
+        }
+      </div>
+    </article>
+  } @empty {
+    @if (!ocupado() && !erro()) {
+      <p>Nenhum cadastro nesta página. Crie seu primeiro registro.</p>
+    }
+  }
+</div>
+@if (pagina(); as resultado) {
+  <mat-paginator
+    [length]="resultado.totalElementos"
+    [pageIndex]="resultado.pagina"
+    [pageSize]="20"
+    [hidePageSize]="true"
+    (page)="carregar($event.pageIndex)"
+    aria-label="Páginas dos cadastros"
+  />
+}

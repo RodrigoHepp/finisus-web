@@ -19,10 +19,10 @@
   </p>
 }
 @if (sucesso()) {
-  <p class="sucesso" role="status">{{ sucesso() }}</p>
+  <output class="sucesso">{{ sucesso() }}</output>
 }
 @if (ocupado()) {
-  <p role="status">Carregando…</p>
+  <output>Carregando…</output>
 }
 @if (editando()) {
   <section class="painel">

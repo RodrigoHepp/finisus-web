@@ -44,7 +44,8 @@ h1,
 h2,
 h3,
 h4,
-p {
+p,
+output {
   margin-top: 0;
 }
 h1 {
@@ -60,8 +61,13 @@ h2 {
 h3 {
   font-size: 1.1rem;
 }
-p {
+p,
+output {
   color: var(--texto-secundario);
+}
+output {
+  display: block;
+  margin-bottom: 1em;
 }
 :focus-visible {
   outline: 3px solid #d88126;
@@ -92,6 +98,12 @@ p {
   display: flex;
   flex-direction: column;
   z-index: 10;
+  overflow-y: auto;
+  @include mat.button-overrides(
+    (
+      text-label-text-color: #eefbf8,
+    )
+  );
 }
 .marca {
   font-weight: 750;
@@ -158,13 +170,6 @@ p {
 }
 .rodape-lateral button {
   color: white;
-}
-.barra-lateral {
-  @include mat.button-overrides(
-    (
-      text-label-text-color: #eefbf8,
-    )
-  );
 }
 .area-trabalho {
   margin-left: 250px;
@@ -357,9 +362,6 @@ button:disabled {
   .resultados-relatorio {
     padding: 1.2rem;
   }
-}
-.barra-lateral {
-  overflow-y: auto;
 }
 .fundo-navegacao {
   position: fixed;

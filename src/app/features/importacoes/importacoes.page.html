@@ -13,10 +13,10 @@
   <p role="alert" class="erro">{{ erro() }}</p>
 }
 @if (sucesso()) {
-  <p role="status" class="sucesso">{{ sucesso() }}</p>
+  <output class="sucesso">{{ sucesso() }}</output>
 }
 @if (ocupado()) {
-  <p role="status">Processando…</p>
+  <output>Processando…</output>
 }
 @if (!documento()) {
   <div class="colunas">
@@ -116,10 +116,10 @@
   </section>
   @if (revisao(); as reviewData) {
     @for (divergence of reviewData.divergencias; track $index) {
-      <p class="erro" role="status">
+      <output class="erro">
         {{ divergence.mensagem }} · Pretendido: {{ tipo(divergence.esperado) }} · Detectado:
         {{ tipo(divergence.detectado) }}
-      </p>
+      </output>
     }
     @if (reviewData.possiveisDuplicidades.length) {
       <section class="painel">
@@ -307,7 +307,7 @@
         </button>
       </div>
       @if (revisado()) {
-        <p role="status">Revisão salva. Confira os dados antes de confirmar.</p>
+        <output>Revisão salva. Confira os dados antes de confirmar.</output>
       }
     </section>
   }

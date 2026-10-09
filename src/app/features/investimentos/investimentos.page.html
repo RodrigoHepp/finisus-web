@@ -7,10 +7,10 @@
   <p role="alert" class="erro">{{ erro() }}</p>
 }
 @if (sucesso()) {
-  <p role="status" class="sucesso">{{ sucesso() }}</p>
+  <output class="sucesso">{{ sucesso() }}</output>
 }
 @if (ocupado()) {
-  <p role="status">Carregando…</p>
+  <output>Carregando…</output>
 }
 <div class="barra-acoes">
   <button mat-flat-button (click)="criar()">Novo investimento</button

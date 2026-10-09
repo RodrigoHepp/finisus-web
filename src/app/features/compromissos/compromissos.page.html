@@ -31,10 +31,10 @@
     </p>
   }
   @if (sucesso()) {
-    <p class="aviso sucesso" role="status">{{ sucesso() }}</p>
+    <output class="aviso sucesso">{{ sucesso() }}</output>
   }
   @if (erroConsultaReferencias()) {
-    <p class="aviso" role="status">{{ erroConsultaReferencias() }}</p>
+    <output class="aviso">{{ erroConsultaReferencias() }}</output>
   }
   @if (carregando() || ocupado()) {
     <mat-progress-bar mode="indeterminate" aria-label="Processando solicitação" />
@@ -528,14 +528,14 @@
           </div>
         }
         @if (amortizacao(); as a) {
-          <section class="aviso" role="status">
+          <section class="aviso">
             <h3>Amortização registrada</h3>
-            <p>
+            <output>
               Saldo devedor anterior
               {{ a.saldoDevedorAnterior | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }} · atual
               {{ a.saldoDevedorAtual | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }} ·
               {{ a.parcelasRestantes }} parcelas restantes. Movimentação #{{ a.transacaoId }}.
-            </p>
+            </output>
           </section>
         }
         <div class="barra-acoes">

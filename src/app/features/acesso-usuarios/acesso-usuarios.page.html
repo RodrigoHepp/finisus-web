@@ -42,7 +42,7 @@
         <p class="aviso erro" role="alert">{{ erroCriacao() }}</p>
       }
       @if (sucessoCriacao()) {
-        <p class="aviso" role="status">{{ sucessoCriacao() }}</p>
+        <output class="aviso">{{ sucessoCriacao() }}</output>
       }
       <button mat-flat-button type="submit" [disabled]="criando()">
         {{ criando() ? 'Cadastrando…' : 'Cadastrar usuário' }}
@@ -69,7 +69,7 @@
         <p class="aviso erro" role="alert">{{ erroDesbloqueio() }}</p>
       }
       @if (sucessoDesbloqueio()) {
-        <p class="aviso" role="status">{{ sucessoDesbloqueio() }}</p>
+        <output class="aviso">{{ sucessoDesbloqueio() }}</output>
       }
       <button mat-flat-button type="submit" [disabled]="desbloqueando()">
         {{ desbloqueando() ? 'Desbloqueando…' : 'Desbloquear usuário' }}

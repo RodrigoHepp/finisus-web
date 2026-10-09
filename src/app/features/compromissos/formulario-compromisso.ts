@@ -124,45 +124,57 @@ const camposCriacao: Record<TipoCompromisso, Campo[]> = {
 const mes = () => new Date().toLocaleDateString('sv-SE').slice(0, 7);
 
 /** Define entradas e validações; comandos e efeitos financeiros permanecem na jornada/API. */
-export function configurarFormularioCompromisso(
-  formulario: FormRecord<FormControl<ValorCampo>>,
+function configurarEntidade(
+  tarefa: Tarefa,
+  tipo: TipoCompromisso,
+  entidade: CompromissoResponses[TipoCompromisso] | null,
+) {
+  const campos = camposCriacao[tipo];
+  const valoresIniciais: Record<string, ValorCampo> = {};
+  if (tarefa === 'editar') {
+    if (entidade)
+      for (const f of campos) {
+        const valor = Reflect.get(entidade, f.chave) as unknown;
+        if (typeof valor === 'number' || typeof valor === 'string' || valor === null)
+          valoresIniciais[f.chave] = valor;
+      }
+  }
+
+  return { campos, valoresIniciais };
+}
+function configurarFatura(tarefa: Tarefa, fatura: DetalheFatura | null) {
+  let valoresIniciais: Record<string, ValorCampo> = {};
+  let campos: Campo[] = [
+    { chave: 'anoMes', rotulo: 'Mês de referência', tipo: 'month', obrigatorio: true },
+    dataCivil('dataFechamento', 'Fechamento'),
+    dataCivil('dataVencimento', 'Vencimento'),
+    ref('contaPagamentoId', 'Conta de pagamento', 'contas'),
+  ];
+  if (tarefa === 'criar-fatura') valoresIniciais['anoMes'] = mes();
+  else {
+    const i = fatura;
+    campos = campos.filter((f) => f.chave !== 'anoMes');
+    if (i)
+      valoresIniciais = {
+        dataFechamento: i.fechamento,
+        dataVencimento: i.vencimento,
+        contaPagamentoId: i.contaPagamentoId,
+      };
+  }
+
+  return { campos, valoresIniciais };
+}
+function definirCamposCompromisso(
   tarefa: Tarefa,
   tipo: TipoCompromisso,
   entidade: CompromissoResponses[TipoCompromisso] | null,
   fatura: DetalheFatura | null,
-): Campo[] {
+): { campos: Campo[]; valoresIniciais: Record<string, ValorCampo> } {
   let campos: Campo[] = [];
-  let valoresIniciais: Record<string, ValorCampo> = {};
-  if (tarefa === 'criar' || tarefa === 'editar') {
-    campos = camposCriacao[tipo];
-    if (tarefa === 'editar') {
-      if (entidade)
-        for (const f of campos) {
-          const valor = Reflect.get(entidade, f.chave) as unknown;
-          if (typeof valor === 'number' || typeof valor === 'string' || valor === null)
-            valoresIniciais[f.chave] = valor;
-        }
-    }
-  }
-  if (tarefa === 'criar-fatura' || tarefa === 'editar-fatura') {
-    campos = [
-      { chave: 'anoMes', rotulo: 'Mês de referência', tipo: 'month', obrigatorio: true },
-      dataCivil('dataFechamento', 'Fechamento'),
-      dataCivil('dataVencimento', 'Vencimento'),
-      ref('contaPagamentoId', 'Conta de pagamento', 'contas'),
-    ];
-    if (tarefa === 'criar-fatura') valoresIniciais['anoMes'] = mes();
-    else {
-      const i = fatura;
-      campos = campos.filter((f) => f.chave !== 'anoMes');
-      if (i)
-        valoresIniciais = {
-          dataFechamento: i.fechamento,
-          dataVencimento: i.vencimento,
-          contaPagamentoId: i.contaPagamentoId,
-        };
-    }
-  }
+  const valoresIniciais: Record<string, ValorCampo> = {};
+  if (tarefa === 'criar' || tarefa === 'editar') return configurarEntidade(tarefa, tipo, entidade);
+  if (tarefa === 'criar-fatura' || tarefa === 'editar-fatura')
+    return configurarFatura(tarefa, fatura);
   if (tarefa === 'despesa-fatura')
     campos = [
       texto('descricao', 'Descrição do gasto', 500),
@@ -210,37 +222,51 @@ export function configurarFormularioCompromisso(
     ];
   if (tarefa === 'refinanciar')
     campos = [campoNumero('parcelaId', 'ID da parcela inicial', 1), ...camposFinanciamento];
+  return { campos, valoresIniciais };
+}
+function validadoresCampo(f: Campo): ValidatorFn[] {
+  const validadores: ValidatorFn[] = [];
+  if (f.obrigatorio) validadores.push(Validators.required);
+  if (f.minimo !== undefined) validadores.push(Validators.min(f.minimo));
+  if (f.maximo !== undefined) validadores.push(Validators.max(f.maximo));
+  if (f.comprimentoMaximo) validadores.push(Validators.maxLength(f.comprimentoMaximo));
+  if (f.obrigatorio && f.tipo === 'text')
+    validadores.push((c) =>
+      typeof c.value === 'string' && !c.value.trim() ? { blank: true } : null,
+    );
+  if (
+    [
+      'numeroParcelas',
+      'diaFechamento',
+      'diaVencimento',
+      'diaDoMes',
+      'numeroParcelasRestantes',
+      'parcelaId',
+    ].includes(f.chave)
+  )
+    validadores.push((c) =>
+      c.value !== null && c.value !== '' && !Number.isInteger(Number(c.value))
+        ? { integer: true }
+        : null,
+    );
+  if (f.tipo === 'date') validadores.push(Validators.pattern(/^\d{4}-\d{2}-\d{2}$/));
+  if (f.tipo === 'month') validadores.push(Validators.pattern(/^\d{4}-\d{2}$/));
+
+  return validadores;
+}
+export function configurarFormularioCompromisso(
+  formulario: FormRecord<FormControl<ValorCampo>>,
+  tarefa: Tarefa,
+  tipo: TipoCompromisso,
+  entidade: CompromissoResponses[TipoCompromisso] | null,
+  fatura: DetalheFatura | null,
+): Campo[] {
+  const { campos, valoresIniciais } = definirCamposCompromisso(tarefa, tipo, entidade, fatura);
   for (const chave of Object.keys(formulario.controls)) formulario.removeControl(chave);
   for (const f of campos) {
-    const validadores: ValidatorFn[] = [];
-    if (f.obrigatorio) validadores.push(Validators.required);
-    if (f.minimo !== undefined) validadores.push(Validators.min(f.minimo));
-    if (f.maximo !== undefined) validadores.push(Validators.max(f.maximo));
-    if (f.comprimentoMaximo) validadores.push(Validators.maxLength(f.comprimentoMaximo));
-    if (f.obrigatorio && f.tipo === 'text')
-      validadores.push((c) =>
-        typeof c.value === 'string' && !c.value.trim() ? { blank: true } : null,
-      );
-    if (
-      [
-        'numeroParcelas',
-        'diaFechamento',
-        'diaVencimento',
-        'diaDoMes',
-        'numeroParcelasRestantes',
-        'parcelaId',
-      ].includes(f.chave)
-    )
-      validadores.push((c) =>
-        c.value !== null && c.value !== '' && !Number.isInteger(Number(c.value))
-          ? { integer: true }
-          : null,
-      );
-    if (f.tipo === 'date') validadores.push(Validators.pattern(/^\d{4}-\d{2}-\d{2}$/));
-    if (f.tipo === 'month') validadores.push(Validators.pattern(/^\d{4}-\d{2}$/));
     formulario.addControl(
       f.chave,
-      new FormControl<ValorCampo>(valoresIniciais[f.chave] ?? null, validadores),
+      new FormControl<ValorCampo>(valoresIniciais[f.chave] ?? null, validadoresCampo(f)),
     );
   }
   return campos;

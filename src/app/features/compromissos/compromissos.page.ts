@@ -202,35 +202,24 @@ export class CompromissosPage {
     return 'nome' in entidade ? entidade.nome : entidade.descricao;
   }
   valor(entidade: Entidade): number {
-    return 'limite' in entidade
-      ? entidade.limite
-      : 'valorTotal' in entidade
-        ? entidade.valorTotal
-        : 'valorEsperado' in entidade
-          ? entidade.valorEsperado
-          : 'principal' in entidade
-            ? entidade.principal
-            : entidade.valor;
+    if ('limite' in entidade) return entidade.limite;
+    if ('valorTotal' in entidade) return entidade.valorTotal;
+    if ('valorEsperado' in entidade) return entidade.valorEsperado;
+    if ('principal' in entidade) return entidade.principal;
+    return entidade.valor;
   }
   estado(entidade: Entidade): string {
-    return 'ativo' in entidade
-      ? entidade.ativo
-        ? 'Ativo'
-        : 'Inativo'
-      : 'status' in entidade
-        ? this.rotulo(entidade.status)
-        : entidade.canceladaEm
-          ? 'Cancelada'
-          : 'Ativa';
+    if ('ativo' in entidade) return entidade.ativo ? 'Ativo' : 'Inativo';
+    if ('status' in entidade) return this.rotulo(entidade.status);
+    return entidade.canceladaEm ? 'Cancelada' : 'Ativa';
   }
   rotuloValor(): string {
-    return this.tipo() === 'cartoes'
-      ? 'Limite'
-      : this.tipo() === 'recorrencias'
-        ? 'Valor esperado'
-        : this.tipo() === 'financiamentos'
-          ? 'Principal'
-          : 'Valor';
+    const rotulos: Partial<Record<TipoCompromisso, string>> = {
+      cartoes: 'Limite',
+      recorrencias: 'Valor esperado',
+      financiamentos: 'Principal',
+    };
+    return rotulos[this.tipo()] ?? 'Valor';
   }
   dataCivil(valor: string | null | undefined): string {
     if (!valor) return 'Não informado';
@@ -602,77 +591,105 @@ export class CompromissosPage {
       this.itensDespesa.markAllAsTouched();
       return;
     }
-    const tarefa = this.tarefa(),
-      id = this.selecionado()?.id,
-      i = this.fatura(),
-      f = this.financiamento();
+    const tarefa = this.tarefa();
     if (!confirm(`${this.tituloTarefa()}? Confirme os dados antes de continuar.`)) return;
     if (tarefa === 'criar' || tarefa === 'editar') {
-      const tipo = this.tipo();
-      if (tipo === 'cartoes') {
-        const corpo = {
-          nome: this.textoCampo('nome'),
-          limite: this.numeroCampo('limite'),
-          diaFechamento: this.numeroCampo('diaFechamento'),
-          diaVencimento: this.numeroCampo('diaVencimento'),
-        };
-        this.mutacao(
-          tarefa === 'editar' && id
-            ? this.api.atualizarCartao(id, corpo)
-            : this.api.criar('cartoes', corpo),
-          (d) => {
-            this.carregarReferencias();
-            this.selecionar(d);
-          },
-        );
-      }
-      if (tipo === 'compras')
-        this.mutacao(
-          this.api.criar('compras', {
-            descricao: this.textoCampo('descricao'),
-            valorTotal: this.numeroCampo('valorTotal'),
-            numeroParcelas: this.numeroCampo('numeroParcelas'),
-            dataCompra: this.textoCampo('dataCompra'),
-            categoriaId: this.valorOpcional('categoriaId'),
-            contaId: this.numeroCampo('contaId'),
-            cartaoId: this.valorOpcional('cartaoId'),
-          }),
-        );
-      if (tipo === 'obrigacoes')
-        this.mutacao(
-          this.api.criar('obrigacoes', {
-            descricao: this.textoCampo('descricao'),
-            credor: this.textoCampo('credor'),
-            valor: this.numeroCampo('valor'),
-            dataVencimento: this.textoCampo('dataVencimento'),
-            contaPagamentoId: this.numeroCampo('contaPagamentoId'),
-            categoriaId: this.valorOpcional('categoriaId'),
-          }),
-        );
-      if (tipo === 'recorrencias') {
-        const corpo = {
-          nome: this.textoCampo('nome'),
-          tipo: this.textoCampo('tipo') === 'ENTRADA' ? ('ENTRADA' as const) : ('SAIDA' as const),
-          valorEsperado: this.numeroCampo('valorEsperado'),
-          diaDoMes: this.numeroCampo('diaDoMes'),
-          categoriaId: this.valorOpcional('categoriaId'),
-          contaId: this.numeroCampo('contaId'),
-          meioPagamentoId: this.valorOpcional('meioPagamentoId'),
-        };
-        this.mutacao(
-          tarefa === 'editar' && id
-            ? this.api.atualizarRecorrencia(id, corpo)
-            : this.api.criar('recorrencias', corpo),
-          (d) => this.selecionar(d),
-        );
-      }
-      if (tipo === 'financiamentos')
-        this.mutacao(this.api.criar('financiamentos', this.payloadFinanciamento()));
+      this.salvarEntidade(tarefa);
+      return;
     }
-    if (tarefa === 'criar-fatura' && this.cartao())
+    const comandos: Partial<Record<Tarefa, () => void>> = {
+      'criar-fatura': () => this.criarFatura(),
+      'editar-fatura': () => this.editarFatura(),
+      'despesa-fatura': () => this.registrarDespesaFatura(),
+      'pagar-fatura': () => this.pagarFatura(),
+      ciclos: () => this.processarCiclos(),
+      'pagar-obrigacao': () => this.pagarObrigacao(),
+      'pagar-parcela': () => this.pagarParcela(),
+      amortizar: () => this.amortizarFinanciamento(),
+      refinanciar: () => this.refinanciarFinanciamento(),
+    };
+    if (tarefa) comandos[tarefa]?.();
+  }
+  private salvarEntidade(tarefa: 'criar' | 'editar') {
+    const comandos: Record<TipoCompromisso, () => void> = {
+      cartoes: () => this.salvarCartao(tarefa),
+      compras: () => this.criarCompra(),
+      obrigacoes: () => this.criarObrigacao(),
+      recorrencias: () => this.salvarRecorrencia(tarefa),
+      financiamentos: () => this.criarFinanciamento(),
+    };
+    comandos[this.tipo()]();
+  }
+  private salvarCartao(tarefa: 'criar' | 'editar') {
+    const id = this.selecionado()?.id;
+    const corpo = {
+      nome: this.textoCampo('nome'),
+      limite: this.numeroCampo('limite'),
+      diaFechamento: this.numeroCampo('diaFechamento'),
+      diaVencimento: this.numeroCampo('diaVencimento'),
+    };
+    this.mutacao(
+      tarefa === 'editar' && id
+        ? this.api.atualizarCartao(id, corpo)
+        : this.api.criar('cartoes', corpo),
+      (d) => {
+        this.carregarReferencias();
+        this.selecionar(d);
+      },
+    );
+  }
+  private criarCompra() {
+    this.mutacao(
+      this.api.criar('compras', {
+        descricao: this.textoCampo('descricao'),
+        valorTotal: this.numeroCampo('valorTotal'),
+        numeroParcelas: this.numeroCampo('numeroParcelas'),
+        dataCompra: this.textoCampo('dataCompra'),
+        categoriaId: this.valorOpcional('categoriaId'),
+        contaId: this.numeroCampo('contaId'),
+        cartaoId: this.valorOpcional('cartaoId'),
+      }),
+    );
+  }
+  private criarObrigacao() {
+    this.mutacao(
+      this.api.criar('obrigacoes', {
+        descricao: this.textoCampo('descricao'),
+        credor: this.textoCampo('credor'),
+        valor: this.numeroCampo('valor'),
+        dataVencimento: this.textoCampo('dataVencimento'),
+        contaPagamentoId: this.numeroCampo('contaPagamentoId'),
+        categoriaId: this.valorOpcional('categoriaId'),
+      }),
+    );
+  }
+  private salvarRecorrencia(tarefa: 'criar' | 'editar') {
+    const id = this.selecionado()?.id;
+    const corpo = {
+      nome: this.textoCampo('nome'),
+      tipo: this.textoCampo('tipo') === 'ENTRADA' ? ('ENTRADA' as const) : ('SAIDA' as const),
+      valorEsperado: this.numeroCampo('valorEsperado'),
+      diaDoMes: this.numeroCampo('diaDoMes'),
+      categoriaId: this.valorOpcional('categoriaId'),
+      contaId: this.numeroCampo('contaId'),
+      meioPagamentoId: this.valorOpcional('meioPagamentoId'),
+    };
+    this.mutacao(
+      tarefa === 'editar' && id
+        ? this.api.atualizarRecorrencia(id, corpo)
+        : this.api.criar('recorrencias', corpo),
+      (d) => this.selecionar(d),
+    );
+  }
+  private criarFinanciamento() {
+    this.mutacao(this.api.criar('financiamentos', this.payloadFinanciamento()));
+  }
+  private criarFatura() {
+    const cartao = this.cartao();
+    if (cartao)
       this.mutacao(
         this.api.criarFatura({
-          cartaoId: this.cartao()!.id,
+          cartaoId: cartao.id,
           anoMes: this.textoCampo('anoMes'),
           dataFechamento: this.textoCampo('dataFechamento'),
           dataVencimento: this.textoCampo('dataVencimento'),
@@ -680,7 +697,10 @@ export class CompromissosPage {
         }),
         () => this.carregarFaturas(),
       );
-    if (tarefa === 'editar-fatura' && i)
+  }
+  private editarFatura() {
+    const i = this.fatura();
+    if (i)
       this.mutacao(
         this.api.atualizarFatura(i.id, {
           dataFechamento: this.textoCampo('dataFechamento'),
@@ -689,7 +709,10 @@ export class CompromissosPage {
         }),
         () => this.selecionarFatura(i),
       );
-    if (tarefa === 'despesa-fatura' && i)
+  }
+  private registrarDespesaFatura() {
+    const i = this.fatura();
+    if (i)
       this.mutacao(
         this.api.registrarDespesaFatura(i.id, {
           descricao: this.textoCampo('descricao'),
@@ -701,7 +724,10 @@ export class CompromissosPage {
         }),
         () => this.selecionarFatura(i),
       );
-    if (tarefa === 'pagar-fatura' && i) {
+  }
+  private pagarFatura() {
+    const i = this.fatura();
+    if (i) {
       const corpo = {
         dataPagamento: this.textoCampo('dataPagamento'),
         valor: this.valorOpcional('valor'),
@@ -717,16 +743,20 @@ export class CompromissosPage {
         'Pagamento registrado. Confira o valor em aberto e o crédito informado pelo servidor.',
       );
     }
-    if (tarefa === 'ciclos')
-      this.mutacao(
-        this.api.processarCiclosFatura(this.textoCampo('dataReferencia')),
-        (d) => {
-          this.sucesso.set(`${d.fechadas.length} faturas fechadas e ${d.criadas.length} criadas.`);
-          this.carregarFaturas();
-        },
-        'Ciclos processados.',
-      );
-    if (tarefa === 'pagar-obrigacao' && id)
+  }
+  private processarCiclos() {
+    this.mutacao(
+      this.api.processarCiclosFatura(this.textoCampo('dataReferencia')),
+      (d) => {
+        this.sucesso.set(`${d.fechadas.length} faturas fechadas e ${d.criadas.length} criadas.`);
+        this.carregarFaturas();
+      },
+      'Ciclos processados.',
+    );
+  }
+  private pagarObrigacao() {
+    const id = this.selecionado()?.id;
+    if (id)
       this.mutacao(
         this.api.pagarObrigacao(id, {
           dataPagamento: this.textoCampo('dataPagamento'),
@@ -737,7 +767,10 @@ export class CompromissosPage {
         }),
         (d) => this.selecionar(d),
       );
-    if (tarefa === 'pagar-parcela' && f && this.parcelaSelecionada())
+  }
+  private pagarParcela() {
+    const f = this.financiamento();
+    if (f && this.parcelaSelecionada())
       this.mutacao(
         this.api.pagarParcela(
           f.id,
@@ -746,19 +779,21 @@ export class CompromissosPage {
         ),
         () => this.carregarParcelas(),
       );
-    if (tarefa === 'amortizar' && f) {
+  }
+  private modalidadeAmortizacao(modalidade: string): 'REDUZIR_PRAZO' | 'REDUZIR_PRESTACAO' | null {
+    if (modalidade === 'REDUZIR_PRAZO' || modalidade === 'REDUZIR_PRESTACAO') return modalidade;
+    return null;
+  }
+  private amortizarFinanciamento() {
+    const f = this.financiamento();
+    if (f) {
       const modalidade = this.textoCampo('modalidade');
       this.mutacao(
         this.api.amortizar(f.id, {
           valor: this.numeroCampo('valor'),
           dataPagamento: this.textoCampo('dataPagamento'),
           numeroParcelasRestantes: this.valorOpcional('numeroParcelasRestantes'),
-          modalidade:
-            modalidade === 'REDUZIR_PRAZO'
-              ? 'REDUZIR_PRAZO'
-              : modalidade === 'REDUZIR_PRESTACAO'
-                ? 'REDUZIR_PRESTACAO'
-                : null,
+          modalidade: this.modalidadeAmortizacao(modalidade),
         }),
         (d) => {
           this.selecionar(d.financiamento);
@@ -766,7 +801,10 @@ export class CompromissosPage {
         },
       );
     }
-    if (tarefa === 'refinanciar' && f)
+  }
+  private refinanciarFinanciamento() {
+    const f = this.financiamento();
+    if (f)
       this.mutacao(
         this.api.refinanciar(f.id, this.numeroCampo('parcelaId'), this.payloadFinanciamento()),
         (d) => {
@@ -800,13 +838,12 @@ export class CompromissosPage {
   }
   executarComandoFatura(comando: 'fechar' | 'estornar-pagamento' | 'cancelar') {
     const i = this.fatura();
-    if (
-      !i ||
-      !confirm(
-        `${comando === 'fechar' ? 'Fechar' : comando === 'cancelar' ? 'Cancelar' : 'Estornar o último pagamento de'} esta fatura?`,
-      )
-    )
-      return;
+    const rotulos = {
+      fechar: 'Fechar',
+      cancelar: 'Cancelar',
+      'estornar-pagamento': 'Estornar o último pagamento de',
+    };
+    if (!i || !confirm(`${rotulos[comando]} esta fatura?`)) return;
     this.mutacao(this.api.executarComandoFatura(i.id, comando), () => {
       this.selecionarFatura(i);
       this.carregarFaturas();
@@ -828,18 +865,14 @@ export class CompromissosPage {
     );
   }
   comandoParcela(p: Parcela, comando: 'estornar' | 'corrigir-erro' | 'finalizar') {
+    const mensagens = {
+      'corrigir-erro':
+        'Excluir esta parcela por erro de lançamento? O cronograma será recalculado pelo servidor.',
+      finalizar: 'Finalizar este financiamento por refinanciamento a partir desta parcela?',
+      estornar: 'Estornar o pagamento desta parcela?',
+    };
     const f = this.financiamento();
-    if (
-      !f ||
-      !confirm(
-        comando === 'corrigir-erro'
-          ? 'Excluir esta parcela por erro de lançamento? O cronograma será recalculado pelo servidor.'
-          : comando === 'finalizar'
-            ? 'Finalizar este financiamento por refinanciamento a partir desta parcela?'
-            : 'Estornar o pagamento desta parcela?',
-      )
-    )
-      return;
+    if (!f || !confirm(mensagens[comando])) return;
     if (comando === 'estornar')
       this.mutacao(this.api.estornarParcela(f.id, p.id), () => this.carregarParcelas());
     if (comando === 'corrigir-erro')

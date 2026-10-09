@@ -1,40 +1,36 @@
-# Análise de qualidade com Sonar
+# Qualidade e revisão de pull requests
 
-O workflow `.github/workflows/sonar.yml` executa tipos, lint e testes unitários com cobertura antes de enviar a análise ao Sonar. Ele roda em pushes para `development`, pull requests internos com destino a `development` e acionamento manual. PRs de forks e do Dependabot não recebem o token e não executam essa análise.
+A CI e a análise Sonar são independentes, seguindo o fluxo utilizado no backend. O GitHub Actions verifica a aplicação Angular; o aplicativo SonarQube Cloud publica a análise estática nas PRs quando a integração externa estiver habilitada.
 
-## Configurar o serviço
+## CI Angular
 
-1. Crie ou importe `RodrigoHepp/finisus-web` no SonarQube Cloud ou no servidor SonarQube utilizado pela equipe.
-2. No serviço, configure `development` como branch principal. No Cloud, desative a análise automática para usar a análise por CI com cobertura.
-3. Em GitHub → Settings → Secrets and variables → Actions, configure:
+O workflow `.github/workflows/ci.yml` roda em pull requests e pushes para `development` e `master`. O check `verify` executa formatação, tipos, lint, testes unitários, build e jornadas Playwright simuladas em desktop, celular e tablet. Utiliza Node 24.18.0 e instala Chromium com as dependências do runner Linux.
 
-| Tipo     | Nome                 | Valor                                                            |
-| -------- | -------------------- | ---------------------------------------------------------------- |
-| Secret   | `SONAR_TOKEN`        | Token com permissão de análise para o projeto                    |
-| Variable | `SONAR_HOST_URL`     | URL do serviço; no Cloud europeu, `https://sonarcloud.io`        |
-| Variable | `SONAR_PROJECT_KEY`  | Chave exata do projeto criado no Sonar                           |
-| Variable | `SONAR_ORGANIZATION` | Chave da organização no Cloud; deixe vazia para servidor próprio |
+As jornadas simuladas não dependem da API real nem de credenciais. Cenários financeiros de integração real permanecem separados e exigem ambiente de teste autorizado.
 
-O token fica disponível somente no passo do scanner e nunca deve ser salvo em arquivos do repositório. Ausência de configuração faz o job falhar com uma orientação explícita, sem declarar uma análise bem-sucedida.
+## SonarQube Cloud
 
-O projeto precisa existir no serviço antes da primeira execução. A configuração no checkout não cria o projeto, as variables ou o secret no GitHub. A análise de branches e PRs depende dos recursos habilitados no serviço contratado.
+1. Importe `RodrigoHepp/finisus-web` na organização `rodrigohepp`, vinculando o projeto ao repositório GitHub.
+2. Configure `development` como branch principal do projeto.
+3. Em **Administration → Analysis Method**, habilite **Automatic Analysis**.
+4. Confirme que o aplicativo SonarQube Cloud possui acesso ao repositório.
+5. Em **Administration → General Settings → Analysis Scope**, exclua o arquivo gerado `src/app/infraestrutura/api/backend.dtos.ts` e confira a classificação dos arquivos `*.spec.ts` como testes.
+6. Abra ou atualize uma PR para conferir o check **SonarCloud Code Analysis**.
 
-## Cobertura e escopo
+Esse método não requer `SONAR_TOKEN` ou variables Sonar no workflow. O scanner por CI e seu arquivo `sonar-project.properties` foram retirados para evitar análises concorrentes. A presença dos arquivos de CI no checkout não habilita a integração externa automaticamente.
+
+O Quality Gate é definido no projeto Sonar. Um resultado aprovado significa que seus critérios foram atendidos; não significa ausência de issues. O bloqueio de merge depende também dos checks exigidos nas regras do GitHub.
+
+## Cobertura local
 
 ```powershell
 npm run test:cobertura
 ```
 
-O Angular gera `coverage/finisus/lcov.info`, que o scanner importa por `sonar.javascript.lcov.reportPaths`. O provider `@vitest/coverage-v8` acompanha a versão do Vitest instalada. Cobertura não é habilitada no comando `npm test` padrão.
+O Angular gera `coverage/finisus/lcov.info`, com o provider `@vitest/coverage-v8` compatível com o Vitest instalado. O comando continua útil para diagnóstico local, mas **Automatic Analysis não importa cobertura de testes**. Para enviar cobertura ao Sonar no futuro, será necessário migrar para análise pela CI e desativar a análise automática.
 
-O Sonar analisa `src`. Arquivos `*.spec.ts` em `src`, `e2e` e `integracao-e2e` são classificados como testes. O DTO gerado `backend.dtos.ts` é excluído da análise e da cobertura; os demais consumidores e contratos escritos à mão continuam no escopo. O kit local de IA e artefatos gerados ficam fora do escopo de fontes.
+`coverage/`, resultados Playwright e arquivos locais permanecem ignorados pelo Git. Não devem ser adicionados aos commits.
 
-`coverage/` e `.scannerwork/` são ignorados pelo Git. Relatórios não devem ser adicionados aos commits.
+Na validação local de 2026-10-09, passaram 117 testes unitários em 23 arquivos e 51 cenários Playwright simulados. A cobertura local de linhas foi 32,2%; ela não incorpora a execução Playwright nem comprova integração real.
 
-## Quality Gate e validação
-
-O scanner aguarda o Quality Gate por até 300 segundos e falha se o gate reprovar. As regras e limites são definidos no projeto Sonar; o workflow não reduz limites para fazer a análise passar. Para bloquear merge, configure também o check `Analisar qualidade` nas regras de proteção de `development`, depois de validar a primeira execução remota.
-
-Na validação local de 2026-10-09, passaram 117 testes em 23 arquivos com geração de LCOV. A cobertura de linhas foi 32,2%; isso mede testes unitários, sem incorporar a execução Playwright. Ainda não foi executado scanner autenticado nem validado Quality Gate remoto.
-
-Fontes: [ação oficial do scanner](https://github.com/SonarSource/sonarqube-scan-action) e [cobertura no Angular](https://angular.dev/guide/testing/code-coverage).
+Fonte: [análise automática no SonarQube Cloud](https://docs.sonarsource.com/sonarqube-cloud/analyzing-source-code/automatic-analysis).

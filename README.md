@@ -37,7 +37,7 @@ node scripts/gerar-dtos.mjs --check
 
 As suítes padrão HTTP e E2E utilizam contratos simulados explícitos; não comprovam integração real nem permissões em produção. Sem backend, login e comandos mostram a falha de conexão.
 
-A análise Sonar e a configuração do Quality Gate estão descritas em [qualidade](docs/qualidade.md). O workflow depende do projeto no serviço e de secret/variables configurados no GitHub.
+A CI Angular e a análise automática do SonarQube Cloud estão descritas em [qualidade](docs/qualidade.md). A análise Sonar depende da integração do projeto com o GitHub; não exige token no workflow e não importa a cobertura local.
 
 ## Integração com API real
 

@@ -1,25 +1,55 @@
-name: Continuous Integration
+name: CI
 
 on:
-  push:
   pull_request:
+    branches: [master, development]
+  push:
+    branches: [master, development]
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
+    name: verify
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Obter código
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: 22
+          persist-credentials: false
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.18.0'
           cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: npm run format:check
-      - run: npm run lint
-      - run: npm test
-      - run: npm run build
-      - run: npm run e2e
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Instalar Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Verificar formatação
+        run: npm run format:check
+
+      - name: Verificar tipos
+        run: npm run typecheck
+
+      - name: Verificar lint
+        run: npm run lint
+
+      - name: Executar testes unitários
+        run: npm test
+
+      - name: Compilar aplicação
+        run: npm run build
+
+      - name: Executar jornadas simuladas
+        run: npm run e2e

@@ -1,0 +1,264 @@
+<h1>Investimentos</h1>
+<p class="introducao">
+  Acompanhe aportes, resgates e posições informadas. A posição manual representa o valor observado
+  em uma data; não é cotação automática.
+</p>
+@if (erro()) {
+  <p role="alert" class="erro">{{ erro() }}</p>
+}
+@if (sucesso()) {
+  <p role="status" class="sucesso">{{ sucesso() }}</p>
+}
+@if (ocupado()) {
+  <p role="status">Carregando…</p>
+}
+<div class="barra-acoes">
+  <button mat-flat-button (click)="criar()">Novo investimento</button
+  ><button mat-button (click)="carregar()" [disabled]="ocupado()">Atualizar</button>
+</div>
+@if (mostrarFormulario()) {
+  <section class="painel">
+    <h2>{{ editando() ? 'Editar investimento' : 'Novo investimento' }}</h2>
+    <form [formGroup]="formulario" (ngSubmit)="salvar()">
+      <div class="campos">
+        <mat-form-field
+          ><mat-label>Nome</mat-label
+          ><input matInput formControlName="nome" maxlength="150" /><mat-error
+            >Informe um nome de até 150 caracteres.</mat-error
+          ></mat-form-field
+        >
+        <mat-form-field
+          ><mat-label>Tipo de investimento</mat-label
+          ><mat-select formControlName="tipo">
+            @for (tipo of tipos; track tipo.valor) {
+              <mat-option [value]="tipo.valor">{{ tipo.rotulo }}</mat-option>
+            }
+          </mat-select></mat-form-field
+        >
+        <mat-form-field
+          ><mat-label>Conta de origem</mat-label
+          ><mat-select formControlName="contaOrigemId">
+            @for (conta of contas(); track conta.id) {
+              <mat-option [value]="conta.id">{{ conta.nome }}</mat-option>
+            }</mat-select
+          ><mat-error>Selecione a conta de origem.</mat-error></mat-form-field
+        >
+        <mat-form-field
+          ><mat-label>Conta de custódia (opcional)</mat-label
+          ><mat-select formControlName="contaCustodiaId"
+            ><mat-option [value]="null">Sem custódia vinculada</mat-option>
+            @for (conta of contas(); track conta.id) {
+              @if (conta.tipo === 'APLICACAO') {
+                <mat-option [value]="conta.id">{{ conta.nome }}</mat-option>
+              }
+            }
+          </mat-select></mat-form-field
+        >
+      </div>
+      <p class="orientacao">
+        A custódia deve ser uma conta de aplicação diferente da origem e exclusiva deste
+        investimento. Contas exibidas nesta página de seleção: {{ paginaContas() + 1 }}.
+      </p>
+      <div class="acoes">
+        <button
+          mat-button
+          type="button"
+          (click)="carregarContas(paginaContas() - 1)"
+          [disabled]="paginaContas() === 0 || ocupado()"
+        >
+          Contas anteriores</button
+        ><button
+          mat-button
+          type="button"
+          (click)="carregarContas(paginaContas() + 1)"
+          [disabled]="paginaContas() + 1 >= totalPaginasContas() || ocupado()"
+        >
+          Mais contas</button
+        ><button mat-flat-button type="submit" [disabled]="salvando()">Salvar investimento</button
+        ><button mat-button type="button" (click)="mostrarFormulario.set(false)">Cancelar</button>
+      </div>
+    </form>
+  </section>
+}
+@if (listar(); as pagina) {
+  <section class="painel rolagem">
+    <table>
+      <thead>
+        <tr>
+          <th>Investimento</th>
+          <th>Tipo</th>
+          <th>Situação</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of pagina.conteudo; track item.id) {
+          <tr>
+            <td>{{ item.nome }}</td>
+            <td>{{ tipo(item.tipo) }}</td>
+            <td>{{ item.ativo ? 'Ativo' : 'Inativo' }}</td>
+            <td>
+              <div class="acoes">
+                <button mat-button (click)="selecionar(item.id)">Histórico</button
+                ><button mat-button (click)="editar(item)">Editar</button>
+                @if (item.ativo) {
+                  <button mat-button (click)="inativar(item)" [disabled]="salvando()">
+                    Inativar
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4">Nenhum investimento nesta página.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <mat-paginator
+      [length]="pagina.totalElementos"
+      [pageIndex]="pagina.pagina"
+      [pageSize]="pagina.tamanho"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="carregar($event)"
+      aria-label="Página de investimentos"
+    />
+  </section>
+}
+@if (selecionado(); as item) {
+  <section class="painel">
+    <h2>{{ item.nome }} · histórico</h2>
+    <p class="orientacao">
+      Conta de origem #{{ item.contaOrigemId }} · Custódia
+      {{ item.contaCustodiaId === null ? 'não vinculada' : '#' + item.contaCustodiaId }}
+    </p>
+    <div class="colunas">
+      <form [formGroup]="formularioMovimento" (ngSubmit)="registrarMovimento()">
+        <h3>Registrar movimento real</h3>
+        <mat-form-field
+          ><mat-label>Movimento</mat-label
+          ><mat-select formControlName="tipo">
+            @for (tipo of tiposMovimento; track tipo.valor) {
+              <mat-option [value]="tipo.valor">{{ tipo.rotulo }}</mat-option>
+            }
+          </mat-select></mat-form-field
+        ><mat-form-field
+          ><mat-label>Valor (R$)</mat-label
+          ><input matInput type="number" min="0.01" step="0.01" formControlName="valor" /><mat-error
+            >Informe valor de pelo menos R$ 0,01.</mat-error
+          ></mat-form-field
+        ><mat-form-field
+          ><mat-label>Data do movimento</mat-label
+          ><input matInput type="date" formControlName="data" /><mat-error
+            >Informe a data.</mat-error
+          ></mat-form-field
+        ><button mat-flat-button [disabled]="salvando() || !item.ativo">Registrar movimento</button>
+      </form>
+      <form [formGroup]="formularioPosicao" (ngSubmit)="registrarPosicao()">
+        <h3>Informar posição observada</h3>
+        <p class="orientacao">
+          O Finisus utiliza esta posição na apuração patrimonial. Não altera os movimentos
+          históricos nem calcula rendimentos.
+        </p>
+        <mat-form-field
+          ><mat-label>Valor da posição (R$)</mat-label
+          ><input matInput type="number" min="0" step="0.01" formControlName="valor" /><mat-error
+            >Informe um valor não negativo.</mat-error
+          ></mat-form-field
+        ><mat-form-field
+          ><mat-label>Data de referência</mat-label
+          ><input matInput type="date" formControlName="dataReferencia" /><mat-error
+            >Informe a data.</mat-error
+          ></mat-form-field
+        ><button mat-flat-button [disabled]="salvando() || !item.ativo">Registrar posição</button>
+      </form>
+    </div>
+    @if (movimentos(); as pagina) {
+      <h3>Movimentos</h3>
+      <div class="rolagem">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Movimento</th>
+              <th>Valor</th>
+              <th>Transação vinculada</th>
+              <th>Situação</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (linha of pagina.conteudo; track linha.id) {
+              <tr>
+                <td>{{ dataCivil(linha.data) }}</td>
+                <td>{{ tipoMovimento(linha.tipo) }}</td>
+                <td>{{ formatarMoeda(linha.valor) }}</td>
+                <td>
+                  {{ linha.transacaoId === null ? 'Sem transação' : '#' + linha.transacaoId }}
+                </td>
+                <td>
+                  {{
+                    linha.estornadoEm
+                      ? 'Estornado'
+                      : linha.movimentoOrigemId
+                        ? 'Estorno de #' + linha.movimentoOrigemId
+                        : 'Registrado'
+                  }}
+                </td>
+                <td>
+                  @if (!linha.estornadoEm && !linha.movimentoOrigemId) {
+                    <button mat-button [disabled]="salvando()" (click)="estornar(linha)">
+                      Estornar
+                    </button>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6">Nenhum movimento nesta página.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <mat-paginator
+        [length]="pagina.totalElementos"
+        [pageIndex]="pagina.pagina"
+        [pageSize]="pagina.tamanho"
+        (page)="carregarMovimentos($event)"
+        aria-label="Página de movimentos"
+      />
+    }
+    @if (posicoes(); as pagina) {
+      <h3>Posições informadas</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Data de referência</th>
+            <th>Valor observado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (linha of pagina.conteudo; track linha.id) {
+            <tr>
+              <td>{{ dataCivil(linha.dataReferencia) }}</td>
+              <td>{{ formatarMoeda(linha.valor) }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="2">Nenhuma posição informada nesta página.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <mat-paginator
+        [length]="pagina.totalElementos"
+        [pageIndex]="pagina.pagina"
+        [pageSize]="pagina.tamanho"
+        (page)="carregarPosicoes($event)"
+        aria-label="Página de posições"
+      />
+    }
+  </section>
+}

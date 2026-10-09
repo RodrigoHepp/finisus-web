@@ -11,7 +11,7 @@
     "typecheck": "ngc -p tsconfig.app.json --noEmit",
     "lint": "eslint src",
     "e2e": "playwright test",
-    "format:check": "prettier --check src scripts/angular.mjs scripts/gerar-dtos.mjs scripts/aliases-dtos-http.mjs *.json *.ts *.js docs/contratos e2e integracao-e2e",
+    "format:check": "prettier --check src e2e integracao-e2e scripts/angular.mjs scripts/gerar-dtos.mjs scripts/aliases-dtos-http.mjs *.json *.ts *.js README.md docs/arquitetura.md docs/limites.md docs/contratos docs/integracao-real.md",
     "e2e:integracao": "playwright test --config playwright.integracao.config.ts"
   },
   "private": true,

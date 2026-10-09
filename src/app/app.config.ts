@@ -12,12 +12,18 @@ import { provideRouter } from '@angular/router';
 
 import { rotas } from './app.routes';
 
+function removerBarrasFinais(url: string): string {
+  let fim = url.length;
+  while (fim > 0 && url[fim - 1] === '/') fim--;
+  return url.slice(0, fim);
+}
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(rotas),
     provideHttpClient(withInterceptors([sessaoInterceptor])),
-    { provide: URL_BASE_API, useValue: environment.urlApi.replace(/\/+$/, '') },
+    { provide: URL_BASE_API, useValue: removerBarrasFinais(environment.urlApi) },
     { provide: LOCALE_ID, useValue: 'pt-BR' },
     { provide: ErrorStateMatcher, useClass: EstadoErroFormulario },
   ],

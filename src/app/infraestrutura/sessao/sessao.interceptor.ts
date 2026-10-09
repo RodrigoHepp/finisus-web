@@ -1,8 +1,32 @@
-import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import {
+  HttpErrorResponse,
+  HttpHandlerFn,
+  HttpInterceptorFn,
+  HttpRequest,
+} from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, of, switchMap, throwError } from 'rxjs';
 import { URL_BASE_API } from '../api/configuracao-api';
 import { SessaoService } from './sessao.service';
+
+function repetirConsulta(
+  requisicao: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+  sessao: SessaoService,
+  accessToken: string,
+) {
+  return next(requisicao.clone({ setHeaders: { Authorization: `Bearer ${accessToken}` } })).pipe(
+    catchError((erro: unknown) => {
+      if (
+        erro instanceof HttpErrorResponse &&
+        [401, 423].includes(erro.status) &&
+        sessao.tokens()?.accessToken === accessToken
+      )
+        sessao.encerrarSessao();
+      return throwError(() => erro);
+    }),
+  );
+}
 
 export const sessaoInterceptor: HttpInterceptorFn = (requisicao, next) => {
   const base = inject(URL_BASE_API).replace(/\/$/, '');
@@ -36,21 +60,7 @@ export const sessaoInterceptor: HttpInterceptorFn = (requisicao, next) => {
             atual && atual.accessToken !== tokens.accessToken ? of(atual) : sessao.refresh();
           return renovacao.pipe(
             switchMap((atualizado) =>
-              next(
-                requisicao.clone({
-                  setHeaders: { Authorization: `Bearer ${atualizado.accessToken}` },
-                }),
-              ).pipe(
-                catchError((erroNovaTentativa: unknown) => {
-                  if (
-                    erroNovaTentativa instanceof HttpErrorResponse &&
-                    [401, 423].includes(erroNovaTentativa.status) &&
-                    sessao.tokens()?.accessToken === atualizado.accessToken
-                  )
-                    sessao.encerrarSessao();
-                  return throwError(() => erroNovaTentativa);
-                }),
-              ),
+              repetirConsulta(requisicao, next, sessao, atualizado.accessToken),
             ),
           );
         }),

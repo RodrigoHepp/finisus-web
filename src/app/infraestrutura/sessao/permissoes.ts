@@ -12,10 +12,10 @@ export function permissoesDoToken(token: string | undefined): readonly Permissao
   try {
     const partes = token.split('.');
     if (partes.length !== 3) return [];
-    const codificado = partes[1].replace(/-/g, '+').replace(/_/g, '/');
+    const codificado = partes[1].replaceAll('-', '+').replaceAll('_', '/');
     const bytes = Uint8Array.from(
       atob(codificado.padEnd(Math.ceil(codificado.length / 4) * 4, '=')),
-      (c) => c.charCodeAt(0),
+      (c) => c.codePointAt(0) ?? 0,
     );
     const payload: unknown = JSON.parse(new TextDecoder().decode(bytes));
     if (

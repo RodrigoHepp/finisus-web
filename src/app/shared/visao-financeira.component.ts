@@ -192,6 +192,7 @@ export class VisaoFinanceiraComponent {
       return formatarDataCivil(valor);
     if (typeof valor === 'string' && valor.startsWith('DASHBOARD.'))
       return 'Atenção às condições financeiras do período';
-    return String(valor);
+    if (typeof valor === 'string' || typeof valor === 'number') return String(valor);
+    return 'Não informado';
   }
 }

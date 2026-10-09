@@ -94,8 +94,8 @@ conteudoGerado = await format(conteudoGerado, {
 });
 if (process.argv.includes('--check')) {
   if (
-    readFileSync(arquivoDestino, 'utf8').replace(/\r\n/g, '\n') !==
-    conteudoGerado.replace(/\r\n/g, '\n')
+    readFileSync(arquivoDestino, 'utf8').replaceAll('\r\n', '\n') !==
+    conteudoGerado.replaceAll('\r\n', '\n')
   )
     throw new Error('DTOs gerados desatualizados');
 } else writeFileSync(arquivoDestino, conteudoGerado);

@@ -108,6 +108,7 @@ function pdf(linhas: string[]): Buffer {
 test.describe('Backend real com usuários e dados fictícios autorizados', () => {
   const emailAdministrador = process.env['FINISUS_E2E_ADMIN_EMAIL'];
   const senhaAdministrador = process.env['FINISUS_E2E_ADMIN_PASSWORD'];
+  // Sem credenciais de administrador de teste, a suíte não pode criar sua massa financeira.
   test.skip(
     !emailAdministrador || !senhaAdministrador,
     'A suíte financeira exige administrador de teste autorizado em FINISUS_E2E_ADMIN_EMAIL/PASSWORD; não cria usuários publicamente.',
@@ -190,7 +191,7 @@ test.describe('Backend real com usuários e dados fictícios autorizados', () =>
         refreshToken: tokenAnterior,
       },
     );
-    expect(usuarioPrincipal.tokens.refreshToken === tokenAnterior).toBe(false);
+    expect(usuarioPrincipal.tokens.refreshToken).not.toBe(tokenAnterior);
     const tokenReutilizado = await request.post(`${api}/auth/refresh`, {
       data: { refreshToken: tokenAnterior },
     });
@@ -728,7 +729,7 @@ test.describe('Backend real com usuários e dados fictícios autorizados', () =>
     );
     expect(envio.ok(), `Upload PDF HTTP ${envio.status()}`).toBe(true);
     const revisaoImportacao = (await envio.json()) as RevisaoImportacao;
-    expect(revisaoImportacao.importacao.lancamentos.length).toBe(1);
+    expect(revisaoImportacao.importacao.lancamentos).toHaveLength(1);
     const lancamento = revisaoImportacao.importacao.lancamentos[0];
     await chamarApi(
       request,

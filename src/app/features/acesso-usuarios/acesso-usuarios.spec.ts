@@ -36,6 +36,7 @@ describe('Administração de usuários', () => {
     });
     pagina.criar();
     http.expectNone('/api/v1/auth/cadastro');
+    expect(pagina.cadastro.enabled).toBe(true);
   });
   it('cadastro preserva formulário no 403 e bloqueia envio duplo', () => {
     const valor = { nome: 'Teste', email: 'teste@example.test', senha: 'SenhaTeste123' };
@@ -90,5 +91,6 @@ describe('Administração de usuários', () => {
     pagina.desbloqueio.controls.usuarioId.setValue(2);
     pagina.desbloquear();
     http.expectNone((requisicao) => requisicao.url.includes('/desbloquear'));
+    expect(pagina.desbloqueio.controls.usuarioId.value).toBe(2);
   });
 });

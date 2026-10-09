@@ -105,12 +105,7 @@ export class CadastrosPage extends EstadoDiaADia {
         this.formulario.reset({
           nome: valor.nome,
           codigo: 'codigo' in valor ? valor.codigo : '',
-          referencia:
-            'categoriaPaiId' in valor
-              ? valor.categoriaPaiId
-              : 'categoriaPadraoId' in valor
-                ? valor.categoriaPadraoId
-                : null,
+          referencia: this.referencia(valor),
         });
         this.editando.set(true);
       });
@@ -121,13 +116,18 @@ export class CadastrosPage extends EstadoDiaADia {
   private configurar(): void {
     this.formulario.controls.nome.setValidators([
       Validators.required,
-      Validators.maxLength(this.tipo() === 'itens' ? 300 : this.tipo() === 'bancos' ? 150 : 100),
+      Validators.maxLength(this.limiteNome()),
     ]);
     this.formulario.controls.codigo.setValidators(
       this.tipo() === 'bancos' ? [Validators.required, Validators.maxLength(20)] : [],
     );
     this.formulario.controls.nome.updateValueAndValidity();
     this.formulario.controls.codigo.updateValueAndValidity();
+  }
+  private limiteNome(): number {
+    if (this.tipo() === 'itens') return 300;
+    if (this.tipo() === 'bancos') return 150;
+    return 100;
   }
   salvar(): void {
     this.formulario.markAllAsTouched();
@@ -191,11 +191,9 @@ export class CadastrosPage extends EstadoDiaADia {
     return !('ativo' in linha) || linha.ativo;
   }
   referencia(linha: Cadastro): number | null {
-    return 'categoriaPaiId' in linha
-      ? linha.categoriaPaiId
-      : 'categoriaPadraoId' in linha
-        ? linha.categoriaPadraoId
-        : null;
+    if ('categoriaPaiId' in linha) return linha.categoriaPaiId;
+    if ('categoriaPadraoId' in linha) return linha.categoriaPadraoId;
+    return null;
   }
   codigo(linha: Cadastro): string {
     return 'codigo' in linha ? linha.codigo : '';

@@ -65,16 +65,15 @@ export class ImportacoesPage extends EstadoJornada {
     return this.formularioEnvio.dirty || this.linhas.dirty || this.formularioDestino.dirty;
   }
   tipo(valor: string | null): string {
-    return valor === 'EXTRATO_CONTA'
-      ? 'Extrato de conta'
-      : valor === 'FATURA_CARTAO'
-        ? 'Fatura de cartão'
-        : valor === 'COBRANCA'
-          ? 'Cobrança'
-          : 'Não informado';
+    if (valor === 'EXTRATO_CONTA') return 'Extrato de conta';
+    if (valor === 'FATURA_CARTAO') return 'Fatura de cartão';
+    if (valor === 'COBRANCA') return 'Cobrança';
+    return 'Não informado';
   }
   tipoTransacao(valor: string | null): string {
-    return valor === 'ENTRADA' ? 'Entrada' : valor === 'SAIDA' ? 'Saída' : 'Não identificado';
+    if (valor === 'ENTRADA') return 'Entrada';
+    if (valor === 'SAIDA') return 'Saída';
+    return 'Não identificado';
   }
   decisao(valor: string): string {
     return (
@@ -227,33 +226,9 @@ export class ImportacoesPage extends EstadoJornada {
     }
     const valores = this.linhas.getRawValue();
     for (const linha of valores) {
-      const ignorado = linha.decisao === 'IGNORAR';
-      if (
-        !ignorado &&
-        (!linha.data ||
-          !linha.descricao.trim() ||
-          linha.valor === null ||
-          linha.valor < 0.01 ||
-          linha.tipo === null)
-      ) {
-        this.erro.set(`Complete data, descrição, valor e tipo do lançamento #${linha.id}.`);
-        return;
-      }
-      if (linha.decisao.startsWith('ASSOCIAR') && linha.existenteId === null) {
-        this.erro.set(`Informe o identificador existente para o lançamento #${linha.id}.`);
-        return;
-      }
-      if (
-        (documento.tipoDocumento === 'COBRANCA' && linha.decisao === 'ASSOCIAR_TRANSACAO') ||
-        (documento.tipoDocumento !== 'COBRANCA' && linha.decisao === 'ASSOCIAR_OBRIGACAO')
-      ) {
-        this.erro.set('A associação deve corresponder ao tipo de documento.');
-        return;
-      }
-      if (documento.tipoDocumento === 'COBRANCA' && !ignorado && linha.tipo !== 'SAIDA') {
-        this.erro.set(
-          'Cobranças devem ser revisadas como saídas. Criar uma obrigação não registra pagamento.',
-        );
+      const erro = this.erroLancamento(linha, documento.tipoDocumento);
+      if (erro) {
+        this.erro.set(erro);
         return;
       }
     }
@@ -291,33 +266,64 @@ export class ImportacoesPage extends EstadoJornada {
           return;
         }
         // Apresenta o snapshot exato aceito pelo servidor, preservando a decisão humana.
-        revisao.importacao.lancamentos.forEach((linha, indice) => {
-          const controle = this.linhas.at(indice);
-          if (controle?.controls.id.value !== linha.id) return;
-          controle.patchValue(
-            {
-              data: linha.data ?? '',
-              descricao: linha.descricao ?? '',
-              valor: linha.valor,
-              tipo: linha.tipo,
-              categoriaId: linha.categoriaId,
-              itemId: linha.itemId,
-              existenteId: linha.transacaoId ?? linha.obrigacaoFinanceiraId,
-            },
-            { emitEvent: false },
-          );
-        });
-        this.formularioDestino.controls.destinoId.setValue(
-          revisao.importacao.tipoDocumento === 'FATURA_CARTAO'
-            ? revisao.importacao.faturaId
-            : revisao.importacao.contaId,
-          { emitEvent: false },
-        );
+        this.aplicarLancamentosAceitos(revisao);
         this.linhas.markAsPristine();
         this.formularioDestino.markAsPristine();
         this.revisado.set(true);
       },
       true,
+    );
+  }
+  private erroLancamento(
+    linha: ReturnType<ImportacoesPage['linhas']['getRawValue']>[number],
+    tipoDocumento: TipoDocumentoFinanceiro,
+  ): string {
+    const ignorado = linha.decisao === 'IGNORAR';
+    if (
+      !ignorado &&
+      (!linha.data ||
+        !linha.descricao.trim() ||
+        linha.valor === null ||
+        linha.valor < 0.01 ||
+        linha.tipo === null)
+    ) {
+      return `Complete data, descrição, valor e tipo do lançamento #${linha.id}.`;
+    }
+    if (linha.decisao.startsWith('ASSOCIAR') && linha.existenteId === null) {
+      return `Informe o identificador existente para o lançamento #${linha.id}.`;
+    }
+    const cobranca = tipoDocumento === 'COBRANCA';
+    const associacaoIncompativel = cobranca
+      ? linha.decisao === 'ASSOCIAR_TRANSACAO'
+      : linha.decisao === 'ASSOCIAR_OBRIGACAO';
+    if (associacaoIncompativel) return 'A associação deve corresponder ao tipo de documento.';
+    if (cobranca && !ignorado && linha.tipo !== 'SAIDA') {
+      return 'Cobranças devem ser revisadas como saídas. Criar uma obrigação não registra pagamento.';
+    }
+    return '';
+  }
+  private aplicarLancamentosAceitos(revisao: RevisaoImportacao): void {
+    revisao.importacao.lancamentos.forEach((linha, indice) => {
+      const controle = this.linhas.at(indice);
+      if (controle?.controls.id.value !== linha.id) return;
+      controle.patchValue(
+        {
+          data: linha.data ?? '',
+          descricao: linha.descricao ?? '',
+          valor: linha.valor,
+          tipo: linha.tipo,
+          categoriaId: linha.categoriaId,
+          itemId: linha.itemId,
+          existenteId: linha.transacaoId ?? linha.obrigacaoFinanceiraId,
+        },
+        { emitEvent: false },
+      );
+    });
+    this.formularioDestino.controls.destinoId.setValue(
+      revisao.importacao.tipoDocumento === 'FATURA_CARTAO'
+        ? revisao.importacao.faturaId
+        : revisao.importacao.contaId,
+      { emitEvent: false },
     );
   }
   confirmarImportacao(): void {

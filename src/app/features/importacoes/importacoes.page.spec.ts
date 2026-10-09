@@ -97,7 +97,7 @@ describe('Revisão humana de importações', () => {
     pagina.reiniciar();
     requisicao.flush(revisao);
     expect(pagina.documento()).toBeNull();
-    expect(pagina.linhas.length).toBe(0);
+    expect(pagina.linhas.controls).toHaveLength(0);
   });
   it('exige decisão explícita e justificativa para cada lançamento extraído', () => {
     retomar();

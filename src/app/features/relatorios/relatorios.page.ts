@@ -148,15 +148,7 @@ export class RelatoriosPage {
           const relatorio = this.selecionado();
           const filtros = this.formulario.getRawValue();
           this.rotuloResultado.set(this.relatorios.find((r) => r.id === relatorio)?.rotulo ?? '');
-          this.contextoResultado.set(
-            relatorio === 'visao-geral' || relatorio === 'patrimonio'
-              ? `Referência: ${filtros.referencia}`
-              : relatorio === 'agenda' || relatorio === 'compartilhados'
-                ? `Período: ${filtros.inicio} a ${filtros.fim}`
-                : ['anual', 'composicao', 'balancete-anual'].includes(relatorio)
-                  ? `Ano: ${filtros.ano}`
-                  : `Competência / mês final: ${filtros.anoMes}`,
-          );
+          this.contextoResultado.set(this.contextoConsulta(relatorio, filtros));
           return valido
             ? this.api.consultar(relatorio, filtros, this.pagina()).pipe(
                 catchError((err: unknown) => {
@@ -176,15 +168,25 @@ export class RelatoriosPage {
             'patrimonioHistoricoCompleto' in valor &&
             valor.patrimonioHistoricoCompleto === false,
         );
-        const p =
-          valor && 'linhas' in valor
-            ? valor.linhas
-            : valor && 'totalElementos' in valor
-              ? valor
-              : null;
-        this.total.set(p?.totalElementos ?? 0);
+        if (valor && 'linhas' in valor) this.total.set(valor.linhas?.totalElementos ?? 0);
+        else if (valor && 'totalElementos' in valor) this.total.set(valor.totalElementos);
+        else this.total.set(0);
       });
     this.solicitacoes.next(true);
+  }
+  private contextoConsulta(
+    relatorio: Relatorio,
+    filtros: ReturnType<RelatoriosPage['formulario']['getRawValue']>,
+  ): string {
+    if (relatorio === 'visao-geral' || relatorio === 'patrimonio') {
+      return `Referência: ${filtros.referencia}`;
+    }
+    if (relatorio === 'agenda' || relatorio === 'compartilhados') {
+      return `Período: ${filtros.inicio} a ${filtros.fim}`;
+    }
+    if (['anual', 'composicao', 'balancete-anual'].includes(relatorio))
+      return `Ano: ${filtros.ano}`;
+    return `Competência / mês final: ${filtros.anoMes}`;
   }
   orientacao() {
     return this.relatorios.find((r) => r.id === this.selecionado())?.orientacao;

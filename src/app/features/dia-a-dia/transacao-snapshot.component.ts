@@ -15,6 +15,30 @@ const rotulos: Record<string, string> = {
   itemId: 'Item do catálogo',
   quantidade: 'Quantidade',
 };
+function formatarValorBasico(valor: unknown): string {
+  if (valor === null) return 'Não informado';
+  if (typeof valor === 'string' || typeof valor === 'number') return String(valor);
+  return 'Não disponível';
+}
+function formatarValorSnapshot(chave: string, valor: unknown): string {
+  if (chave === 'tipo') {
+    if (valor === 'ENTRADA') return 'Entrada';
+    if (valor === 'SAIDA') return 'Saída';
+    return 'Tipo não reconhecido';
+  }
+  if (chave === 'data' && typeof valor === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(valor)) {
+    return `${valor.slice(8, 10)}/${valor.slice(5, 7)}/${valor.slice(0, 4)}`;
+  }
+  if (chave === 'valor' && (typeof valor === 'string' || typeof valor === 'number')) {
+    if (Number.isFinite(Number(valor))) {
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+        Number(valor),
+      );
+    }
+  }
+  if (chave.endsWith('Id') && typeof valor === 'number') return `#${valor}`;
+  return formatarValorBasico(valor);
+}
 function linhasPara(valor: unknown, prefixo = ''): LinhaSnapshot[] {
   if (typeof valor !== 'object' || valor === null || Array.isArray(valor)) return [];
   const linhas: LinhaSnapshot[] = [];
@@ -26,35 +50,10 @@ function linhasPara(valor: unknown, prefixo = ''): LinhaSnapshot[] {
       continue;
     }
     if (!(chave in rotulos)) continue;
-    let formatado =
-      valorOriginal === null
-        ? 'Não informado'
-        : typeof valorOriginal === 'string' || typeof valorOriginal === 'number'
-          ? String(valorOriginal)
-          : 'Não disponível';
-    if (chave === 'tipo')
-      formatado =
-        valorOriginal === 'ENTRADA'
-          ? 'Entrada'
-          : valorOriginal === 'SAIDA'
-            ? 'Saída'
-            : 'Tipo não reconhecido';
-    if (
-      chave === 'data' &&
-      typeof valorOriginal === 'string' &&
-      /^\d{4}-\d{2}-\d{2}$/.test(valorOriginal)
-    )
-      formatado = `${valorOriginal.slice(8, 10)}/${valorOriginal.slice(5, 7)}/${valorOriginal.slice(0, 4)}`;
-    if (
-      chave === 'valor' &&
-      (typeof valorOriginal === 'string' || typeof valorOriginal === 'number') &&
-      Number.isFinite(Number(valorOriginal))
-    )
-      formatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-        Number(valorOriginal),
-      );
-    if (chave.endsWith('Id') && typeof valorOriginal === 'number') formatado = `#${valorOriginal}`;
-    linhas.push({ rotulo: `${prefixo}${rotulos[chave]}`, valor: formatado });
+    linhas.push({
+      rotulo: `${prefixo}${rotulos[chave]}`,
+      valor: formatarValorSnapshot(chave, valorOriginal),
+    });
   }
   return linhas;
 }

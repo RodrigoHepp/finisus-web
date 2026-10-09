@@ -1,0 +1,541 @@
+<h1>Compartilhamentos</h1>
+<p class="introducao">
+  Organize responsabilidades com snapshots preservados, pagamentos alocados e reembolsos vinculados
+  a transações reais. Todos os saldos são apurados pelo Finisus.
+</p>
+@if (erro()) {
+  <p class="erro" role="alert">{{ erro() }}</p>
+}
+@if (sucesso()) {
+  <p class="sucesso" role="status">{{ sucesso() }}</p>
+}
+@if (ocupado()) {
+  <p role="status">Carregando…</p>
+}
+<section class="painel">
+  <div class="barra-acoes">
+    <div>
+      <h2>Permissão para compartilhamentos</h2>
+      <p>
+        {{
+          aceitouParticipacao() === null
+            ? 'Permissão ainda não consultada'
+            : aceitouParticipacao()
+              ? 'Você aceita novos compartilhamentos.'
+              : 'Você não aceita novos compartilhamentos.'
+        }}
+      </p>
+    </div>
+    <button
+      mat-button
+      (click)="alternarAceite()"
+      [disabled]="salvando() || aceitouParticipacao() === null"
+    >
+      {{ aceitouParticipacao() ? 'Deixar de aceitar' : 'Aceitar compartilhamentos' }}
+    </button>
+  </div>
+  <p class="orientacao">
+    Não há busca por nome ou e-mail disponível. Informe identificadores internos conhecidos; o
+    Finisus valida participantes e permissões. Novos participantes externos não são aceitos.
+  </p>
+</section>
+<div class="barra-acoes">
+  <h2>Divisões</h2>
+  <div class="acoes">
+    <button mat-flat-button (click)="novaDivisao()" [disabled]="salvando()">Nova divisão</button
+    ><button mat-button (click)="carregar()" [disabled]="ocupado()">Atualizar</button>
+  </div>
+</div>
+@if (divisoes(); as pagina) {
+  <section class="painel rolagem">
+    <table>
+      <thead>
+        <tr>
+          <th>Divisão</th>
+          <th>Situação</th>
+          <th>Participantes</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (linha of pagina.conteudo; track linha.id) {
+          <tr>
+            <td>{{ linha.nome }}</td>
+            <td>{{ linha.status === 'ATIVA' ? 'Ativa' : 'Inativa' }}</td>
+            <td>{{ linha.participantes.length }}</td>
+            <td>
+              <div class="acoes">
+                <button mat-button (click)="abrirDivisao(linha.id)" [disabled]="salvando()">
+                  Abrir
+                </button>
+                @if (linha.status === 'ATIVA' && linha.criadorId === usuarioAtualId()) {
+                  <button mat-button (click)="inativar(linha)" [disabled]="salvando()">
+                    Inativar
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4">Nenhuma divisão nesta página.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <mat-paginator
+      [length]="pagina.totalElementos"
+      [pageIndex]="pagina.pagina"
+      [pageSize]="pagina.tamanho"
+      (page)="carregar($event)"
+      aria-label="Página de divisões"
+    />
+  </section>
+}
+@if (mostrarCriacao() || selecionado()) {
+  <section class="painel">
+    <h2>{{ mostrarCriacao() ? 'Criar divisão' : selecionado()?.nome + ' · participantes' }}</h2>
+    <p class="orientacao">
+      Informe cada participante interno e seu percentual, incluindo seu próprio identificador. Deixe
+      todos os percentuais vazios para divisão igual pelo Finisus. O Finisus exige uma distribuição
+      válida; alterações futuras preservam os snapshots anteriores.
+    </p>
+    <form
+      [formGroup]="formularioDivisao"
+      (ngSubmit)="mostrarCriacao() ? criarDivisao() : atualizarParticipantes()"
+    >
+      @if (mostrarCriacao()) {
+        <mat-form-field
+          ><mat-label>Nome da divisão</mat-label
+          ><input matInput formControlName="nome" maxlength="120" /><mat-error
+            >Informe nome de até 120 caracteres.</mat-error
+          ></mat-form-field
+        >
+      }
+      <div formArrayName="participantes">
+        @for (controle of participantes.controls; track controle; let indice = $index) {
+          <div [formGroupName]="indice" class="campos">
+            <mat-form-field
+              ><mat-label>Participante {{ indice + 1 }} · identificador do usuário</mat-label
+              ><input matInput type="number" min="1" formControlName="usuarioId" /><mat-error
+                >Informe o identificador interno.</mat-error
+              ></mat-form-field
+            ><mat-form-field
+              ><mat-label>Percentual de responsabilidade (%)</mat-label
+              ><input
+                matInput
+                type="number"
+                min="0.01"
+                max="100"
+                step="0.01"
+                formControlName="percentual"
+              /><mat-error>Use um percentual entre 0,01 e 100.</mat-error></mat-form-field
+            ><button
+              mat-button
+              type="button"
+              [disabled]="
+                salvando() || participantes.length === 1 || (!mostrarCriacao() && !ehCriador())
+              "
+              (click)="participantes.removeAt(indice); participantes.markAsDirty()"
+            >
+              Remover participante {{ indice + 1 }}
+            </button>
+          </div>
+        }
+      </div>
+      <div class="acoes">
+        <button
+          mat-button
+          type="button"
+          (click)="adicionarParticipante()"
+          [disabled]="salvando() || (!mostrarCriacao() && !ehCriador())"
+        >
+          Adicionar participante</button
+        ><button
+          mat-flat-button
+          [disabled]="
+            salvando() || selecionado()?.status === 'INATIVA' || (!mostrarCriacao() && !ehCriador())
+          "
+        >
+          {{ mostrarCriacao() ? 'Criar divisão' : 'Atualizar participantes' }}
+        </button>
+      </div>
+    </form>
+  </section>
+}
+@if (selecionado(); as divisao) {
+  <section class="painel">
+    <h2>{{ divisao.nome }} · resumo por período</h2>
+    <form [formGroup]="formularioPeriodo" (ngSubmit)="carregarResumo()">
+      <div class="campos">
+        <mat-form-field
+          ><mat-label>Início</mat-label
+          ><input matInput type="date" formControlName="inicio" /><mat-error
+            >Informe a data inicial.</mat-error
+          ></mat-form-field
+        ><mat-form-field
+          ><mat-label>Fim</mat-label><input matInput type="date" formControlName="fim" /><mat-error
+            >Informe a data final.</mat-error
+          ></mat-form-field
+        ><button mat-button [disabled]="ocupado()">Consultar resumo</button>
+      </div>
+    </form>
+    @if (resumo(); as valor) {
+      <p>
+        Total da divisão no período: <strong>{{ formatarMoeda(valor.total) }}</strong> · Lançamentos
+        aguardando revisão: {{ valor.lancamentosPendentesRevisao }}
+      </p>
+      <div class="rolagem">
+        <table>
+          <thead>
+            <tr>
+              <th>Participante</th>
+              <th>Percentual</th>
+              <th>Pago</th>
+              <th>Devido</th>
+              <th>Saldo a compensar</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (linha of valor.participantes; track linha.usuarioId) {
+              <tr>
+                <td>Usuário #{{ linha.usuarioId }}</td>
+                <td>
+                  {{
+                    linha.percentual === null
+                      ? 'Distribuição conforme a divisão'
+                      : linha.percentual + '%'
+                  }}
+                </td>
+                <td>{{ formatarMoeda(linha.pago) }}</td>
+                <td>{{ formatarMoeda(linha.devido) }}</td>
+                <td>{{ formatarMoeda(linha.saldo) }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5">Nenhum participante no resumo.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="orientacao">
+        Saldo positivo indica valor a receber; saldo negativo indica valor a compensar. O resumo usa
+        responsabilidades históricas e pagamentos reais.
+      </p>
+    }
+    <details>
+      <summary>Histórico dos participantes</summary>
+      <div class="rolagem">
+        <table>
+          <thead>
+            <tr>
+              <th>Usuário</th>
+              <th>Percentual</th>
+              <th>Vigente desde</th>
+              <th>Vigente até</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (linha of historico(); track $index) {
+              <tr>
+                <td>#{{ linha.usuarioId }}</td>
+                <td>
+                  {{
+                    linha.percentual === null
+                      ? 'Distribuição conforme a divisão'
+                      : linha.percentual + '%'
+                  }}
+                </td>
+                <td>{{ dataCivil(linha.vigenteDesde) }}</td>
+                <td>{{ linha.vigenteAte ? dataCivil(linha.vigenteAte) : 'Vigente' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4">Sem histórico disponível.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+  <section class="painel">
+    <h2>Vincular transação existente</h2>
+    <p class="orientacao">
+      A base compartilhada é opcional. Sem responsabilidades explícitas, o Finisus utiliza o
+      snapshot aplicável. Não há criação de transações artificiais.
+    </p>
+    <form [formGroup]="formularioAssociacao" (ngSubmit)="associar()">
+      <div class="campos">
+        <mat-form-field
+          ><mat-label>Identificador da transação</mat-label
+          ><input matInput type="number" min="1" formControlName="transacaoId" /><mat-error
+            >Informe uma transação real.</mat-error
+          ></mat-form-field
+        ><mat-form-field
+          ><mat-label>Base compartilhada (R$, opcional)</mat-label
+          ><input
+            matInput
+            type="number"
+            min="0.01"
+            step="0.01"
+            formControlName="baseCompartilhada"
+          /><mat-error>Use valor positivo.</mat-error></mat-form-field
+        ><button mat-flat-button [disabled]="salvando() || divisao.status !== 'ATIVA'">
+          Associar à divisão
+        </button>
+      </div>
+    </form>
+    <h3>Responsabilidades explícitas</h3>
+    <p class="orientacao">
+      Use percentual, valor devido ou ambos por participante, com a mesma modalidade em toda a
+      lista. A mesma lista pode confirmar a revisão de uma transação consultada abaixo.
+    </p>
+    @for (controle of responsabilidades.controls; track controle; let indice = $index) {
+      <form [formGroup]="controle" class="campos">
+        <mat-form-field
+          ><mat-label>Usuário responsável</mat-label
+          ><mat-select formControlName="usuarioId">
+            @for (participant of divisao.participantes; track participant.usuarioId) {
+              <mat-option [value]="participant.usuarioId"
+                >Usuário #{{ participant.usuarioId }}</mat-option
+              >
+            }</mat-select
+          ><mat-error>Escolha o responsável.</mat-error></mat-form-field
+        ><mat-form-field
+          ><mat-label>Percentual (opcional)</mat-label
+          ><input
+            matInput
+            type="number"
+            min="0.01"
+            max="100"
+            step="0.01"
+            formControlName="percentual"
+          /><mat-error>Use percentual válido.</mat-error></mat-form-field
+        ><mat-form-field
+          ><mat-label>Valor devido (R$, opcional)</mat-label
+          ><input
+            matInput
+            type="number"
+            min="0.01"
+            step="0.01"
+            formControlName="valorDevido"
+          /><mat-error>Use valor positivo.</mat-error></mat-form-field
+        ><button
+          mat-button
+          type="button"
+          (click)="responsabilidades.removeAt(indice); responsabilidades.markAsDirty()"
+        >
+          Remover responsabilidade {{ indice + 1 }}
+        </button>
+      </form>
+    }
+    <button mat-button (click)="adicionarResponsabilidade()" [disabled]="salvando()">
+      Adicionar responsabilidade
+    </button>
+    <h3>Pendências de revisão</h3>
+    @for (vinculo of pendencias(); track vinculo.transacaoId) {
+      <div class="subpainel">
+        <p>
+          {{ dataCivil(vinculo.data) }} · {{ vinculo.descricao }} ·
+          {{ formatarMoeda(vinculo.valor) }} · Pagador #{{ vinculo.pagadorId }}
+        </p>
+        <button mat-button (click)="revisarPendencia(vinculo)" [disabled]="salvando()">
+          Revisar transação #{{ vinculo.transacaoId }}
+        </button>
+      </div>
+    } @empty {
+      <p class="orientacao">Nenhum vínculo pendente de revisão.</p>
+    }
+  </section>
+  <section class="painel">
+    <h2>Pagamentos e alocações de uma transação</h2>
+    <form [formGroup]="formularioConsulta" (ngSubmit)="consultarTransacao()">
+      <div class="campos">
+        <mat-form-field
+          ><mat-label>Identificador da transação vinculada</mat-label
+          ><input matInput type="number" min="1" formControlName="transacaoId" /><mat-error
+            >Informe a transação.</mat-error
+          ></mat-form-field
+        ><button mat-button [disabled]="ocupado()">Consultar pagamento e histórico</button>
+      </div>
+    </form>
+    @if (pagamento(); as valor) {
+      <p>
+        Base compartilhada: {{ formatarMoeda(valor.baseCompartilhada) }} · Pago:
+        {{ formatarMoeda(valor.pago) }} · Pendente: {{ formatarMoeda(valor.pendente) }} ·
+        {{
+          valor.status === 'QUITADO'
+            ? 'Quitado'
+            : valor.status === 'PARCIAL'
+              ? 'Parcialmente pago'
+              : 'Pendente'
+        }}
+      </p>
+      <div class="acoes">
+        <button
+          mat-button
+          (click)="revisarResponsabilidades()"
+          [disabled]="salvando() || !responsabilidades.length || !ehCriador()"
+        >
+          Confirmar responsabilidades informadas</button
+        ><button mat-button (click)="desassociar()" [disabled]="salvando() || !ehCriador()">
+          Desassociar transação
+        </button>
+      </div>
+      <h3>Histórico de alocações</h3>
+      <div class="rolagem">
+        <table>
+          <thead>
+            <tr>
+              <th>Pagamento real</th>
+              <th>Pagador</th>
+              <th>Valor</th>
+              <th>Situação</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (linha of alocacoes(); track linha.id) {
+              <tr>
+                <td>Transação #{{ linha.transacaoId }}</td>
+                <td>Usuário #{{ linha.pagadorId }}</td>
+                <td>{{ formatarMoeda(linha.valor) }}</td>
+                <td>
+                  {{
+                    linha.canceladaEm
+                      ? 'Cancelada em ' + dataCivil(linha.canceladaEm)
+                      : 'Vigente desde ' + dataCivil(linha.criadaEm)
+                  }}
+                </td>
+                <td>
+                  @if (!linha.canceladaEm) {
+                    <button
+                      mat-button
+                      (click)="cancelarAlocacao(linha)"
+                      [disabled]="salvando() || !ehCriador()"
+                    >
+                      Cancelar alocação
+                    </button>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5">Nenhuma alocação registrada.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <h3>Substituir alocações</h3>
+      <p class="orientacao">
+        Informe as transações que efetivamente pagaram esta despesa e o valor alocado de cada uma.
+        Substitui a lista atual; não executa pagamentos.
+      </p>
+      @for (controle of formulariosAlocacao.controls; track controle; let indice = $index) {
+        <form [formGroup]="controle" class="campos">
+          <mat-form-field
+            ><mat-label>Transação de pagamento #{{ indice + 1 }}</mat-label
+            ><input matInput type="number" min="1" formControlName="transacaoId" /><mat-error
+              >Informe transação real.</mat-error
+            ></mat-form-field
+          ><mat-form-field
+            ><mat-label>Valor alocado (R$)</mat-label
+            ><input
+              matInput
+              type="number"
+              min="0.01"
+              step="0.01"
+              formControlName="valor"
+            /><mat-error>Informe valor positivo.</mat-error></mat-form-field
+          ><button
+            mat-button
+            type="button"
+            (click)="formulariosAlocacao.removeAt(indice); formulariosAlocacao.markAsDirty()"
+            [disabled]="formulariosAlocacao.length === 1"
+          >
+            Remover alocação {{ indice + 1 }}
+          </button>
+        </form>
+      }
+      <div class="acoes">
+        <button mat-button (click)="adicionarAlocacao()">Adicionar pagamento real</button
+        ><button
+          mat-flat-button
+          (click)="salvarAlocacoes()"
+          [disabled]="salvando() || !ehCriador()"
+        >
+          Substituir alocações
+        </button>
+      </div>
+    }
+  </section>
+  <section class="painel">
+    <h2>Reembolsos por transação real</h2>
+    <form [formGroup]="formularioReembolso" (ngSubmit)="registrarReembolso()">
+      <div class="campos">
+        <mat-form-field
+          ><mat-label>Transação real do reembolso</mat-label
+          ><input matInput type="number" min="1" formControlName="transacaoId" /><mat-error
+            >Informe transação existente.</mat-error
+          ></mat-form-field
+        ><mat-form-field
+          ><mat-label>Participante recebedor</mat-label
+          ><mat-select formControlName="recebedorId">
+            @for (participant of divisao.participantes; track participant.usuarioId) {
+              <mat-option [value]="participant.usuarioId"
+                >Usuário #{{ participant.usuarioId }}</mat-option
+              >
+            }</mat-select
+          ><mat-error>Escolha o recebedor.</mat-error></mat-form-field
+        ><mat-form-field
+          ><mat-label>Valor reembolsado (R$)</mat-label
+          ><input matInput type="number" min="0.01" step="0.01" formControlName="valor" /><mat-error
+            >Informe valor positivo.</mat-error
+          ></mat-form-field
+        >
+      </div>
+      <button mat-flat-button [disabled]="salvando() || divisao.status !== 'ATIVA'">
+        Registrar vínculo de reembolso
+      </button>
+    </form>
+    <div class="rolagem">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Transação</th>
+            <th>Pagador → recebedor</th>
+            <th>Valor</th>
+            <th>Situação</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (linha of reembolsos(); track linha.id) {
+            <tr>
+              <td>{{ dataCivil(linha.data) }}</td>
+              <td>#{{ linha.transacaoId }}</td>
+              <td>#{{ linha.pagadorId }} → #{{ linha.recebedorId }}</td>
+              <td>{{ formatarMoeda(linha.valor) }}</td>
+              <td>{{ linha.canceladoEm ? 'Cancelado' : 'Vigente' }}</td>
+              <td>
+                @if (!linha.canceladoEm && ehCriador()) {
+                  <button mat-button (click)="cancelarReembolso(linha)" [disabled]="salvando()">
+                    Cancelar vínculo
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6">Nenhum reembolso registrado.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

@@ -1,0 +1,82 @@
+<header class="cabecalho-pagina">
+  <div>
+    <p class="sobretitulo">Administração</p>
+    <h1>Usuários e acesso</h1>
+    <p>Crie usuários ou desbloqueie o acesso conforme suas permissões.</p>
+  </div>
+</header>
+@if (sessao.temPermissao('USUARIO_CADASTRAR')) {
+  <section class="painel" aria-labelledby="titulo-cadastro-usuario">
+    <h2 id="titulo-cadastro-usuario">Cadastrar usuário</h2>
+    <p>Novos usuários não recebem permissões administrativas. Sua sessão permanece ativa.</p>
+    <form [formGroup]="cadastro" (ngSubmit)="criar()" [attr.aria-busy]="criando()">
+      <mat-form-field appearance="outline"
+        ><mat-label>Nome</mat-label
+        ><input matInput formControlName="nome" maxlength="150" autocomplete="off" />
+        @if (cadastro.controls.nome.invalid) {
+          <mat-error>Informe o nome, até 150 caracteres.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline"
+        ><mat-label>E-mail</mat-label
+        ><input matInput formControlName="email" type="email" autocomplete="off" />
+        @if (cadastro.controls.email.invalid) {
+          <mat-error>Informe um e-mail válido.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline"
+        ><mat-label>Senha inicial</mat-label
+        ><input
+          matInput
+          formControlName="senha"
+          type="password"
+          autocomplete="new-password"
+          minlength="8"
+          maxlength="128"
+        />
+        @if (cadastro.controls.senha.invalid) {
+          <mat-error>Informe uma senha de 8 a 128 caracteres.</mat-error>
+        }
+      </mat-form-field>
+      @if (erroCriacao()) {
+        <p class="aviso erro" role="alert">{{ erroCriacao() }}</p>
+      }
+      @if (sucessoCriacao()) {
+        <p class="aviso" role="status">{{ sucessoCriacao() }}</p>
+      }
+      <button mat-flat-button type="submit" [disabled]="criando()">
+        {{ criando() ? 'Cadastrando…' : 'Cadastrar usuário' }}
+      </button>
+    </form>
+  </section>
+}
+@if (sessao.temPermissao('USUARIO_DESBLOQUEAR')) {
+  <section class="painel" aria-labelledby="titulo-desbloqueio-usuario">
+    <h2 id="titulo-desbloqueio-usuario">Desbloquear usuário</h2>
+    <p>
+      Informe o ID confirmado do usuário. O desbloqueio zera as tentativas e invalida todas as
+      sessões anteriores. O usuário deve autenticar novamente.
+    </p>
+    <form [formGroup]="desbloqueio" (ngSubmit)="desbloquear()" [attr.aria-busy]="desbloqueando()">
+      <mat-form-field appearance="outline"
+        ><mat-label>ID do usuário</mat-label
+        ><input matInput formControlName="usuarioId" type="number" min="1" step="1" />
+        @if (desbloqueio.controls.usuarioId.invalid) {
+          <mat-error>Informe um ID inteiro positivo.</mat-error>
+        }
+      </mat-form-field>
+      @if (erroDesbloqueio()) {
+        <p class="aviso erro" role="alert">{{ erroDesbloqueio() }}</p>
+      }
+      @if (sucessoDesbloqueio()) {
+        <p class="aviso" role="status">{{ sucessoDesbloqueio() }}</p>
+      }
+      <button mat-flat-button type="submit" [disabled]="desbloqueando()">
+        {{ desbloqueando() ? 'Desbloqueando…' : 'Desbloquear usuário' }}
+      </button>
+    </form>
+  </section>
+}
+@if (!sessao.temPermissao('USUARIO_CADASTRAR') && !sessao.temPermissao('USUARIO_DESBLOQUEAR')) {
+  <p class="aviso" role="alert">Você não tem permissão para administrar usuários.</p>
+}

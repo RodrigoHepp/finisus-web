@@ -1,0 +1,81 @@
+name: Qualidade com Sonar
+
+on:
+  push:
+    branches: [development]
+  pull_request:
+    branches: [development]
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sonar-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analisar:
+    name: Analisar qualidade
+    if: >-
+      github.actor != 'dependabot[bot]' &&
+      (github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+      SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY }}
+      SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+    steps:
+      - name: Conferir configuração do Sonar
+        shell: bash
+        env:
+          TOKEN_CONFIGURADO: ${{ secrets.SONAR_TOKEN != '' }}
+        run: |
+          if [ "$TOKEN_CONFIGURADO" != 'true' ] || [ -z "$SONAR_HOST_URL" ] || [ -z "$SONAR_PROJECT_KEY" ]; then
+            echo "::error::Configure o secret SONAR_TOKEN e as variables SONAR_HOST_URL e SONAR_PROJECT_KEY. Consulte docs/qualidade.md."
+            exit 1
+          fi
+          if [[ "$SONAR_HOST_URL" == *sonarcloud.io* ]] && [ -z "$SONAR_ORGANIZATION" ]; then
+            echo "::error::Configure SONAR_ORGANIZATION para o SonarQube Cloud."
+            exit 1
+          fi
+
+      - name: Obter código e histórico
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.18.0'
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Verificar tipos
+        run: npm run typecheck
+
+      - name: Verificar lint
+        run: npm run lint
+
+      - name: Executar testes com cobertura
+        run: npm run test:cobertura
+
+      - name: Conferir relatório LCOV
+        shell: bash
+        run: test -s coverage/finisus/lcov.info
+
+      - name: Analisar código e aguardar Quality Gate
+        uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >-
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}

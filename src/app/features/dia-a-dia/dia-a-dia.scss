@@ -1,0 +1,96 @@
+:host {
+  display: block;
+}
+.cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.cabecalho h1 {
+  margin: 0;
+}
+.subtitulo {
+  color: var(--mat-sys-on-surface-variant);
+  max-width: 70ch;
+}
+.grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1rem;
+}
+.registro,
+.painel {
+  padding: 1.25rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 18px;
+  margin-bottom: 1rem;
+  background: var(--mat-sys-surface);
+}
+.registro h2 {
+  font-size: 1.15rem;
+  margin: 0 0 0.6rem;
+}
+.acoes {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+form {
+  display: grid;
+  gap: 0.75rem;
+}
+mat-form-field {
+  width: 100%;
+}
+.campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.75rem;
+}
+.erro {
+  color: var(--mat-sys-error);
+  padding: 1rem;
+  border: 1px solid currentColor;
+  border-radius: 12px;
+}
+.sucesso {
+  color: var(--mat-sys-primary);
+}
+dl {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) 1fr;
+  gap: 0.5rem;
+}
+dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.valor-monetario {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.orientacao {
+  font-size: 0.9rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+@media (max-width: 600px) {
+  .campos {
+    grid-template-columns: 1fr;
+  }
+  .painel,
+  .registro {
+    padding: 1rem;
+  }
+  dl {
+    grid-template-columns: 1fr;
+  }
+}
